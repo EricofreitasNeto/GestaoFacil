@@ -21,7 +21,7 @@ pids
 *.pid
 *.seed
 *.pid.lock
-
+*.pdf
 # Diretório de coverage usado por ferramentas de teste
 coverage/
 .nyc_output
