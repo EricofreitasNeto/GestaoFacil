@@ -63,5 +63,3 @@ Chamado, manutenção ou atendimento técnico.
 
 ```text
 Aberto → Em andamento → Concluído → Encerrado
-
-Remover do comit pdf
