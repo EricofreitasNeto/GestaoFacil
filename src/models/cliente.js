@@ -8,12 +8,16 @@ module.exports = (sequelize, DataTypes) => {
     nome: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+      validate: { notEmpty: true }
     },
     cnpj: {
       type: DataTypes.STRING,
-      unique: true
+      unique: true,
+      validate: {
+        is: /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/ // valida CNPJ no formato 00.000.000/0000-00 
     },
+  },
     contatos: {
       type: DataTypes.STRING
     }

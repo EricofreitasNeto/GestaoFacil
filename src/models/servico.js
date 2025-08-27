@@ -5,25 +5,27 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    titulo: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     descricao: {
       type: DataTypes.TEXT,
-      allowNull: true
+      allowNull: false
     },
     status: {
-      type: DataTypes.ENUM("Aberto", "Em andamento", "Concluído", "Encerrado", "Cancelado"),
-      defaultValue: "Aberto"
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "pendente"
     },
-    data_inicio: {
+    dataAgendada: {
       type: DataTypes.DATE,
       allowNull: true
     },
-    data_fim: {
+    dataConclusao: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    detalhes: {
+      type: DataTypes.JSON, // 🔹 dados adicionais e variáveis
+      allowNull: true,
+      defaultValue: {}
     }
   }, {
     timestamps: true,
@@ -31,30 +33,10 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Servico.associate = (models) => {
-    Servico.belongsTo(models.Cliente, {
-      foreignKey: "clienteId",
-      as: "cliente"
-    });
-
-    Servico.belongsTo(models.Ativo, {
-      foreignKey: "ativoId",
-      as: "ativo"
-    });
-
-    Servico.belongsTo(models.TipoServico, {
-      foreignKey: "tipoServicoId",
-      as: "tipoServico"
-    });
-
-    Servico.belongsTo(models.Usuario, {
-      foreignKey: "solicitanteId",
-      as: "solicitante"
-    });
-
-    Servico.belongsTo(models.Usuario, {
-      foreignKey: "responsavelId",
-      as: "responsavel"
-    });
+    Servico.belongsTo(models.Cliente, { foreignKey: "clienteId", as: "cliente" });
+    Servico.belongsTo(models.Usuario, { foreignKey: "usuarioId", as: "responsavel" });
+    Servico.belongsTo(models.Ativo, { foreignKey: "ativoId", as: "ativo" });
+    Servico.belongsTo(models.TipoServico, { foreignKey: "tipoServicoId", as: "tipoServico" });
   };
 
   return Servico;

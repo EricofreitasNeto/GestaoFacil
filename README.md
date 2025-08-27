@@ -58,6 +58,29 @@ Chamado, manutenção ou atendimento técnico.
   - Possui um **Solicitante** e um **Responsável** (Usuários)
 
 ---
+
+### Entidades e Relacionamentos
+| Modelo      | Campos principais                                                | Relacionamentos                                                                                                                                                     |
+| ----------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cliente** | `id`, `nome`, `cnpj`, `contatos`                                 | `hasMany(Ativo)` → `ativos`<br>`hasMany(Servico)` → `servicos`                                                                                                      |
+| **Ativo**   | `id`, `codigo`, `nome`, `tipo`, `status`                         | `belongsTo(Cliente)` → `cliente`<br>`belongsTo(Local)` → `local`<br>`hasMany(Servico)` → `servicos`                                                                 |
+| **Servico** | `id`, `titulo`, `descricao`, `status`, `data_inicio`, `data_fim` | `belongsTo(Cliente)` → `cliente`<br>`belongsTo(Ativo)` → `ativo`<br>`belongsTo(TipoServico)` → `tipoServico`<br>`belongsTo(Usuario)` → `solicitante`, `responsavel` |
+| **Local**   | `id`, `nome`                                                     | `hasMany(Ativo)` → `ativos`                                                                                                                                         |
+| **Usuario** | `id`, `nome`, `cargo`, `email`, `telefone`                       | Relacionado a `Servico` como solicitante ou responsável                                                                                                             |
+
+---
+---
+### Diagrama conceitual resumido
+
+```text
+Cliente 1---* Ativo *---1 Local
+Cliente 1---* Servico *---1 Ativo
+Usuario 1---* Servico (solicitante/responsavel)
+Servico *---1 TipoServico
+```
+---
+
+
 ## 📂 Estrutura no Node.js
 
 ```
@@ -86,8 +109,10 @@ src/
 │   ├── servicos.controller.js
 
 ```
+---
 
-
+![alt text](image.png)
+---
 ## 🔄 Fluxo do Ciclo de Vida de um Serviço
 
 ```text
