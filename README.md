@@ -58,8 +58,40 @@ Chamado, manutenção ou atendimento técnico.
   - Possui um **Solicitante** e um **Responsável** (Usuários)
 
 ---
+## 📂 Estrutura no Node.js
+
+```
+src/
+│── app.js
+│── config/
+│   └── database.js
+│── models/
+│   ├── cliente.js
+│   ├── usuario.js
+│   ├── local.js
+│   ├── ativo.js
+│   ├── tipoServico.js
+│   └── servico.js
+│── routes/
+│   ├── clientes.routes.js
+│   ├── usuarios.routes.js
+│   ├── locais.routes.js
+│   ├── ativos.routes.js
+│   ├── tiposServicos.routes.js
+│   └── servicos.routes.js
+│── controllers/
+│   ├── clientes.controller.js
+│   ├── usuarios.controller.js
+│   ├── ativos.controller.js
+│   ├── servicos.controller.js
+
+```
+
 
 ## 🔄 Fluxo do Ciclo de Vida de um Serviço
 
 ```text
 Aberto → Em andamento → Concluído → Encerrado
+--
+
+
