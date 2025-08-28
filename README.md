@@ -111,7 +111,7 @@ src/
 ```
 ---
 
-![alt text](image.png)
+![alt text](image.jpeg)
 ---
 ## 🔄 Fluxo do Ciclo de Vida de um Serviço
 
