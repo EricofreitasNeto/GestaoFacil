@@ -34,8 +34,8 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true
   });
 
-  Usuario.hasMany(models.Servico, { foreignKey: 'solicitanteId', as: 'servicosSolicitados' });
-  Usuario.hasMany(models.Servico, { foreignKey: 'responsavelId', as: 'servicosResponsavel' });
+  //Usuario.hasMany(models.Servico, { foreignKey: 'solicitanteId', as: 'servicosSolicitados' });
+  //Usuario.hasMany(models.Servico, { foreignKey: 'responsavelId', as: 'servicosResponsavel' });
 
  
   return Usuario;

@@ -10,26 +10,24 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
       validate: {
-        notEmpty: true
-      },
-      len: [3, 100] // de 3 a 100 caracteres
+        notEmpty: true,
+        len: [3, 100] // de 3 a 100 caracteres
+      }
     },
     descricao: {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    defaultScope: {
-    where: { ativo: true }
-    },
     ativo: {
       type: DataTypes.BOOLEAN,
       defaultValue: true
     }
-  },
-  
-   {
+  }, {
     timestamps: true,
-    paranoid: true
+    paranoid: true,
+    defaultScope: {
+      where: { ativo: true }
+    }
   });
 
   TipoServico.associate = (models) => {
