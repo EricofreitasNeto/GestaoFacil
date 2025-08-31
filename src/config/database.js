@@ -14,10 +14,6 @@ const  { Sequelize } = require('sequelize');
 console.log('Senha do banco:', process.env.DB_PASSWORD);
 
 module.exports = sequelize;**/
-
-require('dotenv').config();
-const { Sequelize } = require('sequelize');
-
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
   logging: false, // Desativa os logs no console
