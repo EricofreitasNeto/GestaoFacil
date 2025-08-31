@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teste de API</title>
+</head>
+<body>
+  <button onclick="buscarUsuarios()">Buscar Usuários</button>
+  <pre id="resultado"></pre>
+
+  <script>
+    async function buscarUsuarios() {
+      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJlcmljb0BnZXN0YW9mYWNpbC5jb20iLCJjYXJnbyI6ImFkbWluIiwiaWF0IjoxNzU2NjY3MjExLCJleHAiOjE3NTY2NzA4MTF9.Mre3-RdDqjJqkep26Y_whN48ziR_L0sgt24ZLv9sRB4'; // Cole aqui o token JWT gerado no login
+
+      const resposta = await fetch('http://localhost:3000/v1/usuarios', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const dados = await resposta.json();
+      document.getElementById('resultado').textContent = JSON.stringify(dados, null, 2);
+    }
+  </script>
+</body>
+</html>
+

@@ -25,14 +25,31 @@ const usuarioController = {
 
   // Criar novo usuário
   async criar(req, res) {
-    try {
-      const { nome, cargo, email, telefone } = req.body;
-      const novoUsuario = await Usuario.create({ nome, cargo, email, telefone });
-      return res.status(201).json(novoUsuario);
-    } catch (error) {
-      return res.status(400).json({ erro: "Erro ao criar usuário", detalhes: error.message });
+  try {
+    const { nome, cargo, email, telefone, password } = req.body;
+
+    // Validação básica
+    if (!nome || !cargo || !email || !password) {
+      return res.status(400).json({ erro: "Campos obrigatórios ausentes" });
     }
-  },
+
+    // Verifica duplicidade de e-mail
+    const existente = await Usuario.findOne({ where: { email } });
+    if (existente) {
+      return res.status(409).json({ erro: "E-mail já cadastrado" });
+    }
+
+    // Cria usuário com senha criptografada (via hook no modelo)
+    const novoUsuario = await Usuario.create({ nome, cargo, email, telefone, password });
+
+    // Remove o campo password da resposta
+    const { password: _, ...usuarioSemSenha } = novoUsuario.toJSON();
+    return res.status(201).json(usuarioSemSenha);
+  } catch (error) {
+    console.error(error); // ajuda no debug
+    return res.status(500).json({ erro: "Erro ao criar usuário", detalhes: error.message });
+  }
+},
 
   // Atualizar usuário existente
   async atualizar(req, res) {

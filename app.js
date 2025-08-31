@@ -1,83 +1,100 @@
 const express = require('express');
 const cors = require('cors');
-const morgan = require('morgan');
-const bodyParser = require('body-parser');
 const helmet = require('helmet');
+const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const db = require('./src/models'); // importa os modelos e conecta Sequelize
+const db = require('./src/models');
+
 const app = express();
-// Configuração básica de segurança
+
+// 🛡️ Segurança
 app.use(helmet());
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*'
 }));
 
-// Limitar requisições para evitar ataques de força bruta
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100 // limite de 100 requisições por IP
-});
-app.use(limiter);
+// 📦 Body parsers com limite para uploads
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Logs de requisições em desenvolvimento
+// 🚫 Limite de requisições por IP
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+}));
+
+// 📝 Logs em desenvolvimento
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Configuração do body parser com limite aumentado para uploads
-app.use(bodyParser.json({
-  limit: '10mb',
-  extended: true
-}));
-app.use(bodyParser.urlencoded({
-  limit: '10mb',
-  extended: true
-}));
+// 🔍 Log personalizado detalhado
+app.use((req, res, next) => {
+  const start = Date.now();
 
-// Importa rotas
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const method = req.method;
+    const url = req.originalUrl;
+    const status = res.statusCode;
+    const user = req.user || {};
+
+    const log = [
+      `[${new Date().toISOString()}]`,
+      `${method} ${url}`,
+      `→ ${status} (${duration}ms)`,
+      `| IP: ${ip}`,
+      `| User: ${user.email || 'anon'}`,
+      `| Cargo: ${user.cargo || 'n/a'}`
+    ].join(' ');
+
+    console.log(log);
+  });
+
+  next();
+});
+
+// 🔗 Importa rotas
+const authenticateJWT = require('./src/middlewares/authMiddleware');
 const clienteRoutes = require('./src/routes/clienteRoutes');
 const usuarioRoutes = require('./src/routes/usuarioRoutes');
 const servicoRoutes = require('./src/routes/servicoRoutes');
 const ativoRoutes = require('./src/routes/ativoRoutes');
 const localRoutes = require('./src/routes/localRoutes');
 const tipoServicoRoutes = require('./src/routes/tipoServicoRoutes');
+const authRoutes = require('./src/routes/authRoutes');
 
+// 🌐 Rotas públicas
+app.use('/auth', authRoutes);
 
-
-// Middlewares
-app.use(cors());
-app.use(express.json());
-app.use(morgan('dev'));
-
-// Teste de conexão com o banco
-db.sequelize.authenticate()
-  .then(() => console.log(' Conectado ao banco de dados'))
-  .catch(err => console.error(' Erro ao conectar ao banco:', err));
-
-// Sincroniza os modelos (opcional: { force: true } para recriar tabelas)
-db.sequelize.sync()
-  .then(() => console.log(' Modelos sincronizados'))
-  .catch(err => console.error(' Erro ao sincronizar modelos:', err));
-
-// Rotas
+// 🔐 Rotas protegidas
 const apiRouter = express.Router();
-const authenticateJWT = require('./src/middlewares/authMiddleware');
-apiRouter.use('/clientes',authenticateJWT, clienteRoutes);
-apiRouter.use('/usuarios',authenticateJWT, usuarioRoutes);
-apiRouter.use('/servicos',authenticateJWT, servicoRoutes);
-apiRouter.use('/ativos',authenticateJWT, ativoRoutes);
-apiRouter.use('/locais',authenticateJWT, localRoutes);
-apiRouter.use('/tiposervico', tipoServicoRoutes);
+apiRouter.use('/clientes', authenticateJWT(), clienteRoutes);
+apiRouter.use('/usuarios', authenticateJWT(), usuarioRoutes);
+apiRouter.use('/servicos', authenticateJWT(), servicoRoutes);
+apiRouter.use('/ativos', authenticateJWT(), ativoRoutes);
+apiRouter.use('/locais', authenticateJWT(), localRoutes);
+apiRouter.use('/tiposervico', authenticateJWT(), tipoServicoRoutes);
 app.use('/v1', apiRouter);
 
+// 🧪 Teste de conexão com o banco
+db.sequelize.authenticate()
+  .then(() => console.log('✅ Conectado ao banco de dados'))
+  .catch(err => console.error('❌ Erro ao conectar ao banco:', err));
 
-// Rota raiz
+// 🔄 Sincroniza os modelos
+db.sequelize.sync()
+  .then(() => console.log('🔄 Modelos sincronizados'))
+  .catch(err => console.error('❌ Erro ao sincronizar modelos:', err));
+
+// 🚀 Rota raiz
 app.get('/', (req, res) => {
-  res.send(' API Gestão Fácil rodando com sucesso!');
+  res.send('🚀 API Gestão Fácil rodando com sucesso!');
 });
 
-// Inicia servidor
+// 🟢 Inicia servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`🟢 Servidor rodando em http://localhost:${PORT}`);
 });
