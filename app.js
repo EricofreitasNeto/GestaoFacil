@@ -7,28 +7,28 @@ const db = require('./src/models');
 
 const app = express();
 
-// 🛡️ Segurança
+//Segurança
 app.use(helmet());
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*'
 }));
 
-// 📦 Body parsers com limite para uploads
+//Body parsers com limite para uploads
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// 🚫 Limite de requisições por IP
+//Limite de requisições por IP
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100
 }));
 
-// 📝 Logs em desenvolvimento
+//Logs em desenvolvimento
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// 🔍 Log personalizado detalhado
+//Log personalizado detalhado
 app.use((req, res, next) => {
   const start = Date.now();
 
@@ -55,7 +55,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🔗 Importa rotas
+//Importa rotas
 const authenticateJWT = require('./src/middlewares/authMiddleware');
 const clienteRoutes = require('./src/routes/clienteRoutes');
 const usuarioRoutes = require('./src/routes/usuarioRoutes');
@@ -65,10 +65,10 @@ const localRoutes = require('./src/routes/localRoutes');
 const tipoServicoRoutes = require('./src/routes/tipoServicoRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 
-// 🌐 Rotas públicas
+//Rotas públicas
 app.use('/auth', authRoutes);
 
-// 🔐 Rotas protegidas
+//Rotas protegidas
 const apiRouter = express.Router();
 apiRouter.use('/clientes', authenticateJWT(), clienteRoutes);
 apiRouter.use('/usuarios', authenticateJWT(), usuarioRoutes);
@@ -78,22 +78,22 @@ apiRouter.use('/locais', authenticateJWT(), localRoutes);
 apiRouter.use('/tiposervico', authenticateJWT(), tipoServicoRoutes);
 app.use('/v1', apiRouter);
 
-// 🧪 Teste de conexão com o banco
+//Teste de conexão com o banco
 db.sequelize.authenticate()
   .then(() => console.log('✅ Conectado ao banco de dados'))
   .catch(err => console.error('❌ Erro ao conectar ao banco:', err));
 
-// 🔄 Sincroniza os modelos
+//Sincroniza os modelos
 db.sequelize.sync()
   .then(() => console.log('🔄 Modelos sincronizados'))
   .catch(err => console.error('❌ Erro ao sincronizar modelos:', err));
 
-// 🚀 Rota raiz
+//Rota raiz
 app.get('/', (req, res) => {
   res.send('🚀 API Gestão Fácil rodando com sucesso!');
 });
 
-// 🟢 Inicia servidor
+//Inicia servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🟢 Servidor rodando em http://localhost:${PORT}`);
