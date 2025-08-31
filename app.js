@@ -1,7 +1,38 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const db = require('./src/models'); // importa os modelos e conecta Sequelize
+const app = express();
+// Configuração básica de segurança
+app.use(helmet());
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*'
+}));
+
+// Limitar requisições para evitar ataques de força bruta
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100 // limite de 100 requisições por IP
+});
+app.use(limiter);
+
+// Logs de requisições em desenvolvimento
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+// Configuração do body parser com limite aumentado para uploads
+app.use(bodyParser.json({
+  limit: '10mb',
+  extended: true
+}));
+app.use(bodyParser.urlencoded({
+  limit: '10mb',
+  extended: true
+}));
 
 // Importa rotas
 const clienteRoutes = require('./src/routes/clienteRoutes');
@@ -11,7 +42,7 @@ const ativoRoutes = require('./src/routes/ativoRoutes');
 const localRoutes = require('./src/routes/localRoutes');
 const tipoServicoRoutes = require('./src/routes/tipoServicoRoutes');
 
-const app = express();
+
 
 // Middlewares
 app.use(cors());
@@ -29,12 +60,16 @@ db.sequelize.sync()
   .catch(err => console.error(' Erro ao sincronizar modelos:', err));
 
 // Rotas
-app.use('/clientes', clienteRoutes);
-app.use('/usuarios', usuarioRoutes);
-app.use('/servicos', servicoRoutes);
-app.use('/ativos', ativoRoutes);
-app.use('/locais', localRoutes);
-app.use('/tiposervico', tipoServicoRoutes);
+const apiRouter = express.Router();
+const authenticateJWT = require('./src/middlewares/authMiddleware');
+apiRouter.use('/clientes',authenticateJWT, clienteRoutes);
+apiRouter.use('/usuarios',authenticateJWT, usuarioRoutes);
+apiRouter.use('/servicos',authenticateJWT, servicoRoutes);
+apiRouter.use('/ativos',authenticateJWT, ativoRoutes);
+apiRouter.use('/locais',authenticateJWT, localRoutes);
+apiRouter.use('/tiposervico', tipoServicoRoutes);
+app.use('/v1', apiRouter);
+
 
 // Rota raiz
 app.get('/', (req, res) => {

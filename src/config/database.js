@@ -9,7 +9,7 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     dialect: 'postgres', 
-    logging: false, // Desativa os logs
+    logging: true, // Desativa os logs
   }
 );
 console.log('Senha do banco:', process.env.DB_PASSWORD);

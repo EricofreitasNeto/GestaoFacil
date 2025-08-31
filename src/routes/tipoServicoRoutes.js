@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const tipoServicoController = require("../controllers/tipoServicoController");
+const authMiddleware = require('../middlewares/authMiddleware');
 
-router.get("/", tipoServicoController.listar);
-router.get("/:id", tipoServicoController.buscarPorId);
-router.post("/", tipoServicoController.criar);
-router.put("/:id", tipoServicoController.atualizar);
-router.patch("/:id/desativar", tipoServicoController.desativar);
-router.delete("/:id", tipoServicoController.excluir);
+router.get("/",authMiddleware, tipoServicoController.listar);
+router.get("/:id",authMiddleware, tipoServicoController.buscarPorId);
+router.post("/",authMiddleware, tipoServicoController.criar);
+router.put("/:id",authMiddleware, tipoServicoController.atualizar);
+router.patch("/:id/desativar",authMiddleware, tipoServicoController.desativar);
+router.delete("/:id",authMiddleware, tipoServicoController.excluir);
 
 module.exports = router;
