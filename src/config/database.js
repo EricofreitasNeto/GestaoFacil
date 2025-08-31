@@ -14,13 +14,16 @@ const  { Sequelize } = require('sequelize');
 console.log('Senha do banco:', process.env.DB_PASSWORD);
 
 module.exports = sequelize;**/
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
+
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
+
+const sequelize = new Sequelize(process.env.POSTGRES_URL, {
   dialect: 'postgres',
   logging: false, // Desativa os logs no console
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false // necessário para Supabase
+      rejectUnauthorized: false// necessário para Supabase
     }
   }
 });

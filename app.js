@@ -78,6 +78,8 @@ apiRouter.use('/locais', authenticateJWT(), localRoutes);
 apiRouter.use('/tiposervico', authenticateJWT(), tipoServicoRoutes);
 app.use('/v1', apiRouter);
 
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
+
 //Teste de conexão com o banco
 db.sequelize.authenticate()
   .then(() => console.log('✅ Conectado ao banco de dados'))
