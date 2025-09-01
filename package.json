@@ -22,10 +22,18 @@
   "type": "commonjs",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
-    "test": "echo\"No teste yet\""
+    "dev": "nodemon api/app.js",
+    "start": "node api/app.js",
+    "test": "echo \"No tests yet\""
   },
+"_moduleAliases": {
+  "@models": "src/models",
+  "@routes": "src/routes",
+  "@middlewares": "src/middlewares",
+  "@config": "src/config"
+},
+
+
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
@@ -36,6 +44,7 @@
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
     "morgan": "^1.10.1",
     "node": "^24.6.0",
     "pg": "^8.16.3",

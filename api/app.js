@@ -1,9 +1,12 @@
+require('module-alias/register');
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const db = require('./src/models');
+//const db = require('./src/models');
+const db = require('@models');
 
 const app = express();
 
@@ -56,14 +59,14 @@ app.use((req, res, next) => {
 });
 
 //Importa rotas
-const authenticateJWT = require('./src/middlewares/authMiddleware');
-const clienteRoutes = require('./src/routes/clienteRoutes');
-const usuarioRoutes = require('./src/routes/usuarioRoutes');
-const servicoRoutes = require('./src/routes/servicoRoutes');
-const ativoRoutes = require('./src/routes/ativoRoutes');
-const localRoutes = require('./src/routes/localRoutes');
-const tipoServicoRoutes = require('./src/routes/tipoServicoRoutes');
-const authRoutes = require('./src/routes/authRoutes');
+const authenticateJWT = require('@middlewares/authMiddleware');
+const clienteRoutes = require('@routes/clienteRoutes');
+const usuarioRoutes = require('@routes/usuarioRoutes');
+const servicoRoutes = require('@routes/servicoRoutes');
+const ativoRoutes = require('@routes/ativoRoutes');
+const localRoutes = require('@routes/localRoutes');
+const tipoServicoRoutes = require('@routes//tipoServicoRoutes');
+const authRoutes = require('@routes/authRoutes');
 
 //Rotas públicas
 app.use('/auth', authRoutes);
