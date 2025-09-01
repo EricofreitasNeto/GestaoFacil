@@ -69,3 +69,4 @@ sessions/
 
 # Cache
 .cache/
+.vercel
