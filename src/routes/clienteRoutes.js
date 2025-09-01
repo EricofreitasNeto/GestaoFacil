@@ -4,7 +4,7 @@ const clienteController = require("../controllers/clienteController");
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // Qualquer usuário autenticado pode acessar
-router.get("/", authMiddleware(), clienteController.listar);
+router.get("/", clienteController.listar);
 router.get("/:id", authMiddleware(), clienteController.buscarPorId);
 
 // Apenas administradores podem modificar

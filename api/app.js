@@ -73,7 +73,7 @@ app.use('/auth', authRoutes);
 
 //Rotas protegidas
 const apiRouter = express.Router();
-apiRouter.use('/clientes', authenticateJWT(), clienteRoutes);
+apiRouter.use('/clientes', clienteRoutes);
 apiRouter.use('/usuarios', authenticateJWT(), usuarioRoutes);
 apiRouter.use('/servicos', authenticateJWT(), servicoRoutes);
 apiRouter.use('/ativos', authenticateJWT(), ativoRoutes);
