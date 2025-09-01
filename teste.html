@@ -1,28 +1,78 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Teste de API</title>
 </head>
 <body>
+  <h1>Teste de API</h1>
+
+  <button onclick="registrar()">Registrar Usuário</button>
+  <button onclick="login()">Login</button>
   <button onclick="buscarUsuarios()">Buscar Usuários</button>
+
   <pre id="resultado"></pre>
 
   <script>
-    async function buscarUsuarios() {
-      const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJlcmljb0BnZXN0YW9mYWNpbC5jb20iLCJjYXJnbyI6ImFkbWluIiwiaWF0IjoxNzU2NjY3MjExLCJleHAiOjE3NTY2NzA4MTF9.Mre3-RdDqjJqkep26Y_whN48ziR_L0sgt24ZLv9sRB4'; // Cole aqui o token JWT gerado no login
-
-      const resposta = await fetch('http://localhost:3000/v1/usuarios', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+    // Função para registrar usuário
+    async function registrar() {
+      const resposta = await fetch('https://gestao-facil-4fdqzvjni-erico-de-freitas-netos-projects.vercel.app/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'ericofreitas@gestaofacil.com', senha: '123456', cargo: 'admin' })
       });
 
       const dados = await resposta.json();
-      document.getElementById('resultado').textContent = JSON.stringify(dados, null, 2);
+      console.log('Registro:', dados);
+
+      if (dados.token) {
+        localStorage.setItem('token', dados.token);
+        alert('Usuário registrado e token salvo!');
+      } else {
+        alert('Falha no registro');
+      }
+    }
+
+    // Função para login
+    async function login() {
+      const resposta = await fetch('https://gestao-facil-4fdqzvjni-erico-de-freitas-netos-projects.vercel.app/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'ericofreitas@gestaofacil.com', senha: '123456' })
+      });
+
+      const dados = await resposta.json();
+      console.log('Login:', dados);
+
+      if (dados.token) {
+        localStorage.setItem('token', dados.token);
+        alert('Login bem-sucedido! Token salvo.');
+      } else {
+        alert('Falha no login');
+      }
+    }
+
+    // Função para buscar usuários (rota protegida)
+    async function buscarUsuarios() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Faça login primeiro!');
+        return;
+      }
+
+      try {
+        const resposta = await fetch('https://gestao-facil-4fdqzvjni-erico-de-freitas-netos-projects.vercel.app/api/v1/usuarios', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!resposta.ok) throw new Error(`Erro ${resposta.status}`);
+
+        const dados = await resposta.json();
+        document.getElementById('resultado').textContent = JSON.stringify(dados, null, 2);
+      } catch (erro) {
+        document.getElementById('resultado').textContent = erro.message;
+      }
     }
   </script>
 </body>
 </html>
-
