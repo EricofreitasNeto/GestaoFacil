@@ -15,7 +15,7 @@
   <script>
     // Função para registrar usuário
     async function registrar() {
-      const resposta = await fetch('https://gestao-facil-fuszo02rk-erico-de-freitas-netos-projects.vercel.app/api/register', {
+      const resposta = await fetch('https://gestao-facil-git-main-erico-de-freitas-netos-projects.vercel.app/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: 'netofreitas@gestaofacil.com', senha: '123456', cargo: 'admin' })
@@ -34,7 +34,7 @@
 
     // Função para login
     async function login() {
-      const resposta = await fetch('https://gestao-facil-fuszo02rk-erico-de-freitas-netos-projects.vercel.app/api/login', {
+      const resposta = await fetch('https://gestao-facil-git-main-erico-de-freitas-netos-projects.vercel.app/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: 'netofreitas@gestaofacil.com', senha: '123456' })
@@ -60,7 +60,7 @@
       }
 
       try {
-        const resposta = await fetch('https://gestao-facil-fuszo02rk-erico-de-freitas-netos-projects.vercel.app/api/v1/usuarios', {
+        const resposta = await fetch('https://gestao-facil-git-main-erico-de-freitas-netos-projects.vercel.app/api/v1/usuarios', {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
