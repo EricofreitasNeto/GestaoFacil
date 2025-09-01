@@ -65,7 +65,7 @@ const usuarioRoutes = require('@routes/usuarioRoutes');
 const servicoRoutes = require('@routes/servicoRoutes');
 const ativoRoutes = require('@routes/ativoRoutes');
 const localRoutes = require('@routes/localRoutes');
-const tipoServicoRoutes = require('@routes//tipoServicoRoutes');
+const tipoServicoRoutes = require('@routes/tipoServicoRoutes');
 const authRoutes = require('@routes/authRoutes');
 
 //Rotas públicas
@@ -101,3 +101,13 @@ app.get('/', (req, res) => {
 //Inicia servidor
 const PORT = process.env.PORT || 3000;
 module.exports = app;
+require('dotenv').config();
+
+if (process.env.APP_MODE === 'local') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🟢 Rodando localmente em http://localhost:${PORT}`);
+  });
+} else {
+  console.log('🚀 Rodando em modo serverless (Vercel)');
+}
