@@ -7,7 +7,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 router.get("/", authMiddleware(), clienteController.listar);
 router.get("/:id", authMiddleware(), clienteController.buscarPorId);
 
-// Apenas administradores podem modificar
+// Apenas administradores podem modificar////
 router.post("/", authMiddleware(['admin']), clienteController.criar);
 router.put("/:id", authMiddleware(['admin']), clienteController.atualizar);
 router.delete("/:id", authMiddleware(['admin']), clienteController.desativar);
