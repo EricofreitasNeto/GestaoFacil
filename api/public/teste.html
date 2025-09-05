@@ -1,77 +1,200 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <title>Teste de API</title>
+  <meta charset="UTF-8">
+  <title>Teste Completo de API - Gestão Fácil</title>
+  <style>
+    body { font-family: monospace; background: #1e1e1e; color: #ccc; padding: 20px; }
+    h1, h2 { color: #0ff; }
+    button { margin: 5px; padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #333; color: #0ff; }
+    #console {
+      background: #000;
+      color: #0f0;
+      padding: 10px;
+      border-radius: 8px;
+      height: 350px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Teste de API</h1>
+  <h1>🧪 Teste Completo de API - Gestão Fácil</h1>
 
+  <!-- AUTENTICAÇÃO -->
+  <h2>🔐 Autenticação</h2>
   <button onclick="registrar()">Registrar Usuário</button>
   <button onclick="login()">Login</button>
+  <button onclick="rotaProtegida()">Testar Rota Protegida</button>
+
+  <!-- USUÁRIOS -->
+  <h2>👥 Usuários</h2>
   <button onclick="buscarUsuarios()">Buscar Usuários</button>
 
-  <pre id="resultado"></pre>
+  <!-- ATIVOS -->
+  <h2>📦 Ativos</h2>
+  <button onclick="listarAtivos()">Listar Ativos</button>
+  <button onclick="buscarAtivoPorId()">Buscar Ativo por ID</button>
+  <button onclick="criarAtivo()">Criar Ativo</button>
+  <button onclick="atualizarAtivo()">Atualizar Ativo</button>
+  <button onclick="desativarAtivo()">Desativar Ativo</button>
+
+  <!-- CONSOLE -->
+  <h2>📋 Console de Resposta</h2>
+  <div id="console"></div>
 
   <script>
-    // URL base da API — será injetada pelo backend ou definida manualmente
-    const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000/api';
+    const API_BASE_URL = "http://localhost:3000";
 
+    // ------------------------ Utilitários ------------------------
+    function getToken() {
+      const token = localStorage.getItem("jwt");
+      if (!token) alert("⚠️ Faça login primeiro!");
+      return token;
+    }
+
+    function mostrarConsole(resposta, dados) {
+      const log = {
+        status: resposta.status,
+        ok: resposta.ok,
+        url: resposta.url,
+        body: dados,
+        timestamp: new Date().toISOString()
+      };
+      const consoleBox = document.getElementById("console");
+      consoleBox.textContent += "\n> " + JSON.stringify(log, null, 2) + "\n";
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+    }
+
+    // ------------------------ Autenticação ------------------------
     async function registrar() {
-      const resposta = await fetch(`${API_BASE_URL}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'netofreitas@gestaofacil.com', senha: '123456', cargo: 'admin' })
+      const body = {
+        nome: "Erico",
+        email: "erico@teste.com",
+        cargo: "admin",
+        telefone: "85999999999",
+        password: "123456",
+        confirmPassword: "123456"
+      };
+      const resposta = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
       });
-
       const dados = await resposta.json();
-      console.log('Registro:', dados);
-
-      if (dados.token) {
-        localStorage.setItem('token', dados.token);
-        alert('Usuário registrado e token salvo!');
-      } else {
-        alert('Falha no registro');
-      }
+      mostrarConsole(resposta, dados);
     }
 
     async function login() {
-      const resposta = await fetch(`${API_BASE_URL}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'netofreitas@gestaofacil.com', senha: '123456' })
+      const body = { email: "erico@teste.com", password: "123456" };
+      const resposta = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
       });
-
       const dados = await resposta.json();
-      console.log('Login:', dados);
-
-      if (dados.token) {
-        localStorage.setItem('token', dados.token);
-        alert('Login bem-sucedido! Token salvo.');
-      } else {
-        alert('Falha no login');
-      }
+      mostrarConsole(resposta, dados);
+      if (dados.token) localStorage.setItem("jwt", dados.token);
     }
 
+    async function rotaProtegida() {
+      const token = getToken();
+      if (!token) return;
+      const resposta = await fetch(`${API_BASE_URL}/auth/dados-secretos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+      });
+      const dados = await resposta.json();
+      mostrarConsole(resposta, dados);
+    }
+
+    // ------------------------ Usuários ------------------------
     async function buscarUsuarios() {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Faça login primeiro!');
-        return;
-      }
+      const token = getToken();
+      if (!token) return;
+      const resposta = await fetch(`${API_BASE_URL}/v1/usuarios`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const dados = await resposta.json();
+      mostrarConsole(resposta, dados);
+    }
 
-      try {
-        const resposta = await fetch(`${API_BASE_URL}/v1/usuarios`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+    // ------------------------ Ativos ------------------------
+    async function listarAtivos() {
+      const token = getToken();
+      if (!token) return;
+      const resposta = await fetch(`${API_BASE_URL}/v1/ativos`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const dados = await resposta.json();
+      mostrarConsole(resposta, dados);
+    }
 
-        if (!resposta.ok) throw new Error(`Erro ${resposta.status}`);
+    async function buscarAtivoPorId() {
+      const token = getToken();
+      if (!token) return;
+      const id = prompt("Digite o ID do ativo:");
+      if (!id) return;
+      const resposta = await fetch(`${API_BASE_URL}/v1/ativos/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const dados = await resposta.json();
+      mostrarConsole(resposta, dados);
+    }
 
-        const dados = await resposta.json();
-        document.getElementById('resultado').textContent = JSON.stringify(dados, null, 2);
-      } catch (erro) {
-        document.getElementById('resultado').textContent = erro.message;
-      }
+    async function criarAtivo() {
+      const token = getToken();
+      if (!token) return;
+      const body = {
+        nome: "Notebook Dell",
+        numeroSerie: "DELL987654",
+        status: "ativo",
+        detalhes: "Core i7, 16GB RAM",
+        localId: 1
+      };
+      const resposta = await fetch(`${API_BASE_URL}/v1/ativos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body)
+      });
+      const dados = await resposta.json();
+      mostrarConsole(resposta, dados);
+    }
+
+    async function atualizarAtivo() {
+      const token = getToken();
+      if (!token) return;
+      const id = prompt("Digite o ID do ativo a atualizar:");
+      if (!id) return;
+      const body = {
+        nome: "Notebook Dell XPS",
+        numeroSerie: "DELL987654",
+        status: "manutenção",
+        detalhes: "Atualização de SSD",
+        localId: 2
+      };
+      const resposta = await fetch(`${API_BASE_URL}/v1/ativos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body)
+      });
+      const dados = await resposta.json();
+      mostrarConsole(resposta, dados);
+    }
+
+    async function desativarAtivo() {
+      const token = getToken();
+      if (!token) return;
+      const id = prompt("Digite o ID do ativo a desativar:");
+      if (!id) return;
+      const resposta = await fetch(`${API_BASE_URL}/v1/ativos/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const dados = await resposta.json();
+      mostrarConsole(resposta, dados);
     }
   </script>
 </body>

@@ -4,7 +4,18 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+const isPkg = typeof process.pkg !== 'undefined';
+const envPath = isPkg
+  ? path.join(path.dirname(process.execPath), '.env')
+  : path.resolve(__dirname, '../../.env');
+
+require('dotenv').config({ path: envPath });
+
+// ─── DEBUG ──────────────────────────────────────
+const isDebug = process.argv.includes('--debug');
+if (isDebug) {
+  console.log('🐞 Modo DEBUG ativado');
+}
 
 // ─── Express e segurança ──────────────────────────────────────
 const express = require('express');
@@ -14,7 +25,6 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
-const isPkg = typeof process.pkg !== 'undefined';
 
 // ─── Imports com compatibilidade pkg ──────────────────────────
 const db = isPkg ? require('../src/models') : require('@models');
@@ -28,6 +38,8 @@ const tipoServicoRoutes = isPkg ? require('../src/routes/tipoServicoRoutes') : r
 const authRoutes = isPkg ? require('../src/routes/authRoutes') : require('@routes/authRoutes');
 
 // ─── Tratamento de erros globais ──────────────────────────────
+
+
 process.on('uncaughtException', err => {
   console.error('❌ Erro não tratado:', err);
 });
@@ -100,33 +112,53 @@ app.get('/teste', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'teste.html'));
 });
 
+app.get('/uptime', (req, res) => {
+  const seconds = Math.floor(process.uptime());
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  const formatted = `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+  res.send(`⏱️ Uptime da aplicação: ${formatted}`);
+});
+
+
 // ─── Inicialização do servidor ────────────────────────────────
 const PORT = process.env.PORT || 3000;
 const APP_MODE = process.env.APP_MODE || 'local';
 const USE_HTTPS = process.env.USE_HTTPS === 'true';
 
 function startServer() {
-  if (APP_MODE === 'local') {
-    const certPath = path.join(__dirname, 'certs', 'server.cert');
-    const keyPath = path.join(__dirname, 'certs', 'server.key');
+  console.log(`🧠 APP_MODE: ${APP_MODE}, USE_HTTPS: ${USE_HTTPS}`);
 
-    if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-      const sslOptions = {
-        key: fs.readFileSync(keyPath),
-        cert: fs.readFileSync(certPath)
-      };
-      https.createServer(sslOptions, app).listen(PORT, () => {
-        console.log(`🔐 HTTPS rodando em https://localhost:${PORT}`);
-      });
-    } else {
-      console.warn('⚠️ Certificados SSL não encontrados ou HTTPS desativado. Iniciando em HTTP...');
-      http.createServer(app).listen(PORT, () => {
-        console.log(`🟢 HTTP rodando em http://localhost:${PORT}`);
-      });
-    }
+  const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
+  const certPath = path.join(basePath, 'certs', 'server.cert');
+  const keyPath = path.join(basePath, 'certs', 'server.key');
+
+  if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+    const sslOptions = {
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath)
+    };
+    https.createServer(sslOptions, app).listen(PORT, () => {
+      console.log(`🔐 HTTPS rodando em https://localhost:${PORT}`);
+    });
   } else {
-    console.log('🚀 Rodando em modo serverless (Vercel)');
+    console.warn('⚠️ Certificados SSL não encontrados ou HTTPS desativado. Iniciando em HTTP...');
+    http.createServer(app).listen(PORT, () => {
+      console.log(`🟢 HTTP rodando em http://localhost:${PORT}`);
+    });
   }
-}
 
-startServer();
+  setInterval(() => {
+    const seconds = Math.floor(process.uptime());
+    console.log(`⏱️ Uptime: ${seconds}s`);
+    console.log('🟢 Servidor ativo...');
+  }, 60000);
+
+    
+  }
+app.use((err, req, res, next) => {
+  console.error('🔥 Erro interno:', err.stack || err.message || err);
+  res.status(500).json({ error: 'Erro interno no servidor' });
+});
+startServer()
