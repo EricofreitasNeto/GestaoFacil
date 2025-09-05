@@ -32,8 +32,27 @@
     "@middlewares": "src/middlewares",
     "@config": "src/config"
   },
+  "bin": {
+    "gestao-facil": "api/app.js"
+  },
+ "pkg": {
+  "scripts": "api/app.js",
+  "targets": [
+    "node18-win-x64"
+  ],
+  "outputPath": "build",
+  "assets": [
+    ".env",
+    "src/models/**/*.js",
+    "src/routes/**/*.js",
+    "src/middlewares/**/*.js",
+    "src/config/**/*.js",
+    "teste.html"
+  ]
+
+},
+
   "dependencies": {
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
@@ -44,7 +63,6 @@
     "jsonwebtoken": "^9.0.2",
     "module-alias": "^2.2.3",
     "morgan": "^1.10.1",
-    "node": "^24.6.0",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "postgres": "^3.4.7",

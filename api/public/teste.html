@@ -13,9 +13,11 @@
   <pre id="resultado"></pre>
 
   <script>
-    // Função para registrar usuário
+    // URL base da API — será injetada pelo backend ou definida manualmente
+    const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3000/api';
+
     async function registrar() {
-      const resposta = await fetch('https://gestao-facil-git-main-erico-de-freitas-netos-projects.vercel.app/api/register', {
+      const resposta = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: 'netofreitas@gestaofacil.com', senha: '123456', cargo: 'admin' })
@@ -32,9 +34,8 @@
       }
     }
 
-    // Função para login
     async function login() {
-      const resposta = await fetch('https://gestao-facil-git-main-erico-de-freitas-netos-projects.vercel.app/api/login', {
+      const resposta = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: 'netofreitas@gestaofacil.com', senha: '123456' })
@@ -51,7 +52,6 @@
       }
     }
 
-    // Função para buscar usuários (rota protegida)
     async function buscarUsuarios() {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -60,7 +60,7 @@
       }
 
       try {
-        const resposta = await fetch('https://gestao-facil-git-main-erico-de-freitas-netos-projects.vercel.app/api/v1/usuarios', {
+        const resposta = await fetch(`${API_BASE_URL}/v1/usuarios`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
