@@ -21,22 +21,49 @@ export async function buscarAtivoPorId() {
 }
 
 export async function criarAtivo() {
-  const token = getToken(); if (!token) return;
+  const token = getToken();
+  if (!token) {
+    console.warn('Token não encontrado. Usuário não autenticado.');
+    return;
+  }
+
   const body = {
-    nome: "Notebook Dell",
-    numeroSerie: "DELL987654",
+    nome: "Monitor LG UltraWide",
+    numeroSerie: "LGUW123456",
     status: "ativo",
-    detalhes: "Core i7, 16GB RAM",
-    localId: 1
+    detalhes: {
+      tamanho: "34 polegadas",
+      resolucao: "2560x1080",
+      conexoes: ["HDMI", "DisplayPort"],
+      observacoes: "Sem riscos, adquirido em 2024"
+    },
+    localId: 1 // ID do local onde o ativo está alocado
   };
-  const resposta = await fetch(`${API_BASE_URL}/v1/ativos`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify(body)
-  });
-  const dados = await resposta.json();
-  mostrarConsole(resposta, dados);
+
+  try {
+    const response = await fetch(`${process.env.API_URL}/ativos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Erro ao criar ativo:', errorData);
+      return;
+    }
+
+    const data = await response.json();
+    console.log('Ativo criado com sucesso:', data);
+    return data;
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+  }
 }
+
 
 export async function atualizarAtivo() {
   const token = getToken(); if (!token) return;
