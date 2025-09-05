@@ -35,26 +35,24 @@
   "bin": {
     "gestao-facil": "api/app.js"
   },
- "pkg": {
-  "scripts": "api/app.js",
-  "targets": [
-    "node18-win-x64"
-  ],
-  "outputPath": "build",
-  "assets": [
-    ".env",
-    "src/models/**/*.js",
-    "src/routes/**/*.js",
-    "src/middlewares/**/*.js",
-    "src/config/**/*.js",
-    "public/teste.html",
-    "public/**/*",
-    "certs/server.key",
-    "certs/server.cert"
-  ]
-
-},
-
+  "pkg": {
+    "scripts": "api/app.js",
+    "targets": [
+      "node18-win-x64"
+    ],
+    "outputPath": "build",
+    "assets": [
+      ".env",
+      "src/models/**/*.js",
+      "src/routes/**/*.js",
+      "src/middlewares/**/*.js",
+      "src/config/**/*.js",
+      "public/teste.html",
+      "public/**/*",
+      "certs/server.key",
+      "certs/server.cert"
+    ]
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
@@ -72,6 +70,7 @@
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
-    "esbuild": "^0.25.9"
+    "esbuild": "^0.25.9",
+    "rcedit": "^4.0.1"
   }
 }
