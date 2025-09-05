@@ -10,6 +10,9 @@ const envPath = isPkg
   : path.resolve(__dirname, '../../.env');
 
 require('dotenv').config({ path: envPath });
+const APP_MODE = process.env.APP_MODE || 'local';
+const PORT = process.env.PORT || 3000;
+const USE_HTTPS = process.env.USE_HTTPS === 'true';
 
 // ─── DEBUG ──────────────────────────────────────
 const isDebug = process.argv.includes('--debug');
@@ -121,44 +124,53 @@ app.get('/uptime', (req, res) => {
   res.send(`⏱️ Uptime da aplicação: ${formatted}`);
 });
 
-
-// ─── Inicialização do servidor ────────────────────────────────
-const PORT = process.env.PORT || 3000;
-const APP_MODE = process.env.APP_MODE || 'local';
-const USE_HTTPS = process.env.USE_HTTPS === 'true';
-
-function startServer() {
-  console.log(`🧠 APP_MODE: ${APP_MODE}, USE_HTTPS: ${USE_HTTPS}`);
-
-  const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
-  const certPath = path.join(basePath, 'certs', 'server.cert');
-  const keyPath = path.join(basePath, 'certs', 'server.key');
-
-  if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-    const sslOptions = {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath)
-    };
-    https.createServer(sslOptions, app).listen(PORT, () => {
-      console.log(`🔐 HTTPS rodando em https://localhost:${PORT}`);
-    });
-  } else {
-    console.warn('⚠️ Certificados SSL não encontrados ou HTTPS desativado. Iniciando em HTTP...');
-    http.createServer(app).listen(PORT, () => {
-      console.log(`🟢 HTTP rodando em http://localhost:${PORT}`);
-    });
-  }
-
-  setInterval(() => {
-    const seconds = Math.floor(process.uptime());
-    console.log(`⏱️ Uptime: ${seconds}s`);
-    console.log('🟢 Servidor ativo...');
-  }, 60000);
-
-    
-  }
+// ─── Middleware de erro global ──────────────────────────────
 app.use((err, req, res, next) => {
   console.error('🔥 Erro interno:', err.stack || err.message || err);
   res.status(500).json({ error: 'Erro interno no servidor' });
 });
-startServer()
+
+// ─── Inicialização segura ───────────────────────────────────
+async function startServer() {
+  console.log(`🧠 APP_MODE: ${APP_MODE}, USE_HTTPS: ${USE_HTTPS}`);
+  console.log("DATABASE_URL:", process.env.DATABASE_URL);
+
+  try {
+    await db.sequelize.authenticate();
+    console.log('✅ Conectado ao banco de dados');
+
+    await db.sequelize.sync();
+    console.log('🔄 Modelos sincronizados');
+
+    const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
+    const certPath = path.join(basePath, 'certs', 'server.cert');
+    const keyPath = path.join(basePath, 'certs', 'server.key');
+
+    if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+      const sslOptions = {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath)
+      };
+      https.createServer(sslOptions, app).listen(PORT, () => {
+        console.log(`🔐 HTTPS rodando em https://localhost:${PORT}`);
+      });
+    } else {
+      console.warn('⚠️ Certificados SSL não encontrados ou HTTPS desativado. Iniciando em HTTP...');
+      http.createServer(app).listen(PORT, () => {
+        console.log(`🟢 HTTP rodando em http://localhost:${PORT}`);
+      });
+    }
+
+    setInterval(() => {
+      const seconds = Math.floor(process.uptime());
+      console.log(`⏱️ Uptime: ${seconds}s`);
+      console.log('🟢 Servidor ativo...');
+    }, 60000);
+
+  } catch (error) {
+    console.error('❌ Falha ao iniciar servidor:', error.message);
+    process.exit(1); // encerra o processo se falhar
+  }
+}
+
+startServer();

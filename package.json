@@ -20,12 +20,13 @@
   "license": "MIT",
   "author": "Erico de Freitas Neto",
   "type": "commonjs",
-  "main": "app.js",
-  "scripts": {
-    "dev": "nodemon api/app.js",
-    "start": "node api/app.js",
-    "test": "echo \"No tests yet\""
-  },
+  "main": "api/app.js",
+ "scripts": {
+  "dev": "nodemon api/app.js",
+  "start": "node api/app.js",
+  "build": "pkg .",
+  "test": "echo \"No tests yet\""
+},
   "_moduleAliases": {
     "@models": "src/models",
     "@routes": "src/routes",
@@ -36,23 +37,20 @@
     "gestao-facil": "api/app.js"
   },
   "pkg": {
-    "scripts": "api/app.js",
-    "targets": [
-      "node18-win-x64"
-    ],
-    "outputPath": "build",
-    "assets": [
-      ".env",
-      "src/models/**/*.js",
-      "src/routes/**/*.js",
-      "src/middlewares/**/*.js",
-      "src/config/**/*.js",
-      "public/teste.html",
-      "public/**/*",
-      "certs/server.key",
-      "certs/server.cert"
-    ]
-  },
+  "targets": ["node18-win-x64"],
+  "outputPath": "api/build",
+  "assets": [
+    ".env",
+    "src/models/**/*.js",
+    "src/routes/**/*.js",
+    "src/middlewares/**/*.js",
+    "src/config/**/*.js",
+    "api/public/**/*",
+    "api/certs/server.key",
+    "api/certs/server.cert",
+    "api/assets/app-icon.ico"
+  ]
+},
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",

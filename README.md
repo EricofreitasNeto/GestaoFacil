@@ -109,6 +109,90 @@ src/
 │   ├── servicos.controller.js
 
 ```
+
+
+---
+
+## 🔐 Testes de Autenticação
+
+Este projeto inclui rotas de autenticação com registro, login e acesso protegido via JWT. Abaixo estão exemplos de uso para testar via Postman, Insomnia ou qualquer cliente HTTP.
+
+### 📥 Registro de Usuário
+
+**Endpoint:** `POST /auth/register`  
+**Descrição:** Cria um novo usuário no sistema.
+
+**Body (JSON):**
+```json
+{
+  "nome": "Erico",
+  "email": "erico@teste.com",
+  "cargo": "admin",
+  "telefone": "85999999999",
+  "password": "123456",
+  "confirmPassword": "123456"
+}
+```
+
+**Respostas possíveis:**
+- `201 Created`: Usuário registrado com sucesso
+- `400 Bad Request`: Senhas não coincidem
+- `409 Conflict`: E-mail já cadastrado
+
+---
+
+### 🔑 Login
+
+**Endpoint:** `POST /auth/login`  
+**Descrição:** Autentica o usuário e retorna um token JWT.
+
+**Body (JSON):**
+```json
+{
+  "email": "erico@teste.com",
+  "password": "123456"
+}
+```
+
+**Respostas possíveis:**
+- `200 OK`: Retorna `{ token: <JWT> }`
+- `401 Unauthorized`: Usuário não encontrado ou senha incorreta
+
+---
+
+### 🔒 Rota Protegida
+
+**Endpoint:** `POST /auth/dados-secretos`  
+**Descrição:** Retorna dados protegidos, acessível apenas com token válido.
+
+**Headers:**
+```
+Authorization: Bearer <seu_token_aqui>
+```
+
+**Resposta esperada:**
+```json
+{
+  "message": "Acesso autorizado, erico@teste.com"
+}
+```
+
+**Respostas possíveis:**
+- `401 Unauthorized`: Token inválido ou ausente
+- `403 Forbidden`: Cargo não autorizado (se restrição de roles estiver ativa)
+
+---
+
+### 🧪 Testes recomendados
+
+- Registro com senhas diferentes
+- Registro com e-mail já existente
+- Login com senha incorreta
+- Acesso à rota protegida sem token
+- Acesso com token expirado ou malformado
+
+---
+
 ---
 
 ![alt text](image.jpeg)
