@@ -1,16 +1,22 @@
+// ─── Módulos base ─────────────────────────────────────────────
 require('module-alias/register');
 const path = require('path');
-require('dotenv').config({ path: path.join(process.cwd(), '.env') });
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
+// ─── Express e segurança ──────────────────────────────────────
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 
+const app = express();
 const isPkg = typeof process.pkg !== 'undefined';
 
-//Imports com compatibilidade pkg
+// ─── Imports com compatibilidade pkg ──────────────────────────
 const db = isPkg ? require('../src/models') : require('@models');
 const authenticateJWT = isPkg ? require('../src/middlewares/authMiddleware') : require('@middlewares/authMiddleware');
 const clienteRoutes = isPkg ? require('../src/routes/clienteRoutes') : require('@routes/clienteRoutes');
@@ -21,25 +27,21 @@ const localRoutes = isPkg ? require('../src/routes/localRoutes') : require('@rou
 const tipoServicoRoutes = isPkg ? require('../src/routes/tipoServicoRoutes') : require('@routes/tipoServicoRoutes');
 const authRoutes = isPkg ? require('../src/routes/authRoutes') : require('@routes/authRoutes');
 
-const app = express();
+// ─── Tratamento de erros globais ──────────────────────────────
+process.on('uncaughtException', err => {
+  console.error('❌ Erro não tratado:', err);
+});
+process.on('unhandledRejection', reason => {
+  console.error('❌ Promessa rejeitada sem tratamento:', reason);
+});
 
-//Segurança
+// ─── Middlewares ──────────────────────────────────────────────
 app.use(helmet());
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*'
-}));
-
-// Body parsers com limite
+app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || '*' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
-// Limite de requisições
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
-}));
-
-//Logs
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -54,25 +56,23 @@ app.use((req, res, next) => {
     const status = res.statusCode;
     const user = req.user || {};
 
-    const log = [
+    console.log([
       `[${new Date().toISOString()}]`,
       `${method} ${url}`,
       `→ ${status} (${duration}ms)`,
       `| IP: ${ip}`,
       `| User: ${user.email || 'anon'}`,
       `| Cargo: ${user.cargo || 'n/a'}`
-    ].join(' ');
-
-    console.log(log);
+    ].join(' '));
   });
   next();
 });
 
-// Rotas
+// ─── Rotas ────────────────────────────────────────────────────
 app.use('/auth', authRoutes);
 
 const apiRouter = express.Router();
-apiRouter.use('/clientes',authenticateJWT(), clienteRoutes);
+apiRouter.use('/clientes', authenticateJWT(), clienteRoutes);
 apiRouter.use('/usuarios', authenticateJWT(), usuarioRoutes);
 apiRouter.use('/servicos', authenticateJWT(), servicoRoutes);
 apiRouter.use('/ativos', authenticateJWT(), ativoRoutes);
@@ -80,7 +80,7 @@ apiRouter.use('/locais', authenticateJWT(), localRoutes);
 apiRouter.use('/tiposervico', authenticateJWT(), tipoServicoRoutes);
 app.use('/v1', apiRouter);
 
-//Banco de dados
+// ─── Banco de dados ───────────────────────────────────────────
 console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
 db.sequelize.authenticate()
@@ -91,25 +91,42 @@ db.sequelize.sync()
   .then(() => console.log('🔄 Modelos sincronizados'))
   .catch(err => console.error('❌ Erro ao sincronizar modelos:', err));
 
-// Rota raiz
+// ─── Rotas básicas ────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.send('🚀 API Gestão Fácil rodando com sucesso!');
 });
 
-// Pagina
 app.get('/teste', (req, res) => {
-  res.sendFile(path.join(__dirname, './public/teste.html'));
+  res.sendFile(path.join(__dirname, 'public', 'teste.html'));
 });
 
-// Inicialização
-module.exports = app;
-const appMode = process.env.APP_MODE || 'local';
+// ─── Inicialização do servidor ────────────────────────────────
+const PORT = process.env.PORT || 3000;
+const APP_MODE = process.env.APP_MODE || 'local';
+const USE_HTTPS = process.env.USE_HTTPS === 'true';
 
-if (process.env.APP_MODE === 'local') {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`🟢 Rodando localmente em http://localhost:${PORT}`);
-  });
-} else {
-  console.log('🚀 Rodando em modo serverless (Vercel)');
+function startServer() {
+  if (APP_MODE === 'local') {
+    const certPath = path.join(__dirname, 'certs', 'server.cert');
+    const keyPath = path.join(__dirname, 'certs', 'server.key');
+
+    if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+      const sslOptions = {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath)
+      };
+      https.createServer(sslOptions, app).listen(PORT, () => {
+        console.log(`🔐 HTTPS rodando em https://localhost:${PORT}`);
+      });
+    } else {
+      console.warn('⚠️ Certificados SSL não encontrados ou HTTPS desativado. Iniciando em HTTP...');
+      http.createServer(app).listen(PORT, () => {
+        console.log(`🟢 HTTP rodando em http://localhost:${PORT}`);
+      });
+    }
+  } else {
+    console.log('🚀 Rodando em modo serverless (Vercel)');
+  }
 }
+
+startServer();

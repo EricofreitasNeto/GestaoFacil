@@ -47,7 +47,10 @@
     "src/routes/**/*.js",
     "src/middlewares/**/*.js",
     "src/config/**/*.js",
-    "teste.html"
+    "public/teste.html",
+    "public/**/*",
+    "certs/server.key",
+    "certs/server.cert"
   ]
 
 },
