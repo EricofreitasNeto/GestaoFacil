@@ -21,12 +21,12 @@
   "author": "Erico de Freitas Neto",
   "type": "commonjs",
   "main": "api/app.js",
- "scripts": {
-  "dev": "nodemon api/app.js",
-  "start": "node api/app.js",
-  "build": "pkg .",
-  "test": "echo \"No tests yet\""
-},
+  "scripts": {
+    "dev": "nodemon api/app.js",
+    "start": "node api/app.js",
+    "build": "pkg .",
+    "test": "echo \"No tests yet\""
+  },
   "_moduleAliases": {
     "@models": "src/models",
     "@routes": "src/routes",
@@ -37,20 +37,22 @@
     "gestao-facil": "api/app.js"
   },
   "pkg": {
-  "targets": ["node18-win-x64"],
-  "outputPath": "api/build",
-  "assets": [
-    ".env",
-    "src/models/**/*.js",
-    "src/routes/**/*.js",
-    "src/middlewares/**/*.js",
-    "src/config/**/*.js",
-    "api/public/**/*",
-    "api/certs/server.key",
-    "api/certs/server.cert",
-    "api/assets/app-icon.ico"
-  ]
-},
+    "targets": [
+      "node18-win-x64"
+    ],
+    "outputPath": "api/build",
+    "assets": [
+      ".env",
+      "src/models/**/*.js",
+      "src/routes/**/*.js",
+      "src/middlewares/**/*.js",
+      "src/config/**/*.js",
+      "api/public/**/*",
+      "api/certs/server.key",
+      "api/certs/server.cert",
+      "api/assets/app-icon.ico"
+    ]
+  },
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
@@ -65,7 +67,8 @@
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "postgres": "^3.4.7",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "serve-favicon": "^2.5.1"
   },
   "devDependencies": {
     "esbuild": "^0.25.9",
