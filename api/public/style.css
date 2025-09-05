@@ -1,0 +1,65 @@
+/* ─── Base ───────────────────────────────────────────── */
+body {
+  font-family: monospace;
+  background-color: #1e1e1e;
+  color: #ccc;
+  padding: 20px;
+  margin: 0;
+}
+
+h1, h2 {
+  color: #0ff;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+/* ─── Botões ─────────────────────────────────────────── */
+button {
+  background-color: #222;
+  color: #ccc;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  margin: 5px 5px 5px 0;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+button:hover {
+  background-color: #333;
+  color: #0ff;
+}
+
+/* ─── Console ────────────────────────────────────────── */
+#console {
+  background-color: #000;
+  color: #0f0;
+  padding: 10px;
+  border-radius: 8px;
+  height: 350px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-size: 14px;
+  margin-top: 10px;
+  box-shadow: inset 0 0 5px #0f0;
+}
+
+/* ─── Tema escuro alternável ─────────────────────────── */
+.dark-mode {
+  background-color: #121212;
+  color: #eee;
+}
+
+.dark-mode h1, .dark-mode h2 {
+  color: #0ff;
+}
+
+.dark-mode button {
+  background-color: #333;
+  color: #eee;
+}
+
+.dark-mode button:hover {
+  background-color: #444;
+  color: #0ff;
+}
