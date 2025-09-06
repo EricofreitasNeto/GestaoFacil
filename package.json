@@ -24,7 +24,7 @@
   "scripts": {
     "dev": "nodemon api/app.js",
     "start": "node api/app.js",
-    "build": "pkg .",
+    //"build": "pkg .",
     "test": "echo \"No tests yet\""
   },
   "_moduleAliases": {
