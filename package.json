@@ -68,7 +68,9 @@
     "pg-hstore": "^2.3.4",
     "postgres": "^3.4.7",
     "sequelize": "^6.37.7",
-    "serve-favicon": "^2.5.1"
+    "serve-favicon": "^2.5.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "esbuild": "^0.25.9",
