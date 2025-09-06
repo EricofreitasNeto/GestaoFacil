@@ -1,3 +1,135 @@
+/**
+ * @swagger
+ * /v1/ativos:
+ *   get:
+ *     summary: Lista todos os ativos
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de ativos
+ */
+
+/**
+ * @swagger
+ * /v1/ativos/{id}:
+ *   get:
+ *     summary: Busca ativo por ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Ativo encontrado
+ *       404:
+ *         description: Ativo não encontrado
+ */
+
+/**
+ * @swagger
+ * /v1/ativos:
+ *   post:
+ *     summary: Cria um novo ativo
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               codigo:
+ *                 type: string
+ *               nome:
+ *                 type: string
+ *               tipo:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               clienteId:
+ *                 type: integer
+ *               localId:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Ativo criado
+ *       400:
+ *         description: Dados inválidos
+ *       403:
+ *         description: Não autorizado
+ */
+
+/**
+ * @swagger
+ * /v1/ativos/{id}:
+ *   put:
+ *     summary: Atualiza um ativo existente
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               codigo:
+ *                 type: string
+ *               nome:
+ *                 type: string
+ *               tipo:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               clienteId:
+ *                 type: integer
+ *               localId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Ativo atualizado
+ *       400:
+ *         description: Dados inválidos
+ *       404:
+ *         description: Ativo não encontrado
+ *       403:
+ *         description: Não autorizado
+ */
+
+/**
+ * @swagger
+ * /v1/ativos/{id}:
+ *   delete:
+ *     summary: Remove (desativa) um ativo
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Ativo removido/desativado
+ *       404:
+ *         description: Ativo não encontrado
+ *       403:
+ *         description: Não autorizado
+ */
+
 const express = require("express");
 const router = express.Router();
 const clienteController = require("../controllers/clienteController");

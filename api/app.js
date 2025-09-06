@@ -30,6 +30,27 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ─── Swagger Docs ─────────────────────────────────────────────
+
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Gestão Fácil API',
+      version: '1.0.0',
+      description: 'Documentação da API de Gestão de Ativos e Serviços'
+    }
+  },
+  apis: ['./src/routes/*.js']
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+
 // ─── Middlewares globais ──────────────────────────────────────
 app.use(helmet());
 app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || '*' }));
