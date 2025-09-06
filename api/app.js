@@ -1,6 +1,5 @@
 // ─── Módulos base ─────────────────────────────────────────────
 require('module-alias/register');
-const db = require('@models');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
@@ -161,12 +160,6 @@ function getLocalIP() {
     }
   }
   return 'localhost';
-}
-
-if (APP_MODE !== 'production') {
-  startServer();
-} else {
-  console.log('🚫 Ambiente Vercel detectado. O servidor não será iniciado.');
 }
 
 async function startServer() {
