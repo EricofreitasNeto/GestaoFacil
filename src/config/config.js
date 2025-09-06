@@ -37,6 +37,7 @@ console.table({
 
 const config = {
   app: {
+    
     mode: getEnvVar('APP_MODE', true),
     allowedOrigins: getEnvVar('ALLOWED_ORIGINS', false)?.split(',') || '*',
     jwtSecret: getEnvVar('JWT_SECRET', true)
