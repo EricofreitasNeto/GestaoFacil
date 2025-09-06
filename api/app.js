@@ -1,5 +1,6 @@
 // ─── Módulos base ─────────────────────────────────────────────
 require('module-alias/register');
+const db = require('@models');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
