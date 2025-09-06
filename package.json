@@ -24,7 +24,8 @@
   "scripts": {
     "dev": "nodemon api/app.js",
     "start": "node api/app.js",
-    //"build": "pkg .",
+    "build": "pkg .",
+    "start:vercel": "echo 'Vercel não executa servidor diretamente'",
     "test": "echo \"No tests yet\""
   },
   "_moduleAliases": {
