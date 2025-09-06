@@ -2,6 +2,7 @@
  * @swagger
  * /v1/locais:
  *   get:
+ *     tags: [Locais]
  *     summary: Lista todos os locais
  *     security:
  *       - bearerAuth: []
@@ -13,6 +14,7 @@
  * @swagger
  * /v1/locais/{id}:
  *   get:
+ *     tags: [Locais]
  *     summary: Busca local por ID
  *     security:
  *       - bearerAuth: []
@@ -32,6 +34,7 @@
  * @swagger
  * /v1/locais:
  *   post:
+ *    tags: [Locais]
  *     summary: Cria um novo local
  *     security:
  *       - bearerAuth: []
@@ -54,6 +57,7 @@
  * @swagger
  * /v1/locais/{id}:
  *   put:
+ *     tags: [Locais]
  *     summary: Atualiza um local existente
  *     security:
  *       - bearerAuth: []
@@ -84,6 +88,7 @@
  * @swagger
  * /v1/locais/{id}:
  *   delete:
+ *     tags: [Locais]
  *     summary: Desativa um local
  *     security:
  *       - bearerAuth: []

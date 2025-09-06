@@ -2,6 +2,7 @@
  * @swagger
  * /v1/ativos:
  *   get:
+ *   tags: [Ativos]
  *     summary: Lista todos os ativos
  *     security:
  *       - bearerAuth: []
@@ -14,6 +15,7 @@
  * @swagger
  * /v1/ativos/{id}:
  *   get:
+ *     tags: [Ativos]
  *     summary: Busca ativo por ID
  *     security:
  *       - bearerAuth: []
@@ -34,6 +36,7 @@
  * @swagger
  * /v1/ativos:
  *   post:
+ *     tags: [Ativos]
  *     summary: Cria um novo ativo
  *     security:
  *       - bearerAuth: []
@@ -69,6 +72,7 @@
  * @swagger
  * /v1/ativos/{id}:
  *   put:
+ *     tags: [Ativos]
  *     summary: Atualiza um ativo existente
  *     security:
  *       - bearerAuth: []
@@ -112,6 +116,7 @@
  * @swagger
  * /v1/ativos/{id}:
  *   delete:
+ *     tags: [Ativos]
  *     summary: Remove (desativa) um ativo
  *     security:
  *       - bearerAuth: []

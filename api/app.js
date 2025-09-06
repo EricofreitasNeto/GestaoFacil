@@ -41,8 +41,43 @@ const swaggerOptions = {
     info: {
       title: 'Gestão Fácil API',
       version: '1.0.0',
-      description: 'Documentação da API de Gestão de Ativos e Serviços'
-    }
+      description: 'Documentação da API de Gestão de Ativos e Serviços',
+      contact: {
+        name: 'Seu Nome',
+        email: 'seu@email.com'
+      }
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Servidor local'
+      },
+      {
+        url: 'https://seu-dominio.com',
+        description: 'Servidor produção'
+      }
+    ],
+    tags: [
+      { name: 'Autenticação', description: 'Endpoints de login e registro' },
+      { name: 'Clientes', description: 'Gestão de clientes' },
+      { name: 'Usuários', description: 'Gestão de usuários' },
+      { name: 'Ativos', description: 'Gestão de ativos' },
+      { name: 'Locais', description: 'Gestão de locais' },
+      { name: 'Serviços', description: 'Gestão de serviços técnicos' },
+      { name: 'Tipos de Serviços', description: 'Classificação dos serviços' }
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
+    security: [
+      { bearerAuth: [] }
+    ]
   },
   apis: ['./src/routes/*.js']
 };
@@ -95,7 +130,7 @@ apiRouter.use('/usuarios', authenticateJWT(), routes.usuarios);
 apiRouter.use('/servicos', authenticateJWT(), routes.servicos);
 apiRouter.use('/ativos', authenticateJWT(), routes.ativos);
 apiRouter.use('/locais', authenticateJWT(), routes.locais);
-apiRouter.use('/tiposervico', authenticateJWT(), routes.tiposervico);
+apiRouter.use('/tipos-servicos', authenticateJWT(), routes.tiposervico);
 app.use('/v1', apiRouter);
 
 // ─── Rotas básicas ────────────────────────────────────────────

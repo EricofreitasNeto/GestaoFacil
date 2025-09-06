@@ -2,6 +2,7 @@
  * @swagger
  * /v1/servicos:
  *   get:
+ *     tags: [Serviços]
  *     summary: Lista todos os serviços
  *     security:
  *       - bearerAuth: []
@@ -13,6 +14,7 @@
  * @swagger
  * /v1/servicos/{id}:
  *   get:
+ *     tags: [Serviços]
  *     summary: Busca serviço por ID
  *     security:
  *       - bearerAuth: []
@@ -32,6 +34,7 @@
  * @swagger
  * /v1/servicos:
  *   post:
+ *    tags: [Serviços]
  *     summary: Cria um novo serviço
  *     security:
  *       - bearerAuth: []
@@ -72,6 +75,7 @@
  * @swagger
  * /v1/servicos/{id}:
  *   put:
+ *   tags: [Serviços]
  *     summary: Atualiza um serviço existente
  *     security:
  *       - bearerAuth: []
@@ -120,6 +124,7 @@
  * @swagger
  * /v1/servicos/{id}:
  *   delete:
+ *     tags: [Serviços]
  *     summary: Desativa um serviço
  *     security:
  *       - bearerAuth: []

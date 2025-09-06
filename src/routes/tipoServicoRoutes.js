@@ -2,6 +2,7 @@
  * @swagger
  * /v1/tipos-servicos:
  *   get:
+ *     tags: [Tipos de Serviços]
  *     summary: Lista todos os tipos de serviço
  *     security:
  *       - bearerAuth: []
@@ -13,6 +14,7 @@
  * @swagger
  * /v1/tipos-servicos/{id}:
  *   get:
+ *     tags: [Tipos de Serviços]
  *     summary: Busca tipo de serviço por ID
  *     security:
  *       - bearerAuth: []
@@ -32,6 +34,7 @@
  * @swagger
  * /v1/tipos-servicos:
  *   post:
+ *     tags: [Tipos de Serviços]
  *     summary: Cria um novo tipo de serviço
  *     security:
  *       - bearerAuth: []
@@ -56,6 +59,7 @@
  * @swagger
  * /v1/tipos-servicos/{id}:
  *   put:
+ *     tags: [Tipos de Serviços]
  *     summary: Atualiza um tipo de serviço existente
  *     security:
  *       - bearerAuth: []
@@ -88,6 +92,7 @@
  * @swagger
  * /v1/tipos-servicos/{id}/desativar:
  *   patch:
+ *     tags: [Tipos de Serviços]
  *     summary: Desativa um tipo de serviço
  *     security:
  *       - bearerAuth: []
@@ -107,6 +112,7 @@
  * @swagger
  * /v1/tipos-servicos/{id}:
  *   delete:
+ *    tags: [Tipos de Serviços]
  *     summary: Exclui definitivamente um tipo de serviço
  *     security:
  *       - bearerAuth: []
