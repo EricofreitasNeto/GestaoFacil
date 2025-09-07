@@ -2,6 +2,7 @@
  * @swagger
  * /v1/clientes:
  *   get:
+ *     tags: [Clientes]
  *     summary: Lista todos os clientes
  *     security:
  *       - bearerAuth: []
@@ -9,10 +10,12 @@
  *       200:
  *         description: Lista de clientes
  */
+
 /**
  * @swagger
  * /v1/clientes/{id}:
  *   get:
+ *     tags: [Clientes]
  *     summary: Busca cliente por ID
  *     security:
  *       - bearerAuth: []
@@ -28,10 +31,12 @@
  *       404:
  *         description: Cliente não encontrado
  */
+
 /**
  * @swagger
  * /v1/clientes:
  *   post:
+ *     tags: [Clientes]
  *     summary: Cria um novo cliente
  *     security:
  *       - bearerAuth: []
@@ -54,10 +59,12 @@
  *       400:
  *         description: Dados inválidos
  */
+
 /**
  * @swagger
  * /v1/clientes/{id}:
  *   put:
+ *     tags: [Clientes]
  *     summary: Atualiza um cliente existente
  *     security:
  *       - bearerAuth: []
@@ -88,10 +95,12 @@
  *       404:
  *         description: Cliente não encontrado
  */
+
 /**
  * @swagger
  * /v1/clientes/{id}:
  *   delete:
+ *     tags: [Clientes]
  *     summary: Desativa um cliente
  *     security:
  *       - bearerAuth: []
@@ -107,6 +116,7 @@
  *       404:
  *         description: Cliente não encontrado
  */
+
 const express = require("express");
 const router = express.Router();
 const clienteController = require("../controllers/clienteController");

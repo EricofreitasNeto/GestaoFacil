@@ -2,6 +2,7 @@
  * @swagger
  * /v1/usuarios:
  *   get:
+ *     tags: [Usuários]
  *     summary: Lista todos os usuários
  *     security:
  *       - bearerAuth: []
@@ -13,6 +14,7 @@
  * @swagger
  * /v1/usuarios/{id}:
  *   get:
+ *     tags: [Usuários]
  *     summary: Busca usuário por ID
  *     security:
  *       - bearerAuth: []
@@ -32,6 +34,7 @@
  * @swagger
  * /v1/usuarios:
  *   post:
+ *     tags: [Usuários]
  *     summary: Cria um novo usuário
  *     security:
  *       - bearerAuth: []
@@ -64,6 +67,7 @@
  * @swagger
  * /v1/usuarios/{id}:
  *   put:
+ *     tags: [Usuários]
  *     summary: Atualiza um usuário existente
  *     security:
  *       - bearerAuth: []
@@ -100,6 +104,7 @@
  * @swagger
  * /v1/usuarios/{id}:
  *   delete:
+ *     tags: [Usuários]
  *     summary: Desativa um usuário
  *     security:
  *       - bearerAuth: []
@@ -115,6 +120,7 @@
  *       404:
  *         description: Usuário não encontrado
  */
+
 const express = require("express");
 const router = express.Router();
 const usuarioController = require("../controllers/usuarioController");

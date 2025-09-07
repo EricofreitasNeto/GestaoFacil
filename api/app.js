@@ -142,6 +142,17 @@ app.use((req, res, next) => {
 
 // ─── Rotas  Publicas ────────────────────────────────────────────────────
 app.use('/auth', authRoutes);
+app.post('/proxy/register', async (req, res) => {
+  const response = await fetch('https://api.externa.com/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req.body)
+  });
+
+  const data = await response.json();
+  res.status(response.status).json(data);
+});
+
 const filePath = path.join(__dirname, 'public', 'scripts', 'index.js');
 console.log('Arquivo existe?', fs.existsSync(filePath));
 app.use(express.static('public'));
