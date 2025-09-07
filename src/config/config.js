@@ -34,8 +34,8 @@ const config = {
   app: {
     
     mode: getEnvVar('APP_MODE', true),
-    allowedOrigins: getEnvVar('ALLOWED_ORIGINS', false,false)?.split(',') || '*',
-    jwtSecret: getEnvVar('JWT_SECRET', true,true)
+    allowedOrigins: getEnvVar('ALLOWED_ORIGINS', false)?.split(',') || '*',
+    jwtSecret: getEnvVar('JWT_SECRET', true)
   },
   db: {
     useUrl: !!process.env.DATABASE_URL,
