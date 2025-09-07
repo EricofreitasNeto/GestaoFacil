@@ -24,6 +24,7 @@ console.log('\n📦 Variáveis de ambiente carregadas:');
 console.table({
   APP_MODE: process.env.APP_MODE,
   PORT: process.env.PORT,
+
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
   JWT_SECRET: process.env.JWT_SECRET,
   DATABASE_URL: process.env.DATABASE_URL,
