@@ -184,6 +184,7 @@ const PORT = process.env.PORT || 3000;
 const APP_MODE = process.env.APP_MODE || 'local';
 const USE_HTTPS = process.env.USE_HTTPS === 'true';
 const IP = '0.0.0.0'; // escuta em todas as interfaces
+const publicURL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 
 
 function startServer() {
@@ -199,13 +200,13 @@ function startServer() {
       cert: fs.readFileSync(certPath)
     };
    https.createServer(sslOptions, app).listen(PORT, IP, () => {
-  console.log(`🔐 HTTPS rodando em https://${IP}:${PORT}`);
+  console.log(`🔐 HTTPS rodando em ${publicURL}}`);
 });
 
   } else {
     
 http.createServer(app).listen(PORT, IP, () => {
-  console.log(`🟢 Servidor rodando em http://${IP}:${PORT}`);
+  console.log(`🟢 Servidor rodando em ${publicURL}`);
 });
 
 ;
