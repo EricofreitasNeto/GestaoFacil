@@ -37,7 +37,7 @@ console.table({
 
 const config = {
   app: {
-    mode: getEnvVar('APP_MODE', false) || 'local',
+    mode: getEnvVar('APP_MODE', false),
   allowedOrigins: getEnvVar('ALLOWED_ORIGINS', false)
     ? getEnvVar('ALLOWED_ORIGINS', false).split(',')
     : ['*'],
