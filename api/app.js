@@ -183,6 +183,8 @@ app.get('/uptime', (req, res) => {
 const PORT = process.env.PORT || 3000;
 const APP_MODE = process.env.APP_MODE || 'local';
 const USE_HTTPS = process.env.USE_HTTPS === 'true';
+const IP = '0.0.0.0'; // escuta em todas as interfaces
+
 
 function startServer() {
   console.log(`🧠 APP_MODE: ${APP_MODE}, USE_HTTPS: ${USE_HTTPS}`);
@@ -196,14 +198,17 @@ function startServer() {
       key: fs.readFileSync(keyPath),
       cert: fs.readFileSync(certPath)
     };
-    https.createServer(sslOptions, app).listen(PORT, () => {
-      console.log(`🔐 HTTPS rodando em https://localhost:${PORT}`);
-    });
+   https.createServer(sslOptions, app).listen(PORT, IP, () => {
+  console.log(`🔐 HTTPS rodando em https://${IP}:${PORT}`);
+});
+
   } else {
-    console.warn('⚠️ Certificados SSL não encontrados ou HTTPS desativado. Iniciando em HTTP...');
-    http.createServer(app).listen(PORT, () => {
-      console.log(`🟢 HTTP rodando em http://localhost:${PORT}`);
-    });
+    
+http.createServer(app).listen(PORT, IP, () => {
+  console.log(`🟢 Servidor rodando em http://${IP}:${PORT}`);
+});
+
+;
   }
 
   setInterval(() => {
