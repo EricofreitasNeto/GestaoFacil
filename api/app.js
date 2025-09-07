@@ -154,12 +154,14 @@ app.use((err, req, res, next) => {
 // ─── Inicialização segura ────────────────────────────────────
 async function startServer() {
   try {
+    // --- Conexão com banco ---
     await db.sequelize.authenticate();
-    console.log('✅ Conectado ao banco de dados');
+    console.log('✅ Banco de dados conectado com sucesso');
 
     await db.sequelize.sync();
-    console.log('🔄 Modelos sincronizados');
+    console.log('🔄 Modelos sincronizados com sucesso');
 
+    // --- Caminhos para certificados ---
     const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
     const certPath = path.join(basePath, 'certs', 'server.cert');
     const keyPath = path.join(basePath, 'certs', 'server.key');
@@ -168,12 +170,12 @@ async function startServer() {
     console.log('🔍 certPath:', certPath);
     console.log('🔍 keyPath:', keyPath);
 
-    // Sempre sobe HTTP
+    // --- Servidor HTTP ---
     http.createServer(app).listen(PORT, '0.0.0.0', () => {
       console.log(`🔧 Servidor HTTP rodando em http://localhost:${PORT}`);
     });
 
-    // Se USE_HTTPS=true e tiver certificados, sobe HTTPS também
+    // --- Servidor HTTPS (se habilitado e certificados existirem) ---
     if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
       const sslOptions = {
         key: fs.readFileSync(keyPath),
@@ -189,7 +191,7 @@ async function startServer() {
       console.warn('⚠️ HTTPS desativado ou certificados não encontrados.');
     }
 
-    // Log de uptime
+    // --- Log de uptime ---
     setInterval(() => {
       console.log(`⏱️ Uptime: ${Math.floor(process.uptime())}s`);
       console.log('🟢 Servidor ativo...');
@@ -202,3 +204,4 @@ async function startServer() {
 }
 
 startServer();
+
