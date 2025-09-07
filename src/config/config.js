@@ -37,9 +37,12 @@ console.table({
 
 const config = {
   app: {
-    mode: getEnvVar('APP_MODE', true),
-    allowedOrigins: getEnvVar('ALLOWED_ORIGINS', false)?.split(',') || '*',
-    jwtSecret: getEnvVar('JWT_SECRET', true)
+    mode: getEnvVar('APP_MODE', false) || 'local',
+  allowedOrigins: getEnvVar('ALLOWED_ORIGINS', false)
+    ? getEnvVar('ALLOWED_ORIGINS', false).split(',')
+    : ['*'],
+  jwtSecret: getEnvVar('JWT_SECRET', true)
+
   },
   db: {
     useUrl: !!process.env.DATABASE_URL,
