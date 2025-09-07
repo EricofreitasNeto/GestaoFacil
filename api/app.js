@@ -176,7 +176,7 @@ async function startServer() {
       };
       const sslPort = process.env.PORT_SSL || 3443;
       https.createServer(sslOptions, app).listen(sslPort, () => {
-        console.log(`✅ HTTPS rodando em https://localhost:${sslPort}`);
+        console.log(`✅ HTTPS rodando em https://localhost:${process.env.PORT_SSL}`);
       });
     } else {
       console.warn('⚠️ HTTPS desativado ou certificados não encontrados');
