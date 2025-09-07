@@ -34,7 +34,7 @@
  * @swagger
  * /v1/locais:
  *   post:
- *    tags: [Locais]
+ *     tags: [Locais]
  *     summary: Cria um novo local
  *     security:
  *       - bearerAuth: []
@@ -104,7 +104,8 @@
  *       404:
  *         description: Local não encontrado
  */
-//de
+
+// Express routes
 const express = require("express");
 const router = express.Router();
 const localController = require("../controllers/localController");

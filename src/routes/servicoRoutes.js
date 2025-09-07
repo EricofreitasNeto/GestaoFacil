@@ -34,7 +34,7 @@
  * @swagger
  * /v1/servicos:
  *   post:
- *    tags: [Serviços]
+ *     tags: [Serviços]
  *     summary: Cria um novo serviço
  *     security:
  *       - bearerAuth: []
@@ -75,7 +75,7 @@
  * @swagger
  * /v1/servicos/{id}:
  *   put:
- *   tags: [Serviços]
+ *     tags: [Serviços]
  *     summary: Atualiza um serviço existente
  *     security:
  *       - bearerAuth: []
@@ -140,6 +140,7 @@
  *       404:
  *         description: Serviço não encontrado
  */
+
 const express = require("express");
 const router = express.Router();
 const servicoController = require("../controllers/servicoController");

@@ -112,7 +112,7 @@
  * @swagger
  * /v1/tipos-servicos/{id}:
  *   delete:
- *    tags: [Tipos de Serviços]
+ *     tags: [Tipos de Serviços]
  *     summary: Exclui definitivamente um tipo de serviço
  *     security:
  *       - bearerAuth: []
@@ -128,6 +128,7 @@
  *       404:
  *         description: Tipo de serviço não encontrado
  */
+
 const express = require("express");
 const router = express.Router();
 const tipoServicoController = require("../controllers/tipoServicoController");

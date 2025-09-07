@@ -104,7 +104,7 @@
  * @swagger
  * /v1/usuarios/{id}:
  *   delete:
- *    tags: [Usuários]
+ *     tags: [Usuários]
  *     summary: Desativa um usuário
  *     security:
  *       - bearerAuth: []
@@ -120,6 +120,7 @@
  *       404:
  *         description: Usuário não encontrado
  */
+
 const express = require("express");
 const router = express.Router();
 const usuarioController = require("../controllers/usuarioController");
