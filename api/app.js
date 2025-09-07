@@ -199,18 +199,12 @@ function startServer() {
   const PORT = process.env.PORT || 3000;
   const publicURL = process.env.RENDER_EXTERNAL_URL || `${IP},${PORT}`;
 
-  if (isProduction) {
-    
-    https.createServer(app).listen(PORT, IP, () => {
-      console.log(`🔐 HTTPS rodando em ${publicURL}`);
-    });
-  } else if (!isProduction) {
-    http.createServer(app).listen(PORT, IP, () => {
-      console.log(`🟢 HTTP rodando em ${publicURL}`);
-    });
-  } else {
-    console.error('❌ Produção exige HTTPS, mas os certificados não foram encontrados.');
-    process.exit(1); // encerra o app para evitar rodar inseguro
-  }
+  console.log(`🧠 APP_MODE: ${APP_MODE}`);
+
+  // Em produção, Render cuida do HTTPS — não crie servidor HTTPS manualmente
+  app.listen(PORT, IP, () => {
+    console.log(`🚀 Servidor rodando em ${publicURL}`);
+  });
 }
+
 startServer()
