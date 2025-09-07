@@ -184,7 +184,7 @@ const PORT = process.env.PORT || 3000;
 const APP_MODE = process.env.APP_MODE || 'production';
 const USE_HTTPS = process.env.USE_HTTPS === 'true';
 const IP = '0.0.0.0'; // escuta em todas as interfaces
-const publicURL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+const publicURL = process.env.RENDER_EXTERNAL_URL || `${IP},${PORT}`;
 
 
 function startServer() {
@@ -197,9 +197,9 @@ function startServer() {
 
   const IP = '0.0.0.0';
   const PORT = process.env.PORT || 3000;
-  const publicURL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+  const publicURL = process.env.RENDER_EXTERNAL_URL || `${IP},${PORT}`;
 
-  if (USE_HTTPS && isProduction && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+  if (isProduction) {
     
     https.createServer(app).listen(PORT, IP, () => {
       console.log(`🔐 HTTPS rodando em ${publicURL}`);
