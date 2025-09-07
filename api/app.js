@@ -12,8 +12,12 @@ const envPath = isPkg
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 require('dotenv').config({ path: envPath });
 
+const config = require('./config'); // seu config.js
 const PORT = process.env.PORT || 3000;
+const PORT_SSL = process.env.PORT_SSL || 3443;
 const USE_HTTPS = process.env.USE_HTTPS === 'true';
+const isProd = config.app.mode === 'production';
+const isDev = config.app.mode === 'development';
 
 // ─── Debug ────────────────────────────────────────────────────
 if (process.argv.includes('--debug')) {
@@ -152,37 +156,48 @@ app.use((err, req, res, next) => {
 });
 
 // ─── Inicialização segura ────────────────────────────────────
+function getLocalIP() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) return iface.address;
+    }
+  }
+  return 'localhost';
+}
+
 async function startServer() {
   try {
+    // --- Banco de dados ---
     await db.sequelize.authenticate();
     console.log('✅ Banco de dados conectado');
     await db.sequelize.sync();
     console.log('🔄 Modelos sincronizados');
 
-    const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
+    // --- Caminhos para certificados ---
+    const basePath = __dirname;
     const certPath = path.join(basePath, 'certs', 'server.cert');
     const keyPath = path.join(basePath, 'certs', 'server.key');
 
-    // HTTP sempre
-    http.createServer(app).listen(process.env.PORT, '0.0.0.0', () => {
-      console.log(`🔧 HTTP rodando em http://localhost:${process.env.PORT}`);
+    // --- HTTP sempre
+    http.createServer(app).listen(PORT, '0.0.0.0', () => {
+      console.log(`🔧 HTTP rodando em http://localhost:${PORT}`);
     });
 
-    // HTTPS se habilitado
-    if (process.env.USE_HTTPS === 'true' && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+    // --- HTTPS se habilitado
+    if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
       const sslOptions = {
         key: fs.readFileSync(keyPath),
         cert: fs.readFileSync(certPath)
       };
-      const sslPort = process.env.PORT_SSL || 3443;
-      https.createServer(sslOptions, app).listen(sslPort, () => {
-        console.log(`✅ HTTPS rodando em https://localhost:${process.env.PORT_SSL}`);
+      https.createServer(sslOptions, app).listen(PORT_SSL, () => {
+        console.log(`✅ HTTPS rodando em https://localhost:${PORT_SSL}`);
       });
     } else {
       console.warn('⚠️ HTTPS desativado ou certificados não encontrados');
     }
 
-    // Uptime log
+    // --- Uptime log
     setInterval(() => {
       console.log(`⏱️ Uptime: ${Math.floor(process.uptime())}s`);
       console.log('🟢 Servidor ativo...');
