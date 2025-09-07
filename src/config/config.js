@@ -24,6 +24,7 @@ console.log('\n📦 Variáveis de ambiente carregadas:');
 console.table({
   APP_MODE: process.env.APP_MODE,
   PORT: process.env.PORT,
+  USE_HTTPS:process.env.USE_HTTPS,
   ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
   JWT_SECRET: process.env.JWT_SECRET,
   DATABASE_URL: process.env.DATABASE_URL,
@@ -39,6 +40,7 @@ const config = {
   app: {
     mode: getEnvVar('APP_MODE', true),
     allowedOrigins: getEnvVar('ALLOWED_ORIGINS', false)?.split(',') || '*',
+    userhttps:getEnvVar('USE_HTTPS', true),
     jwtSecret: getEnvVar('JWT_SECRET', true)
   },
   db: {
