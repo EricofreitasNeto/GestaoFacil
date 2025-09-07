@@ -162,7 +162,7 @@ function getLocalIP() {
   }
   return 'localhost';
 }
-
+//khsdkjhkjhdkjhskjhdkjsh
 async function startServer() {
   console.log(`🧠 APP_MODE: ${APP_MODE}, USE_HTTPS: ${USE_HTTPS}`);
   console.log("DATABASE_URL:", process.env.DATABASE_URL);
