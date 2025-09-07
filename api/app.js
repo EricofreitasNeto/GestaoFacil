@@ -9,9 +9,9 @@ const isPkg = typeof process.pkg !== 'undefined';
 const envPath = isPkg
   ? path.join(path.dirname(process.execPath), '.env')
   : path.resolve(__dirname, '../../.env');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+
 require('dotenv').config({ path: envPath });
-const APP_MODE = process.env.APP_MODE || 'production';
+const APP_MODE = process.env.APP_MODE || 'local';
 const PORT = process.env.PORT || 3000;
 const USE_HTTPS = process.env.USE_HTTPS === 'true';
 
@@ -29,6 +29,7 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // ─── Swagger Docs ─────────────────────────────────────────────
 
@@ -108,6 +109,7 @@ app.use((req, res, next) => {
   next();
 });
 
+
 // ─── Imports com compatibilidade pkg ──────────────────────────
 const db = isPkg ? require('../src/models') : require('@models');
 const authenticateJWT = isPkg ? require('../src/middlewares/authMiddleware') : require('@middlewares/authMiddleware');
@@ -176,9 +178,6 @@ async function startServer() {
     const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
     const certPath = path.join(basePath, 'certs', 'server.cert');
     const keyPath = path.join(basePath, 'certs', 'server.key');
-    console.log('🔍 basePath:', basePath);
-    console.log('🔍 certPath:', certPath);
-    console.log('🔍 keyPath:', keyPath);
 
     const serverCallback = () => {
       const ip = getLocalIP();
@@ -186,24 +185,15 @@ async function startServer() {
       console.log(`🟢 Servidor rodando em ${protocol}://${ip}:${PORT}`);
     };
 
- 
-
-if (USE_HTTPS && isProduction) {
-  if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-    const sslOptions = {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath)
-    };
-    https.createServer(sslOptions, app).listen(PORT, '0.0.0.0', serverCallback);
-  } else {
-    console.warn('⚠️ Certificados HTTPS não encontrados. Caindo para HTTP...');
-    http.createServer(app).listen(PORT, '0.0.0.0', serverCallback);
-  }
-} else {
-  console.log('🔧 Ambiente local ou HTTPS desativado. Usando HTTP.');
-  http.createServer(app).listen(PORT, '0.0.0.0', serverCallback);
-}
-
+    if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+      const sslOptions = {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath)
+      };
+      https.createServer(sslOptions, app).listen(PORT, 'localhost', serverCallback);
+    } else {
+      http.createServer(app).listen(PORT, 'localhost', serverCallback);
+    }
 
     setInterval(() => {
       console.log(`⏱️ Uptime: ${Math.floor(process.uptime())}s`);
