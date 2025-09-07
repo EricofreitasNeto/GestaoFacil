@@ -9,9 +9,9 @@ const isPkg = typeof process.pkg !== 'undefined';
 const envPath = isPkg
   ? path.join(path.dirname(process.execPath), '.env')
   : path.resolve(__dirname, '../../.env');
-
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 require('dotenv').config({ path: envPath });
-const APP_MODE = process.env.APP_MODE || 'local';
+const APP_MODE = process.env.APP_MODE || 'production';
 const PORT = process.env.PORT || 3000;
 const USE_HTTPS = process.env.USE_HTTPS === 'true';
 
@@ -53,7 +53,7 @@ const swaggerOptions = {
         description: 'Servidor local'
       },
       {
-        url: 'https://seu-dominio.com',
+        url: 'https://gestaofacil.onrender.com',
         description: 'Servidor produção'
       }
     ],
@@ -176,6 +176,9 @@ async function startServer() {
     const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
     const certPath = path.join(basePath, 'certs', 'server.cert');
     const keyPath = path.join(basePath, 'certs', 'server.key');
+    console.log('🔍 basePath:', basePath);
+    console.log('🔍 certPath:', certPath);
+    console.log('🔍 keyPath:', keyPath);
 
     const serverCallback = () => {
       const ip = getLocalIP();
@@ -183,15 +186,24 @@ async function startServer() {
       console.log(`🟢 Servidor rodando em ${protocol}://${ip}:${PORT}`);
     };
 
-    if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-      const sslOptions = {
-        key: fs.readFileSync(keyPath),
-        cert: fs.readFileSync(certPath)
-      };
-      https.createServer(sslOptions, app).listen(PORT, '0.0.0.0', serverCallback);
-    } else {
-      http.createServer(app).listen(PORT, '0.0.0.0', serverCallback);
-    }
+    const isProduction = APP_MODE === 'production';
+
+if (USE_HTTPS && isProduction) {
+  if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+    const sslOptions = {
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath)
+    };
+    https.createServer(sslOptions, app).listen(PORT, '0.0.0.0', serverCallback);
+  } else {
+    console.warn('⚠️ Certificados HTTPS não encontrados. Caindo para HTTP...');
+    http.createServer(app).listen(PORT, '0.0.0.0', serverCallback);
+  }
+} else {
+  console.log('🔧 Ambiente local ou HTTPS desativado. Usando HTTP.');
+  http.createServer(app).listen(PORT, '0.0.0.0', serverCallback);
+}
+
 
     setInterval(() => {
       console.log(`⏱️ Uptime: ${Math.floor(process.uptime())}s`);
