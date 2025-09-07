@@ -12,7 +12,7 @@ if (config.db.useUrl && config.db.url) {
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: isProduction
+        rejectUnauthorized: !isProduction // aceita certificado autoassinado só fora da produção
       }
     }
   });
