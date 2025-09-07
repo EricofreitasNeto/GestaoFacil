@@ -1,31 +1,31 @@
 const { Sequelize } = require('sequelize');
 const config = require('./config');
 
+const useUrl = !!process.env.DATABASE_URL; // true se DATABASE_URL existir
+
 let sequelize;
 
-if (config.db.useUrl && config.db.url) {
-  // Conexão via URL (Supabase/produção)
-  sequelize = new Sequelize(config.db.url, {
-    dialect: config.db.dialect,
+if (useUrl) {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
     logging: false,
     dialectOptions: {
       ssl: {
-        require: true,           // obriga SSL
-        rejectUnauthorized: false // ignora self-signed cert
+        require: true,
+        rejectUnauthorized: false
       }
     }
   });
-  console.log('🔒 Conectando via URL com SSL (produção)');
+  console.log('🔒 Conectando via DATABASE_URL com SSL (produção)');
 } else {
-  // Conexão local via host/user/password
   sequelize = new Sequelize(
-    config.db.name,
-    config.db.user,
-    config.db.password,
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
     {
-      host: config.db.host,
-      port: config.db.port,
-      dialect: config.db.dialect,
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      dialect: process.env.DB_DIALECT,
       logging: false
     }
   );
@@ -33,4 +33,3 @@ if (config.db.useUrl && config.db.url) {
 }
 
 module.exports = sequelize;
-//hjahjhdjahd

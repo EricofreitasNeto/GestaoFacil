@@ -154,54 +154,44 @@ app.use((err, req, res, next) => {
 // ─── Inicialização segura ────────────────────────────────────
 async function startServer() {
   try {
-    // --- Conexão com banco ---
     await db.sequelize.authenticate();
-    console.log('✅ Banco de dados conectado com sucesso');
-
+    console.log('✅ Banco de dados conectado');
     await db.sequelize.sync();
-    console.log('🔄 Modelos sincronizados com sucesso');
+    console.log('🔄 Modelos sincronizados');
 
-    // --- Caminhos para certificados ---
     const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
     const certPath = path.join(basePath, 'certs', 'server.cert');
     const keyPath = path.join(basePath, 'certs', 'server.key');
 
-    console.log('🔍 basePath:', basePath);
-    console.log('🔍 certPath:', certPath);
-    console.log('🔍 keyPath:', keyPath);
-
-    // --- Servidor HTTP ---
-    http.createServer(app).listen(PORT, '0.0.0.0', () => {
-      console.log(`🔧 Servidor HTTP rodando em http://localhost:${PORT}`);
+    // HTTP sempre
+    http.createServer(app).listen(process.env.PORT, '0.0.0.0', () => {
+      console.log(`🔧 HTTP rodando em http://localhost:${process.env.PORT}`);
     });
 
-    // --- Servidor HTTPS (se habilitado e certificados existirem) ---
-    if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+    // HTTPS se habilitado
+    if (process.env.USE_HTTPS === 'true' && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
       const sslOptions = {
         key: fs.readFileSync(keyPath),
         cert: fs.readFileSync(certPath)
       };
-
-      const HTTPS_PORT = process.env.HTTPS_PORT || 3443;
-
-      https.createServer(sslOptions, app).listen(HTTPS_PORT, () => {
-        console.log(`✅ Servidor HTTPS rodando em https://localhost:${HTTPS_PORT}`);
+      const sslPort = process.env.PORT_SSL || 3443;
+      https.createServer(sslOptions, app).listen(sslPort, () => {
+        console.log(`✅ HTTPS rodando em https://localhost:${sslPort}`);
       });
     } else {
-      console.warn('⚠️ HTTPS desativado ou certificados não encontrados.');
+      console.warn('⚠️ HTTPS desativado ou certificados não encontrados');
     }
 
-    // --- Log de uptime ---
+    // Uptime log
     setInterval(() => {
       console.log(`⏱️ Uptime: ${Math.floor(process.uptime())}s`);
       console.log('🟢 Servidor ativo...');
     }, 60000);
 
-  } catch (error) {
-    console.error('❌ Falha ao iniciar servidor:', error.message);
+  } catch (err) {
+    console.error('❌ Falha ao iniciar servidor:', err.message);
     process.exit(1);
   }
 }
 
 startServer();
-

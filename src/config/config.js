@@ -4,22 +4,17 @@ console.log('✅ APP_MODE:', process.env.APP_MODE);
 
 
 
-function getEnvVar(name, required = true) {
+function getEnvVar(name, required = true, strict = true) {
   const value = process.env[name];
   if (required && (value === undefined || value === '')) {
-    console.warn(`⚠️ Variável de ambiente não definida: ${name}`);
+    const msg = `Variável de ambiente obrigatória não definida: ${name}`;
+    if (strict) throw new Error(`❌ ${msg}`);
+    console.warn(`⚠️ ${msg}`);
     return null;
   }
   return value;
 }
 
-function getEnvVar(name, required = true) {
-  const value = process.env[name];
-  if (required && (value === undefined || value === '')) {
-    throw new Error(`❌ Variável de ambiente obrigatória não definida: ${name}`);
-  }
-  return value;
-}
 console.log('\n📦 Variáveis de ambiente carregadas:');
 console.table({
   APP_MODE: process.env.APP_MODE,
@@ -37,9 +32,10 @@ console.table({
 
 const config = {
   app: {
+    
     mode: getEnvVar('APP_MODE', true),
-    allowedOrigins: getEnvVar('ALLOWED_ORIGINS', false)?.split(',') || '*',
-    jwtSecret: getEnvVar('JWT_SECRET', true)
+    allowedOrigins: getEnvVar('ALLOWED_ORIGINS', false,false)?.split(',') || '*',
+    jwtSecret: getEnvVar('JWT_SECRET', true,true)
   },
   db: {
     useUrl: !!process.env.DATABASE_URL,
