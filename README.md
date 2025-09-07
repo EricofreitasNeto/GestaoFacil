@@ -19,29 +19,6 @@ Este projeto oferece uma estrutura completa para o gerenciamento de ativos, serv
 ## 📂 Estrutura do Projeto
 
 ```
-src/
-│── app.js
-│── config/
-│   └── database.js
-│── models/
-│   ├── cliente.js
-│   ├── usuario.js
-│   ├── local.js
-│   ├── ativo.js
-│   ├── tipoServico.js
-│   └── servico.js
-│── routes/
-│   ├── clientes.routes.js
-│   ├── usuarios.routes.js
-│   ├── locais.routes.js
-│   ├── ativos.routes.js
-│   ├── tiposServicos.routes.js
-│   └── servicos.routes.js
-│── controllers/
-│   ├── clientes.controller.js
-│   ├── usuarios.controller.js
-│   ├── ativos.controller.js
-│   ├── servicos.controller.js```
 GestaoFacil/
 │── src/
 │   ├── app.js                # Ponto de entrada principal do backend
