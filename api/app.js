@@ -104,6 +104,9 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
 
+
+
+
 // ─── Middlewares ──────────────────────────────────────────────
 app.use(helmet());
 app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || '*' }));
@@ -137,16 +140,31 @@ app.use((req, res, next) => {
   next();
 });
 
-// ─── Rotas ────────────────────────────────────────────────────
+// ─── Rotas  Publicas ────────────────────────────────────────────────────
 app.use('/auth', authRoutes);
+const filePath = path.join(__dirname, 'public', 'scripts', 'index.js');
+console.log('Arquivo existe?', fs.existsSync(filePath));
+app.use(express.static('public'));
+app.get('/', (req, res) => {
+  res.send('🚀 API Gestão Fácil rodando com sucesso!');
+});
 
+app.get('/teste', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'teste.html'));
+});
+// 1. Servir arquivos estáticos primeiro
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 2. Depois aplique middlewares para rotas protegidas
+
+// ─── Rotas ────────────────────────────────────────────────────
 const apiRouter = express.Router();
 apiRouter.use('/clientes', authenticateJWT(), clienteRoutes);
 apiRouter.use('/usuarios', authenticateJWT(), usuarioRoutes);
 apiRouter.use('/servicos', authenticateJWT(), servicoRoutes);
 apiRouter.use('/ativos', authenticateJWT(), ativoRoutes);
 apiRouter.use('/locais', authenticateJWT(), localRoutes);
-apiRouter.use('/tiposervico', authenticateJWT(), tipoServicoRoutes);
+apiRouter.use('/tipo-servico', authenticateJWT(), tipoServicoRoutes);
 app.use('/v1', apiRouter);
 
 // ─── Banco de dados ───────────────────────────────────────────
@@ -161,13 +179,7 @@ db.sequelize.sync()
   .catch(err => console.error('❌ Erro ao sincronizar modelos:', err));
 
 // ─── Rotas básicas ────────────────────────────────────────────
-app.get('/', (req, res) => {
-  res.send('🚀 API Gestão Fácil rodando com sucesso!');
-});
 
-app.get('/teste', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'teste.html'));
-});
 
 app.get('/uptime', (req, res) => {
   const seconds = Math.floor(process.uptime());
