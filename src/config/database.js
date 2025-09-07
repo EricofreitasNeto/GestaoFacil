@@ -1,18 +1,19 @@
 const { Sequelize } = require('sequelize');
 const config = require('./config');
 
-let sequelize;
-
 const isProduction = config.appMode === 'production';
+
+let sequelize;
 
 if (config.db.useUrl && config.db.url) {
   sequelize = new Sequelize(config.db.url, {
     dialect: config.db.dialect,
     logging: false,
     dialectOptions: {
-      ssl: isProduction
-        ? { require: true, rejectUnauthorized: true } // segurança total em produção
-        : { require: true, rejectUnauthorized: false } // flexível em dev
+      ssl: {
+        require: true,
+        rejectUnauthorized: isProduction
+      }
     }
   });
 } else {

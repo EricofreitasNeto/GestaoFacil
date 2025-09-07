@@ -181,7 +181,7 @@ app.get('/uptime', (req, res) => {
 
 // ─── Inicialização do servidor ────────────────────────────────
 const PORT = process.env.PORT || 3000;
-const APP_MODE = process.env.APP_MODE || 'local';
+const APP_MODE = process.env.APP_MODE || 'production';
 const USE_HTTPS = process.env.USE_HTTPS === 'true';
 const IP = '0.0.0.0'; // escuta em todas as interfaces
 const publicURL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
@@ -190,38 +190,27 @@ const publicURL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 function startServer() {
   console.log(`🧠 APP_MODE: ${APP_MODE}, USE_HTTPS: ${USE_HTTPS}`);
 
+  const isProduction = APP_MODE === 'production';
   const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
   const certPath = path.join(basePath, 'certs', 'server.cert');
   const keyPath = path.join(basePath, 'certs', 'server.key');
 
-  if (USE_HTTPS && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-    const sslOptions = {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath)
-    };
-   https.createServer(sslOptions, app).listen(PORT, IP, () => {
-  console.log(`🔐 HTTPS rodando em ${publicURL}}`);
-});
+  const IP = '0.0.0.0';
+  const PORT = process.env.PORT || 3000;
+  const publicURL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 
+  if (USE_HTTPS && isProduction && fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+    
+    https.createServer(app).listen(PORT, IP, () => {
+      console.log(`🔐 HTTPS rodando em ${publicURL}`);
+    });
+  } else if (!isProduction) {
+    http.createServer(app).listen(PORT, IP, () => {
+      console.log(`🟢 HTTP rodando em ${publicURL}`);
+    });
   } else {
-    
-http.createServer(app).listen(PORT, IP, () => {
-  console.log(`🟢 Servidor rodando em ${publicURL}`);
-});
-
-;
+    console.error('❌ Produção exige HTTPS, mas os certificados não foram encontrados.');
+    process.exit(1); // encerra o app para evitar rodar inseguro
   }
-
-  setInterval(() => {
-    const seconds = Math.floor(process.uptime());
-    console.log(`⏱️ Uptime: ${seconds}s`);
-    console.log('🟢 Servidor ativo...');
-  }, 60000);
-
-    
-  }
-app.use((err, req, res, next) => {
-  console.error('🔥 Erro interno:', err.stack || err.message || err);
-  res.status(500).json({ error: 'Erro interno no servidor' });
-});
+}
 startServer()
