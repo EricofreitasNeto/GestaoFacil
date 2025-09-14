@@ -4,17 +4,25 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
-const isPkg = typeof process.pkg !== 'undefined';
-const envPath = isPkg
-  ? path.join(path.dirname(process.execPath), '.env')
-  : path.resolve(__dirname, '../../.env');
 
-require('dotenv').config({ path: envPath });
+// Detecta se está rodando empacotado pelo pkg
+const isPkg = typeof process.pkg !== 'undefined';
+
+// Função utilitária para resolver caminhos corretamente
+const resolvePath = (...segments) => {
+  const base = isPkg ? path.dirname(process.execPath) : path.resolve(__dirname, '..');
+  return path.join(base, ...segments);
+};
+
+// Carregar .env de fora do executável (mesma pasta do .exe)
+require('dotenv').config({ path: resolvePath('.env') });
 
 // ─── DEBUG ──────────────────────────────────────
 const isDebug = process.argv.includes('--debug');
 if (isDebug) {
   console.log('🐞 Modo DEBUG ativado');
+  console.log('CWD:', process.cwd());
+  console.log('BasePath usado:', resolvePath());
 }
 
 // ─── Express e segurança ──────────────────────────────────────
@@ -38,8 +46,6 @@ const tipoServicoRoutes = isPkg ? require('../src/routes/tipoServicoRoutes') : r
 const authRoutes = isPkg ? require('../src/routes/authRoutes') : require('@routes/authRoutes');
 
 // ─── Tratamento de erros globais ──────────────────────────────
-
-
 process.on('uncaughtException', err => {
   console.error('❌ Erro não tratado:', err);
 });
@@ -48,7 +54,6 @@ process.on('unhandledRejection', reason => {
 });
 
 // ─── Swagger Docs ─────────────────────────────────────────────
-
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
@@ -65,14 +70,8 @@ const swaggerOptions = {
       }
     },
     servers: [
-      {
-        url: 'http://localhost:3000',
-        description: 'Servidor local'
-      },
-      {
-        url: 'https://gestaofacil.onrender.com',
-        description: 'Servidor produção'
-      }
+      { url: 'http://localhost:3000', description: 'Servidor local' },
+      { url: 'https://gestaofacil.onrender.com', description: 'Servidor produção' }
     ],
     tags: [
       { name: 'Autenticação', description: 'Endpoints de login e registro' },
@@ -92,20 +91,13 @@ const swaggerOptions = {
         }
       }
     },
-    security: [
-      { bearerAuth: [] }
-    ]
+    security: [{ bearerAuth: [] }]
   },
   apis: ['./src/routes/*.js']
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
-
-
-
-
 
 // ─── Middlewares ──────────────────────────────────────────────
 app.use(helmet());
@@ -140,7 +132,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ─── Rotas  Publicas ────────────────────────────────────────────────────
+// ─── Rotas Públicas ────────────────────────────────────────────
 app.use('/auth', authRoutes);
 app.post('/proxy/register', async (req, res) => {
   const response = await fetch('https://api.externa.com/register', {
@@ -153,22 +145,19 @@ app.post('/proxy/register', async (req, res) => {
   res.status(response.status).json(data);
 });
 
-const filePath = path.join(__dirname, 'public', 'scripts', 'index.js');
+const filePath = resolvePath('public', 'scripts', 'index.js');
 console.log('Arquivo existe?', fs.existsSync(filePath));
-app.use(express.static('public'));
+
+app.use(express.static(resolvePath('public')));
 app.get('/', (req, res) => {
   res.send('🚀 API Gestão Fácil rodando com sucesso!');
 });
 
 app.get('/teste', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'teste.html'));
+  res.sendFile(resolvePath('public', 'teste.html'));
 });
-// 1. Servir arquivos estáticos primeiro
-app.use(express.static(path.join(__dirname, 'public')));
 
-// 2. Depois aplique middlewares para rotas protegidas
-
-// ─── Rotas ────────────────────────────────────────────────────
+// ─── Rotas protegidas ──────────────────────────────────────────
 const apiRouter = express.Router();
 apiRouter.use('/clientes', authenticateJWT(), clienteRoutes);
 apiRouter.use('/usuarios', authenticateJWT(), usuarioRoutes);
@@ -178,8 +167,8 @@ apiRouter.use('/locais', authenticateJWT(), localRoutes);
 apiRouter.use('/tipo-servico', authenticateJWT(), tipoServicoRoutes);
 app.use('/v1', apiRouter);
 
-// ─── Banco de dados ───────────────────────────────────────────
-console.log("DATABASE_URL:", process.env.DATABASE_URL);
+// ─── Banco de dados ────────────────────────────────────────────
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
 
 db.sequelize.authenticate()
   .then(() => console.log('✅ Conectado ao banco de dados'))
@@ -189,45 +178,31 @@ db.sequelize.sync()
   .then(() => console.log('🔄 Modelos sincronizados'))
   .catch(err => console.error('❌ Erro ao sincronizar modelos:', err));
 
-// ─── Rotas básicas ────────────────────────────────────────────
-
-
+// ─── Rotas básicas ─────────────────────────────────────────────
 app.get('/uptime', (req, res) => {
   const seconds = Math.floor(process.uptime());
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
-
   const formatted = `${hours}h ${minutes % 60}m ${seconds % 60}s`;
   res.send(`⏱️ Uptime da aplicação: ${formatted}`);
 });
-
 
 // ─── Inicialização do servidor ────────────────────────────────
 const PORT = process.env.PORT || 3000;
 const APP_MODE = process.env.APP_MODE || 'production';
 const USE_HTTPS = process.env.USE_HTTPS === 'true';
-const IP = '0.0.0.0'; // escuta em todas as interfaces
+const IP = '0.0.0.0';
 const publicURL = process.env.RENDER_EXTERNAL_URL || `${IP},${PORT}`;
-
 
 function startServer() {
   console.log(`🧠 APP_MODE: ${APP_MODE}, USE_HTTPS: ${USE_HTTPS}`);
 
-  const isProduction = APP_MODE === 'production';
-  const basePath = isPkg ? path.dirname(process.execPath) : __dirname;
-  const certPath = path.join(basePath, 'certs', 'server.cert');
-  const keyPath = path.join(basePath, 'certs', 'server.key');
+  const certPath = resolvePath('certs', 'server.cert');
+  const keyPath = resolvePath('certs', 'server.key');
 
-  const IP = '0.0.0.0';
-  const PORT = process.env.PORT || 3000;
-  const publicURL = process.env.RENDER_EXTERNAL_URL || `${IP},${PORT}`;
-
-  console.log(`🧠 APP_MODE: ${APP_MODE}`);
-
-  // Em produção, Render cuida do HTTPS — não crie servidor HTTPS manualmente
   app.listen(PORT, IP, () => {
     console.log(`🚀 Servidor rodando em ${publicURL}`);
   });
 }
 
-startServer()
+startServer();

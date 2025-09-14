@@ -2,13 +2,7 @@
   "name": "gestao-facil",
   "version": "1.0.0",
   "description": "Este projeto tem como objetivo oferecer uma estrutura completa para o gerenciamento de ativos, serviços técnicos e fluxo operacional com controle de SLA.",
-  "keywords": [
-    "gestão",
-    "API",
-    "Node",
-    "PostgreSQL",
-    "CRUD"
-  ],
+  "keywords": ["gestão", "API", "Node", "PostgreSQL", "CRUD"],
   "homepage": "https://github.com/EricofreitasNeto/GestaoFacil#readme",
   "bugs": {
     "url": "https://github.com/EricofreitasNeto/GestaoFacil/issues"
@@ -19,7 +13,6 @@
   },
   "license": "MIT",
   "author": "Erico de Freitas Neto",
-  "type": "commonjs",
   "main": "api/app.js",
   "scripts": {
     "dev": "nodemon api/app.js",
@@ -37,27 +30,23 @@
     "gestao-facil": "api/app.js"
   },
   "pkg": {
-    "targets": [
-      "node18-win-x64"
-    ],
-    "outputPath": "api/build",
+  "targets": ["node18-win-x64"],
+  "outputPath": "api/build",
+  "compress": true,
+  "compile": false,
     "assets": [
-      ".env",
-      "src/models/**/*.js",
-      "src/routes/**/*.js",
-      "src/middlewares/**/*.js",
-      "src/config/**/*.js",
-      "api/public/**/*",
-      "api/certs/server.key",
-      "api/certs/server.cert",
-      "api/assets/app-icon.ico"
+       ".env",
+    "src/**/*",
+    "api/public/**/*",
+    "api/certs/*",
+    "api/assets/*"
     ]
   },
   "dependencies": {
+    "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
-    "body-parser": "^2.2.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.1",
+    "dotenv": "^16.4.5",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
@@ -67,7 +56,7 @@
     "node-fetch": "^3.3.2",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
-    "postgres": "^3.4.7",
+    "pkg": "^5.8.1",
     "sequelize": "^6.37.7",
     "serve-favicon": "^2.5.1",
     "swagger-jsdoc": "^6.2.8",
@@ -75,6 +64,11 @@
   },
   "devDependencies": {
     "esbuild": "^0.25.9",
-    "rcedit": "^4.0.1"
+    "rcedit": "^4.0.1",
+    "nodemon": "^3.1.0",
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

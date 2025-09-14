@@ -1,6 +1,6 @@
 /**
  * @swagger
- * /v1/tipos-servicos:
+ * /v1/tipos-servico:
  *   get:
  *     tags: [Tipos de Serviços]
  *     summary: Lista todos os tipos de serviço
@@ -12,7 +12,7 @@
  */
 /**
  * @swagger
- * /v1/tipos-servicos/{id}:
+ * /v1/tipos-servico/{id}:
  *   get:
  *     tags: [Tipos de Serviços]
  *     summary: Busca tipo de serviço por ID
@@ -32,7 +32,7 @@
  */
 /**
  * @swagger
- * /v1/tipos-servicos:
+ * /v1/tipos-servico:
  *   post:
  *     tags: [Tipos de Serviços]
  *     summary: Cria um novo tipo de serviço
@@ -57,7 +57,7 @@
  */
 /**
  * @swagger
- * /v1/tipos-servicos/{id}:
+ * /v1/tipos-servico/{id}:
  *   put:
  *     tags: [Tipos de Serviços]
  *     summary: Atualiza um tipo de serviço existente
@@ -90,7 +90,7 @@
  */
 /**
  * @swagger
- * /v1/tipos-servicos/{id}/desativar:
+ * /v1/tipos-servico/{id}/desativar:
  *   patch:
  *     tags: [Tipos de Serviços]
  *     summary: Desativa um tipo de serviço
@@ -110,7 +110,7 @@
  */
 /**
  * @swagger
- * /v1/tipos-servicos/{id}:
+ * /v1/tipos-servico/{id}:
  *   delete:
  *     tags: [Tipos de Serviços]
  *     summary: Exclui definitivamente um tipo de serviço
