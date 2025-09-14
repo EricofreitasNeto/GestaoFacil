@@ -156,6 +156,9 @@ app.get('/', (req, res) => {
 app.get('/teste', (req, res) => {
   res.sendFile(resolvePath('public', 'teste.html'));
 });
+app.get('/gestalfacil', (req, res) => {
+  res.sendFile(resolvePath('public', 'index.html'));
+});
 
 // ─── Rotas protegidas ──────────────────────────────────────────
 const apiRouter = express.Router();
