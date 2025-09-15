@@ -133,32 +133,23 @@ app.use((req, res, next) => {
 });
 
 // ─── Rotas Públicas ────────────────────────────────────────────
-const { resolve } = require('path');
 
-// Rotas de autenticação (ex: login, register interno)
+// ─── Rotas  Publicas ────────────────────────────────────────────────────
 app.use('/auth', authRoutes);
-
-// Caminho para o arquivo de teste
-const filePath = resolve(__dirname, 'public', 'scripts', 'index.js');
+const filePath = path.join(__dirname, 'public', 'scripts', 'index.js');
 console.log('Arquivo existe?', fs.existsSync(filePath));
-
-// Servir arquivos estáticos da pasta /public
-app.use(express.static(resolve(__dirname, 'public')));
-
-// Rota raiz
+app.use(express.static('public'));
 app.get('/', (req, res) => {
   res.send('🚀 API Gestão Fácil rodando com sucesso!');
 });
 
-// Página de teste
 app.get('/teste', (req, res) => {
-  res.sendFile(resolve(__dirname, 'public', 'teste.html'));
+  res.sendFile(path.join(__dirname, 'public', 'teste.html'));
 });
+// 1. Servir arquivos estáticos primeiro
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Página principal
-app.get('/gestalfacil', (req, res) => {
-  res.sendFile(resolve(__dirname, 'index.html'));
-});
+// 2. Depois aplique middlewares para rotas protegidas
 
 
 // ─── Rotas protegidas ──────────────────────────────────────────
@@ -168,7 +159,7 @@ apiRouter.use('/usuarios', authenticateJWT(), usuarioRoutes);
 apiRouter.use('/servicos', authenticateJWT(), servicoRoutes);
 apiRouter.use('/ativos', authenticateJWT(), ativoRoutes);
 apiRouter.use('/locais', authenticateJWT(), localRoutes);
-apiRouter.use('/tipo-servico', authenticateJWT(), tipoServicoRoutes);
+apiRouter.use('/tipos-servicos', authenticateJWT(), tipoServicoRoutes);
 app.use('/v1', apiRouter);
 
 // ─── Banco de dados ────────────────────────────────────────────
