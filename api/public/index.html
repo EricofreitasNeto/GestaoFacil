@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GestãoFácil | Sistema de Gestão de Ativos e serviços</title>
+    <title>GestãoFácil | Sistema de Gestão de Ativos e Serviços</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
@@ -1238,7 +1238,7 @@
             servicos: 1,
             usuarios: 1,
             locais: 1,
-            tiposervico: 1
+            tiposServicos: 1
         };
         const itemsPerPage = 10;
 
@@ -1332,7 +1332,7 @@
             
             // CRUD - Tipos de Serviços
             document.getElementById('save-tipo-servico-btn').addEventListener('click', saveTipoServico);
-            document.getElementById('search-tipo-servico-btn').addEventListener('click', searchTiposServico);
+            document.getElementById('search-tipo-servico-btn').addEventListener('click', searchTiposServicos);
             
             // Confirmação de exclusão
             document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
@@ -1441,8 +1441,8 @@
                 loadUsuarios();
             } else if (section === 'locais') {
                 loadLocais();
-            } else if (section === 'tipos-servico') {
-                loadTiposServico();
+            } else if (section === 'tipos-servicos') {
+                loadTiposServicos();
             }
         }
 
@@ -1638,7 +1638,7 @@
                 const [clientes, ativos, servicos, usuarios] = await Promise.all([
                     apiRequest('/v1/clientes'),
                     apiRequest('/v1/ativos'),
-                    apiRequest('/v1/servicos'),                     
+                    apiRequest('/v1/servicos'),
                     currentUser.cargo === 'admin' ? apiRequest('/v1/usuarios') : Promise.resolve([])
                 ]);
                 
@@ -1775,7 +1775,7 @@
                     deleteUsuario(currentItemId);
                 } else if (currentEntity === 'local') {
                     deleteLocal(currentItemId);
-                } else if (currentEntity === 'tipo-servico') {
+                } else if (currentEntity === 'tipoServico') {
                     deleteTipoServico(currentItemId);
                 }
             }
@@ -2180,7 +2180,7 @@
                 document.getElementById('servicoStatus').value = servico.status;
                 document.getElementById('servicoDataAgendada').value = servico.dataAgendada.substring(0, 16);
                 document.getElementById('servicoCliente').value = servico.clienteId;
-                document.getElementById('tipo-servicoo').value = servico.tipoServicoId;
+                document.getElementById('servicoTipo').value = servico.tipoServicoId;
                 document.getElementById('servicoAtivo').value = servico.ativoId || '';
                 document.getElementById('servicoDetalhes').value = servico.detalhes || '';
                 
@@ -2575,18 +2575,18 @@
         }
 
         // CRUD - Tipos de Serviços
-        async function loadTiposServico(page = 1) {
+        async function loadTiposServicos(page = 1) {
             try {
-                const tiposServico = await apiRequest('/v1/tipo-servico');
-                const tiposServicoList = document.getElementById('tipos-servico-list');
-                tiposServicoList.innerHTML = '';
+                const tiposServicos = await apiRequest('/v1/tipos-servicos');
+                const tiposServicosList = document.getElementById('tipos-servicos-list');
+                tiposServicosList.innerHTML = '';
                 
                 // Paginação
                 const startIndex = (page - 1) * itemsPerPage;
                 const endIndex = startIndex + itemsPerPage;
-                const paginatedTiposServico = tipo-servico.slice(startIndex, endIndex);
+                const paginatedTiposServicos = tiposServicos.slice(startIndex, endIndex);
                 
-                paginatedTiposServico.forEach(tipoServico => {
+                paginatedTiposServicos.forEach(tipoServico => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${tipoServico.nome}</td>
@@ -2599,14 +2599,14 @@
                             ` : ''}
                         </td>
                     `;
-                    tiposServicoList.appendChild(row);
+                    tiposServicosList.appendChild(row);
                 });
                 
                 // Atualizar dropdown de tipos de serviços no formulário de serviços
-                updateTipoServicoDropdown(tiposServico);
+                updateTipoServicoDropdown(tiposServicos);
                 
                 // Atualizar paginação
-                updatePagination('tipos-servicos', tiposServico.length, page);
+                updatePagination('tipos-servicos', tiposServicos.length, page);
             } catch (error) {
                 showNotification('tipos-servicos-status', 'Erro ao carregar tipos de serviços: ' + error.message, false);
             }
@@ -2614,7 +2614,7 @@
 
         async function viewTipoServico(id) {
             try {
-                const tipoServico = await apiRequest(`/v1/tipos-servico/${id}`);
+                const tipoServico = await apiRequest(`/v1/tipos-servicos/${id}`);
                 alert(`Detalhes do Tipo de Serviço:\nNome: ${tipoServico.nome}\nDescrição: ${tipoServico.descricao || 'N/A'}`);
             } catch (error) {
                 showNotification('tipos-servicos-status', 'Erro ao carregar tipo de serviço: ' + error.message, false);
@@ -2623,7 +2623,7 @@
 
         async function editTipoServico(id) {
             try {
-                const tipoServico = await apiRequest(`/v1/tipos-servico/${id}`);
+                const tipoServico = await apiRequest(`/v1/tipos-servicos/${id}`);
                 document.getElementById('tipo-servico-id').value = tipoServico.id;
                 document.getElementById('tipoServicoNome').value = tipoServico.nome;
                 document.getElementById('tipoServicoDescricao').value = tipoServico.descricao || '';
@@ -2648,14 +2648,14 @@
             try {
                 if (tipoServicoId) {
                     // Editar tipo de serviço existente
-                    await apiRequest(`/v1/tipos-servico/${tipoServicoId}`, {
+                    await apiRequest(`/v1/tipos-servicos/${tipoServicoId}`, {
                         method: 'PUT',
                         body: JSON.stringify(tipoServicoData)
                     });
                     showNotification('tipos-servicos-status', 'Tipo de serviço atualizado com sucesso!', true);
                 } else {
                     // Criar novo tipo de serviço
-                    await apiRequest('/v1/tipos-servico', {
+                    await apiRequest('/v1/tipos-servicos', {
                         method: 'POST',
                         body: JSON.stringify(tipoServicoData)
                     });
@@ -2664,7 +2664,7 @@
                 
                 // Fechar modal e recarregar lista
                 bootstrap.Modal.getInstance(document.getElementById('addTipoServicoModal')).hide();
-                loadTiposServico(currentPage.tiposServico);
+                loadTiposServicos(currentPage.tiposServicos);
             } catch (error) {
                 showNotification('tipos-servicos-status', 'Erro ao salvar tipo de serviço: ' + error.message, false);
             }
@@ -2672,29 +2672,29 @@
 
         async function deleteTipoServico(id) {
             try {
-                await apiRequest(`/v1/tipos-servico/${id}`, {
+                await apiRequest(`/v1/tipos-servicos/${id}`, {
                     method: 'DELETE'
                 });
                 showNotification('tipos-servicos-status', 'Tipo de serviço excluído com sucesso!', true);
-                loadTiposServico(currentPage.tiposServico);
+                loadTiposServicos(currentPage.tiposServicos);
             } catch (error) {
                 showNotification('tipos-servicos-status', 'Erro ao excluir tipo de serviço: ' + error.message, false);
             }
         }
 
-        async function searchTiposServico() {
+        async function searchTiposServicos() {
             const searchTerm = document.getElementById('searchTipoServico').value.toLowerCase();
             try {
-                const tiposServico = await apiRequest('/v1/tipos-servico');
-                const filteredTiposServico = tiposServico.filter(tipoServico => 
+                const tiposServicos = await apiRequest('/v1/tipos-servicos');
+                const filteredTiposServicos = tiposServicos.filter(tipoServico => 
                     tipoServico.nome.toLowerCase().includes(searchTerm) || 
                     (tipoServico.descricao && tipoServico.descricao.toLowerCase().includes(searchTerm))
                 );
                 
-                const tiposServicoList = document.getElementById('tipos-servicos-list');
-                tiposServicoList.innerHTML = '';
+                const tiposServicosList = document.getElementById('tipos-servicos-list');
+                tiposServicosList.innerHTML = '';
                 
-                filteredTiposServico.forEach(tipoServico => {
+                filteredTiposServicos.forEach(tipoServico => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${tipoServico.nome}</td>
@@ -2707,18 +2707,18 @@
                             ` : ''}
                         </td>
                     `;
-                    tiposServicoList.appendChild(row);
+                    tiposServicosList.appendChild(row);
                 });
             } catch (error) {
                 showNotification('tipos-servicos-status', 'Erro ao buscar tipos de serviços: ' + error.message, false);
             }
         }
 
-        function updateTipoServicoDropdown(tiposServico) {
+        function updateTipoServicoDropdown(tiposServicos) {
             const servicoTipoDropdown = document.getElementById('servicoTipo');
             if (servicoTipoDropdown) {
                 servicoTipoDropdown.innerHTML = '<option value="">Selecione um tipo...</option>';
-                tiposServico.forEach(tipoServico => {
+                tiposServicos.forEach(tipoServico => {
                     const option = document.createElement('option');
                     option.value = tipoServico.id;
                     option.textContent = tipoServico.nome;
@@ -2772,8 +2772,8 @@
                 loadUsuarios(page);
             } else if (entity === 'locais') {
                 loadLocais(page);
-            } else if (entity === 'tipo-servico') {
-                loadTiposServico(page);
+            } else if (entity === 'tiposServicos') {
+                loadTiposServicos(page);
             }
         }
 

@@ -133,32 +133,33 @@ app.use((req, res, next) => {
 });
 
 // ─── Rotas Públicas ────────────────────────────────────────────
+const { resolve } = require('path');
+
+// Rotas de autenticação (ex: login, register interno)
 app.use('/auth', authRoutes);
-app.post('/proxy/register', async (req, res) => {
-  const response = await fetch('https://api.externa.com/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(req.body)
-  });
 
-  const data = await response.json();
-  res.status(response.status).json(data);
-});
-
-const filePath = resolvePath('public', 'scripts', 'index.js');
+// Caminho para o arquivo de teste
+const filePath = resolve(__dirname, 'public', 'scripts', 'index.js');
 console.log('Arquivo existe?', fs.existsSync(filePath));
 
-app.use(express.static(resolvePath('public')));
+// Servir arquivos estáticos da pasta /public
+app.use(express.static(resolve(__dirname, 'public')));
+
+// Rota raiz
 app.get('/', (req, res) => {
   res.send('🚀 API Gestão Fácil rodando com sucesso!');
 });
 
+// Página de teste
 app.get('/teste', (req, res) => {
-  res.sendFile(resolvePath('public', 'teste.html'));
+  res.sendFile(resolve(__dirname, 'public', 'teste.html'));
 });
+
+// Página principal
 app.get('/gestalfacil', (req, res) => {
-  res.sendFile(resolvePath('public', 'index.html'));
+  res.sendFile(resolve(__dirname, 'public', 'index.html'));
 });
+
 
 // ─── Rotas protegidas ──────────────────────────────────────────
 const apiRouter = express.Router();

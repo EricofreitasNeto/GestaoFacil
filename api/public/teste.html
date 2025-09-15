@@ -1,81 +1,2541 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Teste Completo de API - Gestão Fácil</title>
-  <style>
-    body { font-family: monospace; background: #1e1e1e; color: #ccc; padding: 20px; }
-    h1, h2 { color: #0ff; }
-    button { margin: 5px; padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #333; color: #0ff; }
-    #console {
-      background: #000;
-      color: #0f0;
-      padding: 10px;
-      border-radius: 8px;
-      height: 350px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      font-size: 14px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestãoFácil | Sistema de Gestão de Ativos e serviços</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🧪 Teste Completo de API - Gestão Fácil</h1>
+   
+    <!-- Página de Login -->
+    <div id="login-page" class="login-container">
+        <div class="card login-card">
+            <div class="card-header bg-gradient-primary text-white text-center py-4">
+                <h2><i class="bi bi-graph-up"></i> GestãoFácil</h2>
+                <p class="mb-0">Sistema de Gestão de Ativos e serviços</p>
+            </div>
+            <div class="card-body p-5">
+                <div id="login-status" class="api-status"></div>
+                <form id="login-form">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input type="email" class="form-control" id="email" placeholder="nome@exemplo.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="password" placeholder="Sua senha" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember">
+                        <label class="form-check-label" for="remember">Lembrar-me</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2" id="login-btn">
+                        <span id="login-text">Entrar</span>
+                        <span id="login-loading" class="loading" style="display: none;"></span>
+                    </button>
+                </form>
+                <hr>
+                <div class="text-center">
+                    <a href="#" id="register-link">Não tem uma conta? Registre-se</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <!-- 🔐 Autenticação -->
-  <h2>🔐 Autenticação</h2>
-  <button id="btnRegistrar">Registrar Usuário</button>
-  <button id="btnLogin">Login</button>
-  <button id="btnRotaProtegida">Testar Rota Protegida</button>
+    <!-- Página de Registro -->
+    <div id="register-page" class="login-container" style="display: none;">
+        <div class="card login-card">
+            <div class="card-header bg-gradient-primary text-white text-center py-4">
+                <h2><i class="bi bi-person-plus"></i> Criar Conta</h2>
+                <p class="mb-0">Registre-se no sistema</p>
+            </div>
+            <div class="card-body p-5">
+                <div id="register-status" class="api-status"></div>
+                <form id="register-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="register-name" class="form-label">Nome Completo *</label>
+                            <input type="text" class="form-control" id="register-name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="register-cargo" class="form-label">Cargo *</label>
+                            <select class="form-select" id="register-cargo" required>
+                                <option value="">Selecione um cargo</option>
+                                <option value="admin">Administrador</option>
+                                <option value="tecnico">Técnico</option>
+                                <option value="usuario">Usuário</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-email" class="form-label">E-mail *</label>
+                        <input type="email" class="form-control" id="register-email" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="register-phone" class="form-label">Telefone</label>
+                            <input type="tel" class="form-control" id="register-phone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="register-password" class="form-label">Senha *</label>
+                            <input type="password" class="form-control" id="register-password" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-confirm-password" class="form-label">Confirmar Senha *</label>
+                        <input type="password" class="form-control" id="register-confirm-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2" id="register-btn">
+                        <span id="register-text">Criar Conta</span>
+                        <span id="register-loading" class="loading" style="display: none;"></span>
+                    </button>
+                </form>
+                <hr>
+                <div class="text-center">
+                    <a href="#" id="back-to-login">Voltar para o login</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <!-- 👥 Usuários -->
-  <h2>👥 Usuários</h2>
-  <button id="btnBuscarUsuarios">Buscar Usuários</button>
+    <!-- Layout Principal -->
+    <div id="main-layout" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="px-3 py-4">
+                <h5 class="text-center mb-4">GestãoFácil</h5>
+                <div class="text-center mb-3">
+                    <span class="badge bg-info role-badge" id="user-role-badge">Cargo</span>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard" data-section="dashboard">
+                            <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#clientes" data-section="clientes">
+                            <i class="bi bi-people-fill"></i> <span>Clientes</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#ativos" data-section="ativos">
+                            <i class="bi bi-hdd-stack"></i> <span>Ativos</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#servicos" data-section="servicos">
+                            <i class="bi bi-tools"></i> <span>Serviços</span>
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" id="menu-usuarios">
+                        <a class="nav-link" href="#usuarios" data-section="usuarios">
+                            <i class="bi bi-person-badge"></i> <span>Usuários</span>
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" id="menu-locais">
+                        <a class="nav-link" href="#locais" data-section="locais">
+                            <i class="bi bi-geo-alt"></i> <span>Locais</span>
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only" id="menu-tipos-servicos">
+                        <a class="nav-link" href="#tipos-servicos" data-section="tipos-servicos">
+                            <i class="bi bi-list-check"></i> <span>Tipos de Serviços</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a class="nav-link" href="#" id="logout-btn">
+                            <i class="bi bi-box-arrow-right"></i> <span>Sair</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
-  <!-- 📦 Ativos -->
-  <h2>📦 Ativos</h2>
-  <button id="btnListarAtivos">Listar Ativos</button>
-  <button id="btnBuscarAtivo">Buscar Ativo por ID</button>
-  <button id="btnCriarAtivo">Criar Ativo</button>
-  <button id="btnAtualizarAtivo">Atualizar Ativo</button>
-  <button id="btnDesativarAtivo">Desativar Ativo</button>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper">
+            <!-- Topbar -->
+            <nav class="navbar navbar-expand topbar mb-4 static-top shadow">
+                <div class="container-fluid">
+                    <button id="sidebarToggle" class="btn btn-link d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <form class="d-none d-sm-inline-block me-auto ms-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-light border-0 small" placeholder="Buscar..." aria-label="Search" aria-describedby="basic-addon2">
+                            <button class="btn btn-primary" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell-fill"></i>
+                                <span class="badge bg-danger badge-counter">3+</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown no-arrow mx-1">
+                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-envelope-fill"></i>
+                                <span class="badge bg-danger badge-counter">7</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="d-none d-lg-inline text-gray-600 small" id="user-name">Usuário</span>
+                                <img class="img-profile rounded-circle ms-2" width="32" id="user-avatar" src="https://ui-avatars.com/api/?name=U&background=4e73df&color=fff">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-person-fill me-2"></i> Perfil</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear-fill me-2"></i> Configurações</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" id="dropdown-logout-btn"><i class="bi bi-box-arrow-right me-2"></i> Sair</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
 
-  <!-- 👥 Clientes -->
-  <h2>👥 Clientes</h2>
-  <button id="btnListarClientes">Listar Clientes</button>
-  <button id="btnCriarCliente">Criar Cliente</button>
+            <!-- Conteúdo Principal -->
+            <div class="container-fluid">
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="content-section">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+                            <i class="bi bi-download text-white-50 me-1"></i> Gerar Relatório
+                        </a>
+                    </div>
 
-  <!-- 📍 Locais -->
-  <h2>📍 Locais</h2>
-  <button id="btnListarLocais">Listar Locais</button>
-  <button id="btnCriarLocal">Criar Local</button>
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card card-dashboard card-clientes h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Clientes Cadastrados</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="stats-clientes">0</div>
+                                            <div class="mt-2 text-success small">
+                                                <i class="bi bi-arrow-up me-1"></i> <span id="stats-clientes-trend">0%</span> desde o último mês
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-people-fill fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-  <!-- 🏷️ Tipos de Serviço -->
-  <h2>🏷️ Tipos de Serviço</h2>
-  <button id="btnListarTiposServico">Listar Tipos</button>
-  <button id="btnCriarTipoServico">Criar Tipo</button>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card card-dashboard card-produtos h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Ativos</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="stats-ativos">0</div>
+                                            <div class="mt-2 text-success small">
+                                                <i class="bi bi-arrow-up me-1"></i> <span id="stats-ativos-trend">0%</span> desde o último mês
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-hdd-stack fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-  <!-- 🔧 Serviços Técnicos -->
-  <h2>🔧 Serviços Técnicos</h2>
-  <button id="btnListarServicos">Listar Serviços</button>
-  <button id="btnCriarServico">Criar Serviço</button>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card card-dashboard card-vendas h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Serviços (Mensal)</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="stats-servicos">0</div>
+                                            <div class="mt-2 text-success small">
+                                                <i class="bi bi-arrow-up me-1"></i> <span id="stats-servicos-trend">0%</span> desde o último mês
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-tools fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-  <!-- 👤 Perfil -->
-  <h2>👤 Perfil</h2>
-  <button id="btnExibirPerfil">Exibir Perfil</button>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card card-dashboard card-financeiro h-100">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Usuários</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="stats-usuarios">0</div>
+                                            <div class="mt-2 text-success small">
+                                                <i class="bi bi-arrow-up me-1"></i> <span id="stats-usuarios-trend">0%</span> desde o último mês
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-person-badge fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-  <!-- ⚙️ Configurações -->
-  <h2>⚙️ Configurações</h2>
-  <button id="btnAlternarTema">Alternar Tema</button>
-  <button id="btnExibirLogs">Exibir Logs</button>
-  <button id="btnLimparLogs">Limpar Logs</button>
+                    <div class="row">
+                        <div class="col-xl-8 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Serviços por Status</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-area" style="height: 320px;">
+                                        <canvas id="servicesChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-  <!-- 📋 Console -->
-  <h2>📋 Console de Resposta</h2>
-  <div id="console"></div>
+                        <div class="col-xl-4 col-lg-5">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Tipos de Serviços</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-pie pt-4 pb-2">
+                                        <canvas id="serviceTypesChart" style="height: 280px;"></canvas>
+                                    </div>
+                                    <div class="mt-4 text-center small" id="service-types-legend">
+                                        <!-- Legend will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-  <!-- 🔗 Scripts externos -->
-  <script type="module" src="scripts/index.js"></script>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Últimos Serviços</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" width="100%" cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID Serviço</th>
+                                                    <th>Cliente</th>
+                                                    <th>Descrição</th>
+                                                    <th>Data Agendada</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="recent-services">
+                                                <!-- Recent services will be inserted here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Clientes Section -->
+                <section id="clientes-section" class="content-section" style="display: none;">
+                    <h2 class="h4 text-gray-800 mb-4 section-title">Gerenciamento de Clientes</h2>
+                    
+                    <div id="clientes-status" class="api-status"></div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Buscar cliente..." id="searchClient">
+                                <button class="btn btn-primary" type="button" id="search-client-btn">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addClientModal" id="add-client-btn">
+                                <i class="bi bi-plus-circle me-1"></i> Novo Cliente
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Clientes</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="clientTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>CNPJ</th>
+                                            <th>Contatos</th>
+                                            <th class="table-actions">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="clientes-list">
+                                        <!-- Clients will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center" id="clientes-pagination">
+                                    <!-- Pagination will be inserted here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Ativos Section -->
+                <section id="ativos-section" class="content-section" style="display: none;">
+                    <h2 class="h4 text-gray-800 mb-4 section-title">Gerenciamento de Ativos</h2>
+                    <div id="ativos-status" class="api-status"></div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Buscar ativo..." id="searchAtivo">
+                                <button class="btn btn-primary" type="button" id="search-ativo-btn">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addAtivoModal" id="add-ativo-btn">
+                                <i class="bi bi-plus-circle me-1"></i> Novo Ativo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Ativos</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Nome</th>
+                                            <th>Tipo</th>
+                                            <th>Status</th>
+                                            <th>Cliente</th>
+                                            <th class="table-actions">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ativos-list">
+                                        <!-- Ativos will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center" id="ativos-pagination">
+                                    <!-- Pagination will be inserted here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Serviços Section -->
+                <section id="servicos-section" class="content-section" style="display: none;">
+                    <h2 class="h4 text-gray-800 mb-4 section-title">Gerenciamento de Serviços</h2>
+                    <div id="servicos-status" class="api-status"></div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Buscar serviço..." id="searchServico">
+                                <button class="btn btn-primary" type="button" id="search-servico-btn">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addServicoModal" id="add-servico-btn">
+                                <i class="bi bi-plus-circle me-1"></i> Novo Serviço
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Serviços</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Descrição</th>
+                                            <th>Status</th>
+                                            <th>Data Agendada</th>
+                                            <th>Cliente</th>
+                                            <th>Tipo</th>
+                                            <th class="table-actions">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="servicos-list">
+                                        <!-- Serviços will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center" id="servicos-pagination">
+                                    <!-- Pagination will be inserted here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Usuários Section -->
+                <section id="usuarios-section" class="content-section" style="display: none;">
+                    <h2 class="h4 text-gray-800 mb-4 section-title">Gerenciamento de Usuários</h2>
+                    <div id="usuarios-status" class="api-status"></div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Buscar usuário..." id="searchUsuario">
+                                <button class="btn btn-primary" type="button" id="search-usuario-btn">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addUsuarioModal" id="add-usuario-btn">
+                                <i class="bi bi-plus-circle me-1"></i> Novo Usuário
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Usuários</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Email</th>
+                                            <th>Cargo</th>
+                                            <th>Telefone</th>
+                                            <th class="table-actions">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usuarios-list">
+                                        <!-- Usuários will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center" id="usuarios-pagination">
+                                    <!-- Pagination will be inserted here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Locais Section -->
+                <section id="locais-section" class="content-section" style="display: none;">
+                    <h2 class="h4 text-gray-800 mb-4 section-title">Gerenciamento de Locais</h2>
+                    <div id="locais-status" class="api-status"></div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Buscar local..." id="searchLocal">
+                                <button class="btn btn-primary" type="button" id="search-local-btn">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addLocalModal" id="add-local-btn">
+                                <i class="bi bi-plus-circle me-1"></i> Novo Local
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Locais</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th class="table-actions">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="locais-list">
+                                        <!-- Locais will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center" id="locais-pagination">
+                                    <!-- Pagination will be inserted here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tipos de Serviços Section -->
+                <section id="tipos-servicos-section" class="content-section" style="display: none;">
+                    <h2 class="h4 text-gray-800 mb-4 section-title">Gerenciamento de Tipos de Serviços</h2>
+                    <div id="tipos-servicos-status" class="api-status"></div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Buscar tipo de serviço..." id="searchTipoServico">
+                                <button class="btn btn-primary" type="button" id="search-tipo-servico-btn">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addTipoServicoModal" id="add-tipo-servico-btn">
+                                <i class="bi bi-plus-circle me-1"></i> Novo Tipo de Serviço
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Tipos de Serviços</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Descrição</th>
+                                            <th class="table-actions">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tipos-servicos-list">
+                                        <!-- Tipos de Serviços will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center" id="tipos-servicos-pagination">
+                                    <!-- Pagination will be inserted here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar/editar cliente -->
+    <div class="modal fade" id="addClientModal" tabindex="-1" aria-labelledby="addClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addClientModalLabel">Adicionar Novo Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="client-form">
+                        <input type="hidden" id="client-id" value="">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="clientName" class="form-label">Nome Completo *</label>
+                                <input type="text" class="form-control" id="clientName" name="nome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="clientCnpj" class="form-label">CNPJ</label>
+                                <input type="text" class="form-control" id="clientCnpj" name="cnpj">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="clientContacts" class="form-label">Contatos *</label>
+                            <textarea class="form-control" id="clientContacts" name="contatos" rows="2" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="save-client-btn">Salvar Cliente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar/editar ativo -->
+    <div class="modal fade" id="addAtivoModal" tabindex="-1" aria-labelledby="addAtivoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAtivoModalLabel">Adicionar Novo Ativo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ativo-form">
+                        <input type="hidden" id="ativo-id" value="">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ativoCodigo" class="form-label">Código *</label>
+                                <input type="text" class="form-control" id="ativoCodigo" name="codigo" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ativoNome" class="form-label">Nome *</label>
+                                <input type="text" class="form-control" id="ativoNome" name="nome" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ativoTipo" class="form-label">Tipo *</label>
+                                <input type="text" class="form-control" id="ativoTipo" name="tipo" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ativoStatus" class="form-label">Status *</label>
+                                <select class="form-select" id="ativoStatus" name="status" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Ativo">Ativo</option>
+                                    <option value="Inativo">Inativo</option>
+                                    <option value="Manutenção">Em Manutenção</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ativoCliente" class="form-label">Cliente *</label>
+                                <select class="form-select" id="ativoCliente" name="clienteId" required>
+                                    <option value="">Selecione um cliente...</option>
+                                    <!-- Clientes will be loaded here -->
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="ativoLocal" class="form-label">Local</label>
+                                <select class="form-select" id="ativoLocal" name="localId">
+                                    <option value="">Selecione um local...</option>
+                                    <!-- Locais will be loaded here -->
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="save-ativo-btn">Salvar Ativo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar/editar serviço -->
+    <div class="modal fade" id="addServicoModal" tabindex="-1" aria-labelledby="addServicoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addServicoModalLabel">Adicionar Novo Serviço</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="servico-form">
+                        <input type="hidden" id="servico-id" value="">
+                        <div class="mb-3">
+                            <label for="servicoDescricao" class="form-label">Descrição *</label>
+                            <textarea class="form-control" id="servicoDescricao" name="descricao" rows="2" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="servicoStatus" class="form-label">Status *</label>
+                                <select class="form-select" id="servicoStatus" name="status" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Agendado">Agendado</option>
+                                    <option value="Em Andamento">Em Andamento</option>
+                                    <option value="Concluído">Concluído</option>
+                                    <option value="Cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="servicoDataAgendada" class="form-label">Data Agendada *</label>
+                                <input type="datetime-local" class="form-control" id="servicoDataAgendada" name="dataAgendada" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="servicoCliente" class="form-label">Cliente *</label>
+                                <select class="form-select" id="servicoCliente" name="clienteId" required>
+                                    <option value="">Selecione um cliente...</option>
+                                    <!-- Clientes will be loaded here -->
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="servicoTipo" class="form-label">Tipo de Serviço *</label>
+                                <select class="form-select" id="servicoTipo" name="tipoServicoId" required>
+                                    <option value="">Selecione um tipo...</option>
+                                    <!-- Tipos de serviço will be loaded here -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="servicoAtivo" class="form-label">Ativo</label>
+                                <select class="form-select" id="servicoAtivo" name="ativoId">
+                                    <option value="">Selecione um ativo...</option>
+                                    <!-- Ativos will be loaded here -->
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="servicoDetalhes" class="form-label">Detalhes</label>
+                                <textarea class="form-control" id="servicoDetalhes" name="detalhes" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="save-servico-btn">Salvar Serviço</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar/editar usuário -->
+    <div class="modal fade" id="addUsuarioModal" tabindex="-1" aria-labelledby="addUsuarioModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUsuarioModalLabel">Adicionar Novo Usuário</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="usuario-form">
+                        <input type="hidden" id="usuario-id" value="">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="usuarioNome" class="form-label">Nome Completo *</label>
+                                <input type="text" class="form-control" id="usuarioNome" name="nome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="usuarioCargo" class="form-label">Cargo *</label>
+                                <select class="form-select" id="usuarioCargo" name="cargo" required>
+                                    <option value="">Selecione um cargo</option>
+                                    <option value="admin">Administrador</option>
+                                    <option value="tecnico">Técnico</option>
+                                    <option value="usuario">Usuário</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="usuarioEmail" class="form-label">E-mail *</label>
+                            <input type="email" class="form-control" id="usuarioEmail" name="email" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="usuarioTelefone" class="form-label">Telefone</label>
+                                <input type="tel" class="form-control" id="usuarioTelefone" name="telefone">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="usuarioPassword" class="form-label">Senha *</label>
+                                <input type="password" class="form-control" id="usuarioPassword" name="password" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="save-usuario-btn">Salvar Usuário</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar/editar local -->
+    <div class="modal fade" id="addLocalModal" tabindex="-1" aria-labelledby="addLocalModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addLocalModalLabel">Adicionar Novo Local</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="local-form">
+                        <input type="hidden" id="local-id" value="">
+                        <div class="mb-3">
+                            <label for="localNome" class="form-label">Nome *</label>
+                            <input type="text" class="form-control" id="localNome" name="nome" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="save-local-btn">Salvar Local</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar/editar tipo de serviço -->
+    <div class="modal fade" id="addTipoServicoModal" tabindex="-1" aria-labelledby="addTipoServicoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTipoServicoModalLabel">Adicionar Novo Tipo de Serviço</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="tipo-servico-form">
+                        <input type="hidden" id="tipo-servico-id" value="">
+                        <div class="mb-3">
+                            <label for="tipoServicoNome" class="form-label">Nome *</label>
+                            <input type="text" class="form-control" id="tipoServicoNome" name="nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipoServicoDescricao" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="tipoServicoDescricao" name="descricao" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="save-tipo-servico-btn">Salvar Tipo de Serviço</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação para exclusão -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Configuração da API
+        const API_BASE_URL = 'https://gestaofacil.onrender.com'; // Altere para a URL da sua API
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        
+        // Variáveis para controle do CRUD
+        let currentEntity = null;
+        let currentItemId = null;
+        let currentPage = {
+            clientes: 1,
+            ativos: 1,
+            servicos: 1,
+            usuarios: 1,
+            locais: 1,
+            tiposervico: 1
+        };
+        const itemsPerPage = 10;
+
+        // Elementos da UI
+        const loginPage = document.getElementById('login-page');
+        const registerPage = document.getElementById('register-page');
+        const mainLayout = document.getElementById('main-layout');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginStatus = document.getElementById('login-status');
+        const registerStatus = document.getElementById('register-status');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const loginText = document.getElementById('login-text');
+        const registerText = document.getElementById('register-text');
+        const loginLoading = document.getElementById('login-loading');
+        const registerLoading = document.getElementById('register-loading');
+        const userNameElement = document.getElementById('user-name');
+        const userAvatarElement = document.getElementById('user-avatar');
+        const userRoleBadge = document.getElementById('user-role-badge');
+        const registerLink = document.getElementById('register-link');
+        const backToLogin = document.getElementById('back-to-login');
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se o usuário já está logado
+            if (authToken) {
+                showMainLayout();
+                loadDashboardData();
+            } else {
+                showLoginPage();
+            }
+
+            // Configurar eventos
+            setupEventListeners();
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Login
+            loginForm.addEventListener('submit', handleLogin);
+            
+            // Registro
+            registerForm.addEventListener('submit', handleRegister);
+            
+            // Navegação entre login e registro
+            registerLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                showRegisterPage();
+            });
+            
+            backToLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                showLoginPage();
+            });
+            
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+            document.getElementById('dropdown-logout-btn').addEventListener('click', handleLogout);
+            
+            // Navegação
+            document.querySelectorAll('.nav-link[data-section]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navigateToSection(this.getAttribute('data-section'));
+                });
+            });
+            
+            // Toggle sidebar em mobile
+            document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+            
+            // CRUD - Clientes
+            document.getElementById('save-client-btn').addEventListener('click', saveClient);
+            document.getElementById('search-client-btn').addEventListener('click', searchClients);
+            
+            // CRUD - Ativos
+            document.getElementById('save-ativo-btn').addEventListener('click', saveAtivo);
+            document.getElementById('search-ativo-btn').addEventListener('click', searchAtivos);
+            
+            // CRUD - Serviços
+            document.getElementById('save-servico-btn').addEventListener('click', saveServico);
+            document.getElementById('search-servico-btn').addEventListener('click', searchServicos);
+            
+            // CRUD - Usuários
+            document.getElementById('save-usuario-btn').addEventListener('click', saveUsuario);
+            document.getElementById('search-usuario-btn').addEventListener('click', searchUsuarios);
+            
+            // CRUD - Locais
+            document.getElementById('save-local-btn').addEventListener('click', saveLocal);
+            document.getElementById('search-local-btn').addEventListener('click', searchLocais);
+            
+            // CRUD - Tipos de Serviços
+            document.getElementById('save-tipo-servico-btn').addEventListener('click', saveTipoServico);
+            document.getElementById('search-tipo-servico-btn').addEventListener('click', searchTiposServico);
+            
+            // Confirmação de exclusão
+            document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
+            
+            // Eventos para fechar modais e limpar formulários
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    clearForm(this.querySelector('form'));
+                    currentItemId = null;
+                });
+            });
+        }
+
+        // Funções de navegação
+        function showLoginPage() {
+            loginPage.style.display = 'flex';
+            registerPage.style.display = 'none';
+            mainLayout.style.display = 'none';
+        }
+
+        function showRegisterPage() {
+            loginPage.style.display = 'none';
+            registerPage.style.display = 'flex';
+            mainLayout.style.display = 'none';
+        }
+
+        function showMainLayout() {
+            loginPage.style.display = 'none';
+            registerPage.style.display = 'none';
+            mainLayout.style.display = 'block';
+            
+            // Atualizar informações do usuário
+            if (currentUser.nome) {
+                userNameElement.textContent = currentUser.nome;
+                userAvatarElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.nome)}&background=4e73df&color=fff`;
+                
+                // Atualizar badge de cargo
+                if (currentUser.cargo) {
+                    userRoleBadge.textContent = currentUser.cargo;
+                    let badgeColor = 'bg-secondary';
+                    
+                    switch(currentUser.cargo) {
+                        case 'admin':
+                            badgeColor = 'bg-danger';
+                            break;
+                        case 'tecnico':
+                            badgeColor = 'bg-warning';
+                            break;
+                        case 'usuario':
+                            badgeColor = 'bg-info';
+                            break;
+                    }
+                    
+                    userRoleBadge.className = `badge ${badgeColor} role-badge`;
+                    
+                    // Mostrar/ocultar elementos baseados no cargo
+                    updateUIForUserRole(currentUser.cargo);
+                }
+            }
+        }
+
+        function updateUIForUserRole(role) {
+            // Mostrar/ocultar menus baseados no cargo
+            const adminMenus = document.querySelectorAll('.admin-only');
+            adminMenus.forEach(menu => {
+                if (role === 'admin') {
+                    menu.classList.add('visible');
+                } else {
+                    menu.classList.remove('visible');
+                }
+            });
+            
+            // Mostrar/ocultar botões baseados no cargo
+            const adminButtons = document.querySelectorAll('.btn-admin-only');
+            adminButtons.forEach(button => {
+                if (role === 'admin') {
+                    button.classList.add('visible');
+                } else {
+                    button.classList.remove('visible');
+                }
+            });
+        }
+
+        function navigateToSection(section) {
+            // Ativar link no menu
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelector(`.nav-link[data-section="${section}"]`).classList.add('active');
+            
+            // Mostrar seção correspondente
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(`${section}-section`).style.display = 'block';
+            
+            // Carregar dados da seção se necessário
+            if (section === 'dashboard') {
+                loadDashboardData();
+            } else if (section === 'clientes') {
+                loadClientes();
+            } else if (section === 'ativos') {
+                loadAtivos();
+            } else if (section === 'servicos') {
+                loadServicos();
+            } else if (section === 'usuarios') {
+                loadUsuarios();
+            } else if (section === 'locais') {
+                loadLocais();
+            } else if (section === 'tipos-servico') {
+                loadTiposServico();
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const contentWrapper = document.getElementById('content-wrapper');
+            
+            if (window.innerWidth < 576) {
+                sidebar.classList.toggle('mobile-show');
+                contentWrapper.classList.toggle('mobile-pushed');
+            } else {
+                if (sidebar.style.width === '80px') {
+                    sidebar.style.width = '250px';
+                    contentWrapper.style.marginLeft = '250px';
+                    contentWrapper.style.width = 'calc(100% - 250px)';
+                    
+                    // Mostrar textos dos links
+                    document.querySelectorAll('.sidebar .nav-link span').forEach(span => {
+                        span.style.display = 'inline';
+                    });
+                } else {
+                    sidebar.style.width = '80px';
+                    contentWrapper.style.marginLeft = '80px';
+                    contentWrapper.style.width = 'calc(100% - 80px)';
+                    
+                    // Esconder textos dos links
+                    document.querySelectorAll('.sidebar .nav-link span').forEach(span => {
+                        span.style.display = 'none';
+                    });
+                }
+            }
+        }
+
+        // Funções de API
+        async function apiRequest(url, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            };
+            
+            const mergedOptions = { ...defaultOptions, ...options };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}${url}`, mergedOptions);
+                
+                if (response.status === 401) {
+                    // Token inválido ou expirado
+                    handleLogout();
+                    throw new Error('Sessão expirada. Faça login novamente.');
+                }
+                
+                if (response.status === 403) {
+                    // Acesso negado - cargo insuficiente
+                    throw new Error('Acesso negado: seu cargo não tem permissão para esta ação.');
+                }
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || `Erro na requisição: ${response.status} ${response.statusText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Erro na requisição API:', error);
+                throw error;
+            }
+        }
+
+        // Autenticação
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            loginText.style.display = 'none';
+            loginLoading.style.display = 'inline-block';
+            loginStatus.className = 'api-status';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    
+                    // Decodificar o token JWT para obter informações do usuário
+                    const payload = JSON.parse(atob(authToken.split('.')[1]));
+                    currentUser = {
+                        id: payload.id,
+                        nome: payload.nome,
+                        email: payload.email,
+                        cargo: payload.cargo
+                    };
+                    
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    showMainLayout();
+                    loadDashboardData();
+                } else {
+                    loginStatus.textContent = data.message || 'Erro ao fazer login';
+                    loginStatus.className = 'api-status error';
+                }
+            } catch (error) {
+                loginStatus.textContent = 'Erro de conexão. Verifique se o servidor está rodando.';
+                loginStatus.className = 'api-status error';
+            } finally {
+                loginText.style.display = 'inline-block';
+                loginLoading.style.display = 'none';
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const nome = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const cargo = document.getElementById('register-cargo').value;
+            const telefone = document.getElementById('register-phone').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            
+            if (password !== confirmPassword) {
+                registerStatus.textContent = 'As senhas não coincidem';
+                registerStatus.className = 'api-status error';
+                return;
+            }
+            
+            registerText.style.display = 'none';
+            registerLoading.style.display = 'inline-block';
+            registerStatus.className = 'api-status';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome, email, cargo, telefone, password, confirmPassword })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    registerStatus.textContent = 'Conta criada com sucesso! Faça login para continuar.';
+                    registerStatus.className = 'api-status success';
+                    
+                    // Limpar formulário
+                    document.getElementById('register-form').reset();
+                    
+                    // Voltar para a página de login após 2 segundos
+                    setTimeout(() => {
+                        showLoginPage();
+                    }, 2000);
+                } else {
+                    registerStatus.textContent = data.message || 'Erro ao criar conta';
+                    registerStatus.className = 'api-status error';
+                }
+            } catch (error) {
+                registerStatus.textContent = 'Erro de conexão. Verifique se o servidor está rodando.';
+                registerStatus.className = 'api-status error';
+            } finally {
+                registerText.style.display = 'inline-block';
+                registerLoading.style.display = 'none';
+            }
+        }
+
+        function handleLogout(e) {
+            if (e) e.preventDefault();
+            
+            authToken = null;
+            currentUser = {};
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            
+            showLoginPage();
+        }
+
+        // Carregar dados do dashboard
+        async function loadDashboardData() {
+            try {
+                // Carregar estatísticas
+                const [clientes, ativos, servicos, usuarios] = await Promise.all([
+                    apiRequest('/v1/clientes'),
+                    apiRequest('/v1/ativos'),
+                    apiRequest('/v1/servicos'),                     
+                    currentUser.cargo === 'admin' ? apiRequest('/v1/usuarios') : Promise.resolve([])
+                ]);
+                
+                // Atualizar estatísticas
+                document.getElementById('stats-clientes').textContent = clientes.length;
+                document.getElementById('stats-ativos').textContent = ativos.length;
+                document.getElementById('stats-servicos').textContent = servicos.length;
+                document.getElementById('stats-usuarios').textContent = usuarios.length;
+                
+                // Carregar gráficos
+                loadCharts(servicos);
+                
+                // Carregar serviços recentes
+                loadRecentServices(servicos);
+            } catch (error) {
+                console.error('Erro ao carregar dados do dashboard:', error);
+            }
+        }
+
+        function loadCharts(servicos) {
+            // Gráfico de serviços por status
+            const statusCount = {};
+            servicos.forEach(servico => {
+                statusCount[servico.status] = (statusCount[servico.status] || 0) + 1;
+            });
+            
+            const statusCtx = document.getElementById('servicesChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statusCount),
+                    datasets: [{
+                        label: 'Serviços por Status',
+                        data: Object.values(statusCount),
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de tipos de serviços (simulado)
+            const typesCtx = document.getElementById('serviceTypesChart').getContext('2d');
+            new Chart(typesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Manutenção', 'Instalação', 'Suporte', 'Consultoria'],
+                    datasets: [{
+                        data: [35, 25, 20, 20],
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadRecentServices(servicos) {
+            const recentServicesContainer = document.getElementById('recent-services');
+            recentServicesContainer.innerHTML = '';
+            
+            // Ordenar serviços por data (mais recentes primeiro)
+            const recentServices = servicos
+                .sort((a, b) => new Date(b.dataAgendada) - new Date(a.dataAgendada))
+                .slice(0, 5);
+            
+            recentServices.forEach(servico => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>#${servico.id}</td>
+                    <td>${servico.cliente?.nome || 'N/A'}</td>
+                    <td>${servico.descricao}</td>
+                    <td>${new Date(servico.dataAgendada).toLocaleDateString()}</td>
+                    <td><span class="badge bg-${getStatusBadgeClass(servico.status)}">${servico.status}</span></td>
+                `;
+                recentServicesContainer.appendChild(row);
+            });
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'Concluído': return 'success';
+                case 'Em Andamento': return 'primary';
+                case 'Agendado': return 'info';
+                case 'Cancelado': return 'danger';
+                default: return 'secondary';
+            }
+        }
+
+        // Funções utilitárias
+        function clearForm(form) {
+            if (form) {
+                form.reset();
+                const hiddenId = form.querySelector('input[type="hidden"]');
+                if (hiddenId) hiddenId.value = '';
+            }
+        }
+
+        function showNotification(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.className = isSuccess ? 'api-status success' : 'api-status error';
+                setTimeout(() => {
+                    element.className = 'api-status';
+                }, 5000);
+            }
+        }
+
+        function confirmDelete() {
+            if (currentEntity && currentItemId) {
+                if (currentEntity === 'cliente') {
+                    deleteCliente(currentItemId);
+                } else if (currentEntity === 'ativo') {
+                    deleteAtivo(currentItemId);
+                } else if (currentEntity === 'servico') {
+                    deleteServico(currentItemId);
+                } else if (currentEntity === 'usuario') {
+                    deleteUsuario(currentItemId);
+                } else if (currentEntity === 'local') {
+                    deleteLocal(currentItemId);
+                } else if (currentEntity === 'tipo-servico') {
+                    deleteTipoServico(currentItemId);
+                }
+            }
+            bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal')).hide();
+        }
+
+        function askForDelete(entity, id) {
+            currentEntity = entity;
+            currentItemId = id;
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmDeleteModal')).show();
+        }
+
+        // CRUD - Clientes
+        async function loadClientes(page = 1) {
+            try {
+                const clientes = await apiRequest('/v1/clientes');
+                const clientesList = document.getElementById('clientes-list');
+                clientesList.innerHTML = '';
+                
+                // Paginação
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedClientes = clientes.slice(startIndex, endIndex);
+                
+                paginatedClientes.forEach(cliente => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${cliente.nome}</td>
+                        <td>${cliente.cnpj || 'N/A'}</td>
+                        <td>${cliente.contatos}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewCliente(${cliente.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editCliente(${cliente.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('cliente', ${cliente.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    clientesList.appendChild(row);
+                });
+                
+                // Atualizar dropdowns de clientes em outros formulários
+                updateClientDropdowns(clientes);
+                
+                // Atualizar paginação
+                updatePagination('clientes', clientes.length, page);
+            } catch (error) {
+                showNotification('clientes-status', 'Erro ao carregar clientes: ' + error.message, false);
+            }
+        }
+
+        async function viewCliente(id) {
+            try {
+                const cliente = await apiRequest(`/v1/clientes/${id}`);
+                alert(`Detalhes do Cliente:\nNome: ${cliente.nome}\nCNPJ: ${cliente.cnpj || 'N/A'}\nContatos: ${cliente.contatos}`);
+            } catch (error) {
+                showNotification('clientes-status', 'Erro ao carregar cliente: ' + error.message, false);
+            }
+        }
+
+        async function editCliente(id) {
+            try {
+                const cliente = await apiRequest(`/v1/clientes/${id}`);
+                document.getElementById('client-id').value = cliente.id;
+                document.getElementById('clientName').value = cliente.nome;
+                document.getElementById('clientCnpj').value = cliente.cnpj || '';
+                document.getElementById('clientContacts').value = cliente.contatos;
+                
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('addClientModal')).show();
+            } catch (error) {
+                showNotification('clientes-status', 'Erro ao carregar cliente: ' + error.message, false);
+            }
+        }
+
+        async function saveClient() {
+            // Verificar se o usuário tem permissão
+            if (currentUser.cargo !== 'admin') {
+                alert('Acesso negado: apenas administradores podem criar/editar clientes.');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('client-form'));
+            const clientData = Object.fromEntries(formData.entries());
+            const clientId = document.getElementById('client-id').value;
+            
+            try {
+                if (clientId) {
+                    // Editar cliente existente
+                    await apiRequest(`/v1/clientes/${clientId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(clientData)
+                    });
+                    showNotification('clientes-status', 'Cliente atualizado com sucesso!', true);
+                } else {
+                    // Criar novo cliente
+                    await apiRequest('/v1/clientes', {
+                        method: 'POST',
+                        body: JSON.stringify(clientData)
+                    });
+                    showNotification('clientes-status', 'Cliente criado com sucesso!', true);
+                }
+                
+                // Fechar modal e recarregar lista
+                bootstrap.Modal.getInstance(document.getElementById('addClientModal')).hide();
+                loadClientes(currentPage.clientes);
+            } catch (error) {
+                showNotification('clientes-status', 'Erro ao salvar cliente: ' + error.message, false);
+            }
+        }
+
+        async function deleteCliente(id) {
+            try {
+                await apiRequest(`/v1/clientes/${id}`, {
+                    method: 'DELETE'
+                });
+                showNotification('clientes-status', 'Cliente excluído com sucesso!', true);
+                loadClientes(currentPage.clientes);
+            } catch (error) {
+                showNotification('clientes-status', 'Erro ao excluir cliente: ' + error.message, false);
+            }
+        }
+
+        async function searchClients() {
+            const searchTerm = document.getElementById('searchClient').value.toLowerCase();
+            try {
+                const clientes = await apiRequest('/v1/clientes');
+                const filteredClients = clientes.filter(cliente => 
+                    cliente.nome.toLowerCase().includes(searchTerm) || 
+                    (cliente.cnpj && cliente.cnpj.toLowerCase().includes(searchTerm))
+                );
+                
+                const clientesList = document.getElementById('clientes-list');
+                clientesList.innerHTML = '';
+                
+                filteredClients.forEach(cliente => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${cliente.nome}</td>
+                        <td>${cliente.cnpj || 'N/A'}</td>
+                        <td>${cliente.contatos}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewCliente(${cliente.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editCliente(${cliente.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('cliente', ${cliente.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    clientesList.appendChild(row);
+                });
+            } catch (error) {
+                showNotification('clientes-status', 'Erro ao buscar clientes: ' + error.message, false);
+            }
+        }
+
+        function updateClientDropdowns(clientes) {
+            // Dropdown de clientes no formulário de ativos
+            const ativoClienteDropdown = document.getElementById('ativoCliente');
+            if (ativoClienteDropdown) {
+                ativoClienteDropdown.innerHTML = '<option value="">Selecione um cliente...</option>';
+                clientes.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.id;
+                    option.textContent = cliente.nome;
+                    ativoClienteDropdown.appendChild(option);
+                });
+            }
+            
+            // Dropdown de clientes no formulário de serviços
+            const servicoClienteDropdown = document.getElementById('servicoCliente');
+            if (servicoClienteDropdown) {
+                servicoClienteDropdown.innerHTML = '<option value="">Selecione um cliente...</option>';
+                clientes.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.id;
+                    option.textContent = cliente.nome;
+                    servicoClienteDropdown.appendChild(option);
+                });
+            }
+        }
+
+        // CRUD - Ativos
+        async function loadAtivos(page = 1) {
+            try {
+                const ativos = await apiRequest('/v1/ativos');
+                const ativosList = document.getElementById('ativos-list');
+                ativosList.innerHTML = '';
+                
+                // Paginação
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedAtivos = ativos.slice(startIndex, endIndex);
+                
+                paginatedAtivos.forEach(ativo => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${ativo.codigo}</td>
+                        <td>${ativo.nome}</td>
+                        <td>${ativo.tipo}</td>
+                        <td><span class="badge bg-${getStatusBadgeClass(ativo.status)}">${ativo.status}</span></td>
+                        <td>${ativo.cliente?.nome || 'N/A'}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewAtivo(${ativo.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editAtivo(${ativo.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('ativo', ${ativo.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    ativosList.appendChild(row);
+                });
+                
+                // Atualizar dropdown de ativos no formulário de serviços
+                updateAtivoDropdown(ativos);
+                
+                // Atualizar paginação
+                updatePagination('ativos', ativos.length, page);
+            } catch (error) {
+                showNotification('ativos-status', 'Erro ao carregar ativos: ' + error.message, false);
+            }
+        }
+
+        async function viewAtivo(id) {
+            try {
+                const ativo = await apiRequest(`/v1/ativos/${id}`);
+                alert(`Detalhes do Ativo:\nCódigo: ${ativo.codigo}\nNome: ${ativo.nome}\nTipo: ${ativo.tipo}\nStatus: ${ativo.status}\nCliente: ${ativo.cliente?.nome || 'N/A'}`);
+            } catch (error) {
+                showNotification('ativos-status', 'Erro ao carregar ativo: ' + error.message, false);
+            }
+        }
+
+        async function editAtivo(id) {
+            try {
+                const ativo = await apiRequest(`/v1/ativos/${id}`);
+                document.getElementById('ativo-id').value = ativo.id;
+                document.getElementById('ativoCodigo').value = ativo.codigo;
+                document.getElementById('ativoNome').value = ativo.nome;
+                document.getElementById('ativoTipo').value = ativo.tipo;
+                document.getElementById('ativoStatus').value = ativo.status;
+                document.getElementById('ativoCliente').value = ativo.clienteId;
+                document.getElementById('ativoLocal').value = ativo.localId || '';
+                
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('addAtivoModal')).show();
+            } catch (error) {
+                showNotification('ativos-status', 'Erro ao carregar ativo: ' + error.message, false);
+            }
+        }
+
+        async function saveAtivo() {
+            // Verificar se o usuário tem permissão
+            if (currentUser.cargo !== 'admin') {
+                alert('Acesso negado: apenas administradores podem criar/editar ativos.');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('ativo-form'));
+            const ativoData = Object.fromEntries(formData.entries());
+            const ativoId = document.getElementById('ativo-id').value;
+            
+            // Converter IDs para números
+            if (ativoData.clienteId) ativoData.clienteId = parseInt(ativoData.clienteId);
+            if (ativoData.localId) ativoData.localId = parseInt(ativoData.localId);
+            
+            try {
+                if (ativoId) {
+                    // Editar ativo existente
+                    await apiRequest(`/v1/ativos/${ativoId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(ativoData)
+                    });
+                    showNotification('ativos-status', 'Ativo atualizado com sucesso!', true);
+                } else {
+                    // Criar novo ativo
+                    await apiRequest('/v1/ativos', {
+                        method: 'POST',
+                        body: JSON.stringify(ativoData)
+                    });
+                    showNotification('ativos-status', 'Ativo criado com sucesso!', true);
+                }
+                
+                // Fechar modal e recarregar lista
+                bootstrap.Modal.getInstance(document.getElementById('addAtivoModal')).hide();
+                loadAtivos(currentPage.ativos);
+            } catch (error) {
+                showNotification('ativos-status', 'Erro ao salvar ativo: ' + error.message, false);
+            }
+        }
+
+        async function deleteAtivo(id) {
+            try {
+                await apiRequest(`/v1/ativos/${id}`, {
+                    method: 'DELETE'
+                });
+                showNotification('ativos-status', 'Ativo excluído com sucesso!', true);
+                loadAtivos(currentPage.ativos);
+            } catch (error) {
+                showNotification('ativos-status', 'Erro ao excluir ativo: ' + error.message, false);
+            }
+        }
+
+        async function searchAtivos() {
+            const searchTerm = document.getElementById('searchAtivo').value.toLowerCase();
+            try {
+                const ativos = await apiRequest('/v1/ativos');
+                const filteredAtivos = ativos.filter(ativo => 
+                    ativo.codigo.toLowerCase().includes(searchTerm) || 
+                    ativo.nome.toLowerCase().includes(searchTerm) ||
+                    ativo.tipo.toLowerCase().includes(searchTerm)
+                );
+                
+                const ativosList = document.getElementById('ativos-list');
+                ativosList.innerHTML = '';
+                
+                filteredAtivos.forEach(ativo => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${ativo.codigo}</td>
+                        <td>${ativo.nome}</td>
+                        <td>${ativo.tipo}</td>
+                        <td><span class="badge bg-${getStatusBadgeClass(ativo.status)}">${ativo.status}</span></td>
+                        <td>${ativo.cliente?.nome || 'N/A'}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewAtivo(${ativo.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editAtivo(${ativo.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('ativo', ${ativo.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    ativosList.appendChild(row);
+                });
+            } catch (error) {
+                showNotification('ativos-status', 'Erro ao buscar ativos: ' + error.message, false);
+            }
+        }
+
+        function updateAtivoDropdown(ativos) {
+            const servicoAtivoDropdown = document.getElementById('servicoAtivo');
+            if (servicoAtivoDropdown) {
+                servicoAtivoDropdown.innerHTML = '<option value="">Selecione um ativo...</option>';
+                ativos.forEach(ativo => {
+                    const option = document.createElement('option');
+                    option.value = ativo.id;
+                    option.textContent = `${ativo.codigo} - ${ativo.nome}`;
+                    servicoAtivoDropdown.appendChild(option);
+                });
+            }
+        }
+
+        // CRUD - Serviços
+        async function loadServicos(page = 1) {
+            try {
+                const servicos = await apiRequest('/v1/servicos');
+                const servicosList = document.getElementById('servicos-list');
+                servicosList.innerHTML = '';
+                
+                // Paginação
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedServicos = servicos.slice(startIndex, endIndex);
+                
+                paginatedServicos.forEach(servico => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${servico.descricao}</td>
+                        <td><span class="badge bg-${getStatusBadgeClass(servico.status)}">${servico.status}</span></td>
+                        <td>${new Date(servico.dataAgendada).toLocaleDateString()}</td>
+                        <td>${servico.cliente?.nome || 'N/A'}</td>
+                        <td>${servico.tipoServico?.nome || 'N/A'}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewServico(${servico.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editServico(${servico.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('servico', ${servico.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    servicosList.appendChild(row);
+                });
+                
+                // Atualizar paginação
+                updatePagination('servicos', servicos.length, page);
+            } catch (error) {
+                showNotification('servicos-status', 'Erro ao carregar serviços: ' + error.message, false);
+            }
+        }
+
+        async function viewServico(id) {
+            try {
+                const servico = await apiRequest(`/v1/servicos/${id}`);
+                alert(`Detalhes do Serviço:\nDescrição: ${servico.descricao}\nStatus: ${servico.status}\nData Agendada: ${new Date(servico.dataAgendada).toLocaleDateString()}\nCliente: ${servico.cliente?.nome || 'N/A'}\nTipo: ${servico.tipoServico?.nome || 'N/A'}`);
+            } catch (error) {
+                showNotification('servicos-status', 'Erro ao carregar serviço: ' + error.message, false);
+            }
+        }
+
+        async function editServico(id) {
+            try {
+                const servico = await apiRequest(`/v1/servicos/${id}`);
+                document.getElementById('servico-id').value = servico.id;
+                document.getElementById('servicoDescricao').value = servico.descricao;
+                document.getElementById('servicoStatus').value = servico.status;
+                document.getElementById('servicoDataAgendada').value = servico.dataAgendada.substring(0, 16);
+                document.getElementById('servicoCliente').value = servico.clienteId;
+                document.getElementById('tipo-servicoo').value = servico.tipoServicoId;
+                document.getElementById('servicoAtivo').value = servico.ativoId || '';
+                document.getElementById('servicoDetalhes').value = servico.detalhes || '';
+                
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('addServicoModal')).show();
+            } catch (error) {
+                showNotification('servicos-status', 'Erro ao carregar serviço: ' + error.message, false);
+            }
+        }
+
+        async function saveServico() {
+            // Verificar se o usuário tem permissão
+            if (currentUser.cargo !== 'admin') {
+                alert('Acesso negado: apenas administradores podem criar/editar serviços.');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('servico-form'));
+            const servicoData = Object.fromEntries(formData.entries());
+            const servicoId = document.getElementById('servico-id').value;
+            
+            // Converter IDs para números
+            if (servicoData.clienteId) servicoData.clienteId = parseInt(servicoData.clienteId);
+            if (servicoData.tipoServicoId) servicoData.tipoServicoId = parseInt(servicoData.tipoServicoId);
+            if (servicoData.ativoId) servicoData.ativoId = parseInt(servicoData.ativoId);
+            if (servicoData.usuarioId) servicoData.usuarioId = parseInt(servicoData.usuarioId);
+            
+            try {
+                if (servicoId) {
+                    // Editar serviço existente
+                    await apiRequest(`/v1/servicos/${servicoId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(servicoData)
+                    });
+                    showNotification('servicos-status', 'Serviço atualizado com sucesso!', true);
+                } else {
+                    // Criar novo serviço
+                    await apiRequest('/v1/servicos', {
+                        method: 'POST',
+                        body: JSON.stringify(servicoData)
+                    });
+                    showNotification('servicos-status', 'Serviço criado com sucesso!', true);
+                }
+                
+                // Fechar modal e recarregar lista
+                bootstrap.Modal.getInstance(document.getElementById('addServicoModal')).hide();
+                loadServicos(currentPage.servicos);
+            } catch (error) {
+                showNotification('servicos-status', 'Erro ao salvar serviço: ' + error.message, false);
+            }
+        }
+
+        async function deleteServico(id) {
+            try {
+                await apiRequest(`/v1/servicos/${id}`, {
+                    method: 'DELETE'
+                });
+                showNotification('servicos-status', 'Serviço excluído com sucesso!', true);
+                loadServicos(currentPage.servicos);
+            } catch (error) {
+                showNotification('servicos-status', 'Erro ao excluir serviço: ' + error.message, false);
+            }
+        }
+
+        async function searchServicos() {
+            const searchTerm = document.getElementById('searchServico').value.toLowerCase();
+            try {
+                const servicos = await apiRequest('/v1/servicos');
+                const filteredServicos = servicos.filter(servico => 
+                    servico.descricao.toLowerCase().includes(searchTerm) || 
+                    servico.status.toLowerCase().includes(searchTerm) ||
+                    (servico.cliente?.nome && servico.cliente.nome.toLowerCase().includes(searchTerm))
+                );
+                
+                const servicosList = document.getElementById('servicos-list');
+                servicosList.innerHTML = '';
+                
+                filteredServicos.forEach(servico => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${servico.descricao}</td>
+                        <td><span class="badge bg-${getStatusBadgeClass(servico.status)}">${servico.status}</span></td>
+                        <td>${new Date(servico.dataAgendada).toLocaleDateString()}</td>
+                        <td>${servico.cliente?.nome || 'N/A'}</td>
+                        <td>${servico.tipoServico?.nome || 'N/A'}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewServico(${servico.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editServico(${servico.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('servico', ${servico.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    servicosList.appendChild(row);
+                });
+            } catch (error) {
+                showNotification('servicos-status', 'Erro ao buscar serviços: ' + error.message, false);
+            }
+        }
+
+        // CRUD - Usuários
+        async function loadUsuarios(page = 1) {
+            try {
+                const usuarios = await apiRequest('/v1/usuarios');
+                const usuariosList = document.getElementById('usuarios-list');
+                usuariosList.innerHTML = '';
+                
+                // Paginação
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedUsuarios = usuarios.slice(startIndex, endIndex);
+                
+                paginatedUsuarios.forEach(usuario => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${usuario.nome}</td>
+                        <td>${usuario.email}</td>
+                        <td>${usuario.cargo}</td>
+                        <td>${usuario.telefone || 'N/A'}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editUsuario(${usuario.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('usuario', ${usuario.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    usuariosList.appendChild(row);
+                });
+                
+                // Atualizar paginação
+                updatePagination('usuarios', usuarios.length, page);
+            } catch (error) {
+                showNotification('usuarios-status', 'Erro ao carregar usuários: ' + error.message, false);
+            }
+        }
+
+        async function viewUsuario(id) {
+            try {
+                const usuario = await apiRequest(`/v1/usuarios/${id}`);
+                alert(`Detalhes do Usuário:\nNome: ${usuario.nome}\nEmail: ${usuario.email}\nCargo: ${usuario.cargo}\nTelefone: ${usuario.telefone || 'N/A'}`);
+            } catch (error) {
+                showNotification('usuarios-status', 'Erro ao carregar usuário: ' + error.message, false);
+            }
+        }
+
+        async function editUsuario(id) {
+            try {
+                const usuario = await apiRequest(`/v1/usuarios/${id}`);
+                document.getElementById('usuario-id').value = usuario.id;
+                document.getElementById('usuarioNome').value = usuario.nome;
+                document.getElementById('usuarioEmail').value = usuario.email;
+                document.getElementById('usuarioCargo').value = usuario.cargo;
+                document.getElementById('usuarioTelefone').value = usuario.telefone || '';
+                document.getElementById('usuarioPassword').value = ''; // Não preencher senha por segurança
+                
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('addUsuarioModal')).show();
+            } catch (error) {
+                showNotification('usuarios-status', 'Erro ao carregar usuário: ' + error.message, false);
+            }
+        }
+
+        async function saveUsuario() {
+            // Verificar se o usuário tem permissão
+            if (currentUser.cargo !== 'admin') {
+                alert('Acesso negado: apenas administradores podem criar/editar usuários.');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('usuario-form'));
+            const usuarioData = Object.fromEntries(formData.entries());
+            const usuarioId = document.getElementById('usuario-id').value;
+            
+            try {
+                if (usuarioId) {
+                    // Editar usuário existente
+                    await apiRequest(`/v1/usuarios/${usuarioId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(usuarioData)
+                    });
+                    showNotification('usuarios-status', 'Usuário atualizado com sucesso!', true);
+                } else {
+                    // Criar novo usuário
+                    await apiRequest('/v1/usuarios', {
+                        method: 'POST',
+                        body: JSON.stringify(usuarioData)
+                    });
+                    showNotification('usuarios-status', 'Usuário criado com sucesso!', true);
+                }
+                
+                // Fechar modal e recarregar lista
+                bootstrap.Modal.getInstance(document.getElementById('addUsuarioModal')).hide();
+                loadUsuarios(currentPage.usuarios);
+            } catch (error) {
+                showNotification('usuarios-status', 'Erro ao salvar usuário: ' + error.message, false);
+            }
+        }
+
+        async function deleteUsuario(id) {
+            try {
+                await apiRequest(`/v1/usuarios/${id}`, {
+                    method: 'DELETE'
+                });
+                showNotification('usuarios-status', 'Usuário excluído com sucesso!', true);
+                loadUsuarios(currentPage.usuarios);
+            } catch (error) {
+                showNotification('usuarios-status', 'Erro ao excluir usuário: ' + error.message, false);
+            }
+        }
+
+        async function searchUsuarios() {
+            const searchTerm = document.getElementById('searchUsuario').value.toLowerCase();
+            try {
+                const usuarios = await apiRequest('/v1/usuarios');
+                const filteredUsuarios = usuarios.filter(usuario => 
+                    usuario.nome.toLowerCase().includes(searchTerm) || 
+                    usuario.email.toLowerCase().includes(searchTerm) ||
+                    usuario.cargo.toLowerCase().includes(searchTerm)
+                );
+                
+                const usuariosList = document.getElementById('usuarios-list');
+                usuariosList.innerHTML = '';
+                
+                filteredUsuarios.forEach(usuario => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${usuario.nome}</td>
+                        <td>${usuario.email}</td>
+                        <td>${usuario.cargo}</td>
+                        <td>${usuario.telefone || 'N/A'}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editUsuario(${usuario.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('usuario', ${usuario.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    usuariosList.appendChild(row);
+                });
+            } catch (error) {
+                showNotification('usuarios-status', 'Erro ao buscar usuários: ' + error.message, false);
+            }
+        }
+
+        // CRUD - Locais
+        async function loadLocais(page = 1) {
+            try {
+                const locais = await apiRequest('/v1/locais');
+                const locaisList = document.getElementById('locais-list');
+                locaisList.innerHTML = '';
+                
+                // Paginação
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedLocais = locais.slice(startIndex, endIndex);
+                
+                paginatedLocais.forEach(local => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${local.nome}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewLocal(${local.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editLocal(${local.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('local', ${local.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    locaisList.appendChild(row);
+                });
+                
+                // Atualizar dropdown de locais no formulário de ativos
+                updateLocalDropdown(locais);
+                
+                // Atualizar paginação
+                updatePagination('locais', locais.length, page);
+            } catch (error) {
+                showNotification('locais-status', 'Erro ao carregar locais: ' + error.message, false);
+            }
+        }
+
+        async function viewLocal(id) {
+            try {
+                const local = await apiRequest(`/v1/locais/${id}`);
+                alert(`Detalhes do Local:\nNome: ${local.nome}`);
+            } catch (error) {
+                showNotification('locais-status', 'Erro ao carregar local: ' + error.message, false);
+            }
+        }
+
+        async function editLocal(id) {
+            try {
+                const local = await apiRequest(`/v1/locais/${id}`);
+                document.getElementById('local-id').value = local.id;
+                document.getElementById('localNome').value = local.nome;
+                
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('addLocalModal')).show();
+            } catch (error) {
+                showNotification('locais-status', 'Erro ao carregar local: ' + error.message, false);
+            }
+        }
+
+        async function saveLocal() {
+            // Verificar se o usuário tem permissão
+            if (currentUser.cargo !== 'admin') {
+                alert('Acesso negado: apenas administradores podem criar/editar locais.');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('local-form'));
+            const localData = Object.fromEntries(formData.entries());
+            const localId = document.getElementById('local-id').value;
+            
+            try {
+                if (localId) {
+                    // Editar local existente
+                    await apiRequest(`/v1/locais/${localId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(localData)
+                    });
+                    showNotification('locais-status', 'Local atualizado com sucesso!', true);
+                } else {
+                    // Criar novo local
+                    await apiRequest('/v1/locais', {
+                        method: 'POST',
+                        body: JSON.stringify(localData)
+                    });
+                    showNotification('locais-status', 'Local criado com sucesso!', true);
+                }
+                
+                // Fechar modal e recarregar lista
+                bootstrap.Modal.getInstance(document.getElementById('addLocalModal')).hide();
+                loadLocais(currentPage.locais);
+            } catch (error) {
+                showNotification('locais-status', 'Erro ao salvar local: ' + error.message, false);
+            }
+        }
+
+        async function deleteLocal(id) {
+            try {
+                await apiRequest(`/v1/locais/${id}`, {
+                    method: 'DELETE'
+                });
+                showNotification('locais-status', 'Local excluído com sucesso!', true);
+                loadLocais(currentPage.locais);
+            } catch (error) {
+                showNotification('locais-status', 'Erro ao excluir local: ' + error.message, false);
+            }
+        }
+
+        async function searchLocais() {
+            const searchTerm = document.getElementById('searchLocal').value.toLowerCase();
+            try {
+                const locais = await apiRequest('/v1/locais');
+                const filteredLocais = locais.filter(local => 
+                    local.nome.toLowerCase().includes(searchTerm)
+                );
+                
+                const locaisList = document.getElementById('locais-list');
+                locaisList.innerHTML = '';
+                
+                filteredLocais.forEach(local => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${local.nome}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewLocal(${local.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editLocal(${local.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('local', ${local.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    locaisList.appendChild(row);
+                });
+            } catch (error) {
+                showNotification('locais-status', 'Erro ao buscar locais: ' + error.message, false);
+            }
+        }
+
+        function updateLocalDropdown(locais) {
+            const ativoLocalDropdown = document.getElementById('ativoLocal');
+            if (ativoLocalDropdown) {
+                ativoLocalDropdown.innerHTML = '<option value="">Selecione um local...</option>';
+                locais.forEach(local => {
+                    const option = document.createElement('option');
+                    option.value = local.id;
+                    option.textContent = local.nome;
+                    ativoLocalDropdown.appendChild(option);
+                });
+            }
+        }
+
+        // CRUD - Tipos de Serviços
+        async function loadTiposServico(page = 1) {
+            try {
+                const tiposServico = await apiRequest('/v1/tipo-servico');
+                const tiposServicoList = document.getElementById('tipos-servico-list');
+                tiposServicoList.innerHTML = '';
+                
+                // Paginação
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedTiposServico = tipo-servico.slice(startIndex, endIndex);
+                
+                paginatedTiposServico.forEach(tipoServico => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${tipoServico.nome}</td>
+                        <td>${tipoServico.descricao || 'N/A'}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewTipoServico(${tipoServico.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editTipoServico(${tipoServico.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('tipoServico', ${tipoServico.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    tiposServicoList.appendChild(row);
+                });
+                
+                // Atualizar dropdown de tipos de serviços no formulário de serviços
+                updateTipoServicoDropdown(tiposServico);
+                
+                // Atualizar paginação
+                updatePagination('tipos-servicos', tiposServico.length, page);
+            } catch (error) {
+                showNotification('tipos-servicos-status', 'Erro ao carregar tipos de serviços: ' + error.message, false);
+            }
+        }
+
+        async function viewTipoServico(id) {
+            try {
+                const tipoServico = await apiRequest(`/v1/tipos-servico/${id}`);
+                alert(`Detalhes do Tipo de Serviço:\nNome: ${tipoServico.nome}\nDescrição: ${tipoServico.descricao || 'N/A'}`);
+            } catch (error) {
+                showNotification('tipos-servicos-status', 'Erro ao carregar tipo de serviço: ' + error.message, false);
+            }
+        }
+
+        async function editTipoServico(id) {
+            try {
+                const tipoServico = await apiRequest(`/v1/tipos-servico/${id}`);
+                document.getElementById('tipo-servico-id').value = tipoServico.id;
+                document.getElementById('tipoServicoNome').value = tipoServico.nome;
+                document.getElementById('tipoServicoDescricao').value = tipoServico.descricao || '';
+                
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('addTipoServicoModal')).show();
+            } catch (error) {
+                showNotification('tipos-servicos-status', 'Erro ao carregar tipo de serviço: ' + error.message, false);
+            }
+        }
+
+        async function saveTipoServico() {
+            // Verificar se o usuário tem permissão
+            if (currentUser.cargo !== 'admin') {
+                alert('Acesso negado: apenas administradores podem criar/editar tipos de serviços.');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('tipo-servico-form'));
+            const tipoServicoData = Object.fromEntries(formData.entries());
+            const tipoServicoId = document.getElementById('tipo-servico-id').value;
+            
+            try {
+                if (tipoServicoId) {
+                    // Editar tipo de serviço existente
+                    await apiRequest(`/v1/tipos-servico/${tipoServicoId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(tipoServicoData)
+                    });
+                    showNotification('tipos-servicos-status', 'Tipo de serviço atualizado com sucesso!', true);
+                } else {
+                    // Criar novo tipo de serviço
+                    await apiRequest('/v1/tipos-servico', {
+                        method: 'POST',
+                        body: JSON.stringify(tipoServicoData)
+                    });
+                    showNotification('tipos-servicos-status', 'Tipo de serviço criado com sucesso!', true);
+                }
+                
+                // Fechar modal e recarregar lista
+                bootstrap.Modal.getInstance(document.getElementById('addTipoServicoModal')).hide();
+                loadTiposServico(currentPage.tiposServico);
+            } catch (error) {
+                showNotification('tipos-servicos-status', 'Erro ao salvar tipo de serviço: ' + error.message, false);
+            }
+        }
+
+        async function deleteTipoServico(id) {
+            try {
+                await apiRequest(`/v1/tipos-servico/${id}`, {
+                    method: 'DELETE'
+                });
+                showNotification('tipos-servicos-status', 'Tipo de serviço excluído com sucesso!', true);
+                loadTiposServico(currentPage.tiposServico);
+            } catch (error) {
+                showNotification('tipos-servicos-status', 'Erro ao excluir tipo de serviço: ' + error.message, false);
+            }
+        }
+
+        async function searchTiposServico() {
+            const searchTerm = document.getElementById('searchTipoServico').value.toLowerCase();
+            try {
+                const tiposServico = await apiRequest('/v1/tipos-servico');
+                const filteredTiposServico = tiposServico.filter(tipoServico => 
+                    tipoServico.nome.toLowerCase().includes(searchTerm) || 
+                    (tipoServico.descricao && tipoServico.descricao.toLowerCase().includes(searchTerm))
+                );
+                
+                const tiposServicoList = document.getElementById('tipos-servicos-list');
+                tiposServicoList.innerHTML = '';
+                
+                filteredTiposServico.forEach(tipoServico => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${tipoServico.nome}</td>
+                        <td>${tipoServico.descricao || 'N/A'}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-sm btn-info btn-action" onclick="viewTipoServico(${tipoServico.id})"><i class="bi bi-eye"></i></button>
+                            ${currentUser.cargo === 'admin' ? `
+                            <button class="btn btn-sm btn-warning btn-action" onclick="editTipoServico(${tipoServico.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('tipoServico', ${tipoServico.id})"><i class="bi bi-trash"></i></button>
+                            ` : ''}
+                        </td>
+                    `;
+                    tiposServicoList.appendChild(row);
+                });
+            } catch (error) {
+                showNotification('tipos-servicos-status', 'Erro ao buscar tipos de serviços: ' + error.message, false);
+            }
+        }
+
+        function updateTipoServicoDropdown(tiposServico) {
+            const servicoTipoDropdown = document.getElementById('servicoTipo');
+            if (servicoTipoDropdown) {
+                servicoTipoDropdown.innerHTML = '<option value="">Selecione um tipo...</option>';
+                tiposServico.forEach(tipoServico => {
+                    const option = document.createElement('option');
+                    option.value = tipoServico.id;
+                    option.textContent = tipoServico.nome;
+                    servicoTipoDropdown.appendChild(option);
+                });
+            }
+        }
+
+        // Paginação
+        function updatePagination(entity, totalItems, currentPage) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const paginationElement = document.getElementById(`${entity}-pagination`);
+            
+            if (!paginationElement) return;
+            
+            paginationElement.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Botão anterior
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePage('${entity}', ${currentPage - 1})">Anterior</a>`;
+            paginationElement.appendChild(prevLi);
+            
+            // Páginas
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageLi.innerHTML = `<a class="page-link" href="#" onclick="changePage('${entity}', ${i})">${i}</a>`;
+                paginationElement.appendChild(pageLi);
+            }
+            
+            // Botão próximo
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePage('${entity}', ${currentPage + 1})">Próximo</a>`;
+            paginationElement.appendChild(nextLi);
+        }
+
+        function changePage(entity, page) {
+            currentPage[entity] = page;
+            
+            if (entity === 'clientes') {
+                loadClientes(page);
+            } else if (entity === 'ativos') {
+                loadAtivos(page);
+            } else if (entity === 'servicos') {
+                loadServicos(page);
+            } else if (entity === 'usuarios') {
+                loadUsuarios(page);
+            } else if (entity === 'locais') {
+                loadLocais(page);
+            } else if (entity === 'tipo-servico') {
+                loadTiposServico(page);
+            }
+        }
+
+        // Funções globais para uso em onclick
+        window.viewCliente = viewCliente;
+        window.editCliente = editCliente;
+        window.askForDelete = askForDelete;
+        window.viewAtivo = viewAtivo;
+        window.editAtivo = editAtivo;
+        window.viewServico = viewServico;
+        window.editServico = editServico;
+        window.viewUsuario = viewUsuario;
+        window.editUsuario = editUsuario;
+        window.viewLocal = viewLocal;
+        window.editLocal = editLocal;
+        window.viewTipoServico = viewTipoServico;
+        window.editTipoServico = editTipoServico;
+        window.changePage = changePage;
+    </script>
+
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/clientes.js"></script>
+    <script src="js/ativos.js"></script>
+    <script src="js/servicos.js"></script>
+    <script src="js/usuarios.js"></script>
+    <script src="js/locais.js"></script>
+    <script src="js/tipos-servico.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

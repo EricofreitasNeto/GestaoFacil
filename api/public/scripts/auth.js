@@ -1,42 +1,207 @@
-import { API_BASE_URL, mostrarConsole } from './utils.js';
+// Elementos da UI
+const loginPage = document.getElementById('login-page');
+const registerPage = document.getElementById('register-page');
+const mainLayout = document.getElementById('main-layout');
+const loginForm = document.getElementById('login-form');
+const registerForm = document.getElementById('register-form');
+const loginStatus = document.getElementById('login-status');
+const registerStatus = document.getElementById('register-status');
+const loginBtn = document.getElementById('login-btn');
+const registerBtn = document.getElementById('register-btn');
+const loginText = document.getElementById('login-text');
+const registerText = document.getElementById('register-text');
+const loginLoading = document.getElementById('login-loading');
+const registerLoading = document.getElementById('register-loading');
+const userNameElement = document.getElementById('user-name');
+const userAvatarElement = document.getElementById('user-avatar');
+const userRoleBadge = document.getElementById('user-role-badge');
+const registerLink = document.getElementById('register-link');
+const backToLogin = document.getElementById('back-to-login');
 
-export async function registrar() {
-  const body = {
-    nome: "Erico",
-    email: "erico@teste.com",
-    cargo: "admin",
-    telefone: "85999999999",
-    password: "123456",
-    confirmPassword: "123456"
-  };
-  const resposta = await fetch(`${API_BASE_URL}/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-  const dados = await resposta.json();
-  mostrarConsole(resposta, dados);
+// Funções de navegação
+function showLoginPage() {
+    loginPage.style.display = 'flex';
+    registerPage.style.display = 'none';
+    mainLayout.style.display = 'none';
 }
 
-export async function login() {
-  const body = { email: "erico@teste.com", password: "123456" };
-  const resposta = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-  const dados = await resposta.json();
-  mostrarConsole(resposta, dados);
-  if (dados.token) localStorage.setItem("jwt", dados.token);
+function showRegisterPage() {
+    loginPage.style.display = 'none';
+    registerPage.style.display = 'flex';
+    mainLayout.style.display = 'none';
 }
 
-export async function rotaProtegida() {
-  const token = localStorage.getItem("jwt");
-  if (!token) return alert("⚠️ Faça login primeiro!");
-  const resposta = await fetch(`${API_BASE_URL}/auth/dados-secretos`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
-  });
-  const dados = await resposta.json();
-  mostrarConsole(resposta, dados);
+function showMainLayout() {
+    loginPage.style.display = 'none';
+    registerPage.style.display = 'none';
+    mainLayout.style.display = 'block';
+    
+    // Atualizar informações do usuário
+    if (currentUser.nome) {
+        userNameElement.textContent = currentUser.nome;
+        userAvatarElement.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.nome)}&background=4e73df&color=fff`;
+        
+        // Atualizar badge de cargo
+        if (currentUser.cargo) {
+            userRoleBadge.textContent = currentUser.cargo;
+            let badgeColor = 'bg-secondary';
+            
+            switch(currentUser.cargo) {
+                case 'admin':
+                    badgeColor = 'bg-danger';
+                    break;
+                case 'tecnico':
+                    badgeColor = 'bg-warning';
+                    break;
+                case 'usuario':
+                    badgeColor = 'bg-info';
+                    break;
+            }
+            
+            userRoleBadge.className = `badge ${badgeColor} role-badge`;
+            
+            // Mostrar/ocultar elementos baseados no cargo
+            updateUIForUserRole(currentUser.cargo);
+        }
+    }
+}
+
+function updateUIForUserRole(role) {
+    // Mostrar/ocultar menus baseados no cargo
+    const adminMenus = document.querySelectorAll('.admin-only');
+    adminMenus.forEach(menu => {
+        if (role === 'admin') {
+            menu.classList.add('visible');
+        } else {
+            menu.classList.remove('visible');
+        }
+    });
+    
+    // Mostrar/ocultar botões baseados no cargo
+    const adminButtons = document.querySelectorAll('.btn-admin-only');
+    adminButtons.forEach(button => {
+        if (role === 'admin') {
+            button.classList.add('visible');
+        } else {
+            button.classList.remove('visible');
+        }
+    });
+}
+
+// Autenticação
+async function handleLogin(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    loginText.style.display = 'none';
+    loginLoading.style.display = 'inline-block';
+    loginStatus.className = 'api-status';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            authToken = data.token;
+            localStorage.setItem('authToken', authToken);
+            
+            // Decodificar o token JWT para obter informações do usuário
+            const payload = JSON.parse(atob(authToken.split('.')[1]));
+            currentUser = {
+                id: payload.id,
+                nome: payload.nome,
+                email: payload.email,
+                cargo: payload.cargo
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            showMainLayout();
+            loadDashboardData();
+        } else {
+            loginStatus.textContent = data.message || 'Erro ao fazer login';
+            loginStatus.className = 'api-status error';
+        }
+    } catch (error) {
+        loginStatus.textContent = 'Erro de conexão. Verifique se o servidor está rodando.';
+        loginStatus.className = 'api-status error';
+    } finally {
+        loginText.style.display = 'inline-block';
+        loginLoading.style.display = 'none';
+    }
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+    
+    const nome = document.getElementById('register-name').value;
+    const email = document.getElementById('register-email').value;
+    const cargo = document.getElementById('register-cargo').value;
+    const telefone = document.getElementById('register-phone').value;
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-confirm-password').value;
+    
+    if (password !== confirmPassword) {
+        registerStatus.textContent = 'As senhas não coincidem';
+        registerStatus.className = 'api-status error';
+        return;
+    }
+    
+    registerText.style.display = 'none';
+    registerLoading.style.display = 'inline-block';
+    registerStatus.className = 'api-status';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ nome, email, cargo, telefone, password, confirmPassword })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            registerStatus.textContent = 'Conta criada avec sucesso! Faça login para continuar.';
+            registerStatus.className = 'api-status success';
+            
+            // Limpar formulário
+            document.getElementById('register-form').reset();
+            
+            // Voltar para a página de login após 2 segundos
+            setTimeout(() => {
+                showLoginPage();
+            }, 2000);
+        } else {
+            registerStatus.textContent = data.message || 'Erro ao criar conta';
+            registerStatus.className = 'api-status error';
+        }
+    } catch (error) {
+        registerStatus.textContent = 'Erro de conexão. Verifique se o servidor está rodando.';
+        registerStatus.className = 'api-status error';
+    } finally {
+        registerText.style.display = 'inline-block';
+        registerLoading.style.display = 'none';
+    }
+}
+
+function handleLogout(e) {
+    if (e) e.preventDefault();
+    
+    authToken = null;
+    currentUser = {};
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    
+    showLoginPage();
 }
