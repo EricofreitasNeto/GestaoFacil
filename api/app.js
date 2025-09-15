@@ -144,7 +144,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/teste', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'teste.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 // 1. Servir arquivos estáticos primeiro
 app.use(express.static(path.join(__dirname, 'public')));
