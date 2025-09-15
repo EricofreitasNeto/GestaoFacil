@@ -157,7 +157,7 @@ app.get('/teste', (req, res) => {
 
 // Página principal
 app.get('/gestalfacil', (req, res) => {
-  res.sendFile(resolve(__dirname, 'public', 'index.html'));
+  res.sendFile(resolve(__dirname, 'index.html'));
 });
 
 
