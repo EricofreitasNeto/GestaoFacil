@@ -2,7 +2,13 @@
   "name": "gestao-facil",
   "version": "1.0.0",
   "description": "Este projeto tem como objetivo oferecer uma estrutura completa para o gerenciamento de ativos, serviços técnicos e fluxo operacional com controle de SLA.",
-  "keywords": ["gestão", "API", "Node", "PostgreSQL", "CRUD"],
+  "keywords": [
+    "gestão",
+    "API",
+    "Node",
+    "PostgreSQL",
+    "CRUD"
+  ],
   "homepage": "https://github.com/EricofreitasNeto/GestaoFacil#readme",
   "bugs": {
     "url": "https://github.com/EricofreitasNeto/GestaoFacil/issues"
@@ -17,7 +23,7 @@
   "scripts": {
     "dev": "nodemon api/app.js",
     "start": "node api/app.js",
-    "build": "pkg .",
+     "build": "echo 'Build não é mais necessário com pkg'",
     "test": "echo \"No tests yet\""
   },
   "_moduleAliases": {
@@ -30,19 +36,22 @@
     "gestao-facil": "api/app.js"
   },
   "pkg": {
-  "targets": ["node18-win-x64"],
-  "outputPath": "api/build",
-  "compress": true,
-  "compile": false,
+    "targets": [
+      "node18-win-x64"
+    ],
+    "outputPath": "api/build",
+    "compress": true,
+    "compile": false,
     "assets": [
-       ".env",
-    "src/**/*",
-    "api/public/**/*",
-    "api/certs/*",
-    "api/assets/*"
+      ".env",
+      "src/**/*",
+      "api/public/**/*",
+      "api/certs/*",
+      "api/assets/*"
     ]
   },
   "dependencies": {
+    "audit": "^0.0.6",
     "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -56,7 +65,6 @@
     "node-fetch": "^3.3.2",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
-    "pkg": "^5.8.1",
     "sequelize": "^6.37.7",
     "serve-favicon": "^2.5.1",
     "swagger-jsdoc": "^6.2.8",
@@ -64,9 +72,9 @@
   },
   "devDependencies": {
     "esbuild": "^0.25.9",
-    "rcedit": "^4.0.1",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.0",
-    "jest": "^29.7.0"
+    "rcedit": "^4.0.1"
   },
   "engines": {
     "node": ">=18.0.0"

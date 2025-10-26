@@ -5,19 +5,14 @@ const fs = require('fs');
 const http = require('http');
 const https = require('https');
 
-// Detecta se está rodando empacotado pelo pkg
-const isPkg = typeof process.pkg !== 'undefined';
-
-// Função utilitária para resolver caminhos corretamente
+// ─── Configuração de paths ────────────────────────────────────
 const resolvePath = (...segments) => {
-  const base = isPkg ? path.dirname(process.execPath) : path.resolve(__dirname, '..');
-  return path.join(base, ...segments);
+  return path.resolve(__dirname, ...segments);
 };
 
-// Carregar .env de fora do executável (mesma pasta do .exe)
 require('dotenv').config({ path: resolvePath('.env') });
 
-// ─── DEBUG ──────────────────────────────────────
+// ─── DEBUG ────────────────────────────────────────────────────
 const isDebug = process.argv.includes('--debug');
 if (isDebug) {
   console.log('🐞 Modo DEBUG ativado');
@@ -34,16 +29,95 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
-// ─── Imports com compatibilidade pkg ──────────────────────────
-const db = isPkg ? require('../src/models') : require('@models');
-const authenticateJWT = isPkg ? require('../src/middlewares/authMiddleware') : require('@middlewares/authMiddleware');
-const clienteRoutes = isPkg ? require('../src/routes/clienteRoutes') : require('@routes/clienteRoutes');
-const usuarioRoutes = isPkg ? require('../src/routes/usuarioRoutes') : require('@routes/usuarioRoutes');
-const servicoRoutes = isPkg ? require('../src/routes/servicoRoutes') : require('@routes/servicoRoutes');
-const ativoRoutes = isPkg ? require('../src/routes/ativoRoutes') : require('@routes/ativoRoutes');
-const localRoutes = isPkg ? require('../src/routes/localRoutes') : require('@routes/localRoutes');
-const tipoServicoRoutes = isPkg ? require('../src/routes/tipoServicoRoutes') : require('@routes/tipoServicoRoutes');
-const authRoutes = isPkg ? require('../src/routes/authRoutes') : require('@routes/authRoutes');
+// ✅ CORREÇÃO COMPLETA DO CSP
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; " +
+    "style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; " +
+    "font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+    "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://gestaofacil.onrender.com http://localhost:3000; " +
+    "img-src 'self' https://ui-avatars.com data: https:;"
+  );
+  next();
+});
+
+// ✅ Servir arquivos estáticos corretamente
+const publicPath = path.join(__dirname, 'public');
+console.log('📁 Public path:', publicPath);
+
+// Servir arquivos HTML e assets
+app.use('/public', express.static(publicPath, {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+  }
+}));
+
+// ✅ Servir scripts
+const scriptPath = path.join(__dirname, 'public', 'scripts');
+console.log('📁 Script path:', scriptPath);
+
+if (fs.existsSync(scriptPath)) {
+  console.log('✅ Pasta de scripts encontrada:', scriptPath);
+} else {
+  console.log('❌ Pasta de scripts NÃO encontrada:', scriptPath);
+  fs.mkdirSync(scriptPath, { recursive: true });
+  console.log('📁 Pasta de scripts criada:', scriptPath);
+}
+
+app.use('/api/public/scripts', express.static(scriptPath, {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+      console.log('📦 Servindo arquivo JS:', path);
+    }
+  }
+}));
+
+// ✅ Servir CSS
+const cssPath = path.join(__dirname, 'public', 'css');
+console.log('📁 CSS path:', cssPath);
+
+if (fs.existsSync(cssPath)) {
+  console.log('✅ Pasta de CSS encontrada:', cssPath);
+} else {
+  console.log('❌ Pasta de CSS NÃO encontrada:', cssPath);
+  fs.mkdirSync(cssPath, { recursive: true });
+  console.log('📁 Pasta de CSS criada:', cssPath);
+}
+
+app.use('/api/public/css', express.static(cssPath, {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+      console.log('🎨 Servindo arquivo CSS:', path);
+    }
+  }
+}));
+
+// ✅ Rotas básicas
+app.get('/', (req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
+});
+
+app.get('/teste', (req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
+});
+
+// ─── Imports simplificados (sem pkg) ──────────────────────────
+const db = require('@models');
+const authenticateJWT = require('@middlewares/authMiddleware');
+const clienteRoutes = require('@routes/clienteRoutes');
+const usuarioRoutes = require('@routes/usuarioRoutes');
+const servicoRoutes = require('@routes/servicoRoutes');
+const ativoRoutes = require('@routes/ativoRoutes');
+const localRoutes = require('@routes/localRoutes');
+const tipoServicoRoutes = require('@routes/tipoServicoRoutes');
+const authRoutes = require('@routes/authRoutes');
 
 // ─── Tratamento de erros globais ──────────────────────────────
 process.on('uncaughtException', err => {
@@ -100,7 +174,9 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // ─── Middlewares ──────────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
 app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || '*' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -132,25 +208,80 @@ app.use((req, res, next) => {
   next();
 });
 
+// ─── Rotas para debug ─────────────────────────────────────────
+app.get('/api/debug/scripts', (req, res) => {
+  const scriptDir = path.join(__dirname, 'public', 'scripts');
+  
+  try {
+    if (!fs.existsSync(scriptDir)) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pasta de scripts não encontrada',
+        scriptPath: scriptDir
+      });
+    }
+
+    const files = fs.readdirSync(scriptDir);
+    const fileInfo = files.map(file => {
+      const filePath = path.join(scriptDir, file);
+      const stats = fs.statSync(filePath);
+      return {
+        name: file,
+        size: stats.size,
+        accessible: true,
+        url: `/api/public/scripts/${file}`,
+        fullPath: filePath
+      };
+    });
+    
+    res.json({
+      success: true,
+      scriptPath: scriptDir,
+      files: fileInfo,
+      totalFiles: files.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      scriptPath: scriptDir
+    });
+  }
+});
+
+app.get('/api/debug/scripts/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, 'public', 'scripts', filename);
+  
+  try {
+    if (fs.existsSync(filePath)) {
+      res.setHeader('Content-Type', 'application/javascript');
+      res.sendFile(filePath);
+    } else {
+      res.status(404).json({
+        success: false,
+        error: `Arquivo ${filename} não encontrado`,
+        filePath: filePath
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      filePath: filePath
+    });
+  }
+});
+
 // ─── Rotas Públicas ────────────────────────────────────────────
-
-// ─── Rotas  Publicas ────────────────────────────────────────────────────
 app.use('/auth', authRoutes);
-const filePath = path.join(__dirname, 'public', 'scripts', 'index.js');
-console.log('Arquivo existe?', fs.existsSync(filePath));
-app.use(express.static('public'));
-app.get('/', (req, res) => {
-  res.send('🚀 API Gestão Fácil rodando com sucesso!');
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    uptime: Math.floor(process.uptime())
+  });
 });
-
-app.get('/teste', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-// 1. Servir arquivos estáticos primeiro
-app.use(express.static(path.join(__dirname, 'public')));
-
-// 2. Depois aplique middlewares para rotas protegidas
-
 
 // ─── Rotas protegidas ──────────────────────────────────────────
 const apiRouter = express.Router();
@@ -173,31 +304,13 @@ db.sequelize.sync()
   .then(() => console.log('🔄 Modelos sincronizados'))
   .catch(err => console.error('❌ Erro ao sincronizar modelos:', err));
 
-// ─── Rotas básicas ─────────────────────────────────────────────
-app.get('/uptime', (req, res) => {
-  const seconds = Math.floor(process.uptime());
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const formatted = `${hours}h ${minutes % 60}m ${seconds % 60}s`;
-  res.send(`⏱️ Uptime da aplicação: ${formatted}`);
-});
-
 // ─── Inicialização do servidor ────────────────────────────────
 const PORT = process.env.PORT || 3000;
 const APP_MODE = process.env.APP_MODE || 'production';
-const USE_HTTPS = process.env.USE_HTTPS === 'true';
-const IP = '0.0.0.0';
-const publicURL = process.env.RENDER_EXTERNAL_URL || `${IP},${PORT}`;
 
-function startServer() {
-  console.log(`🧠 APP_MODE: ${APP_MODE}, USE_HTTPS: ${USE_HTTPS}`);
-
-  const certPath = resolvePath('certs', 'server.cert');
-  const keyPath = resolvePath('certs', 'server.key');
-
-  app.listen(PORT, IP, () => {
-    console.log(`🚀 Servidor rodando em ${publicURL}`);
-  });
-}
-
-startServer();
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`🌐 Modo: ${APP_MODE}`);
+  console.log(`📚 Documentação: http://localhost:${PORT}/docs`);
+  console.log(`❤️  Health check: http://localhost:${PORT}/health`);
+});
