@@ -1,4 +1,4 @@
-const { Servico, Cliente, Usuario, Ativo, TipoServico } = require("../models");
+﻿const { Servico, Cliente, Usuario, Ativo, TipoServico } = require("../models");
 
 const servicoController = {
   // Listar todos os serviços com seus relacionamentos
@@ -14,7 +14,7 @@ const servicoController = {
       });
       return res.status(200).json(servicos);
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao listar serviços", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao listar serviços", detalhes: error.message });
     }
   },
 
@@ -30,10 +30,10 @@ const servicoController = {
           { model: TipoServico, as: "tipoServico" }
         ]
       });
-      if (!servico) return res.status(404).json({ erro: "Serviço não encontrado" });
+      if (!servico) return res.status(404).json({ message: "Serviço não encontrado" });
       return res.status(200).json(servico);
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao buscar serviço", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao buscar serviço", detalhes: error.message });
     }
   },
 
@@ -66,7 +66,7 @@ const servicoController = {
 
       return res.status(201).json(novoServico);
     } catch (error) {
-      return res.status(400).json({ erro: "Erro ao criar serviço", detalhes: error.message });
+      return res.status(400).json({ message: "Erro ao criar serviço", detalhes: error.message });
     }
   },
 
@@ -87,7 +87,7 @@ const servicoController = {
       } = req.body;
 
       const servico = await Servico.findByPk(id);
-      if (!servico) return res.status(404).json({ erro: "Serviço não encontrado" });
+      if (!servico) return res.status(404).json({ message: "Serviço não encontrado" });
 
       await servico.update({
         descricao,
@@ -103,7 +103,7 @@ const servicoController = {
 
       return res.status(200).json(servico);
     } catch (error) {
-      return res.status(400).json({ erro: "Erro ao atualizar serviço", detalhes: error.message });
+      return res.status(400).json({ message: "Erro ao atualizar serviço", detalhes: error.message });
     }
   },
 
@@ -112,14 +112,15 @@ const servicoController = {
     try {
       const { id } = req.params;
       const servico = await Servico.findByPk(id);
-      if (!servico) return res.status(404).json({ erro: "Serviço não encontrado" });
+      if (!servico) return res.status(404).json({ message: "Serviço não encontrado" });
 
       await servico.destroy(); // com paranoid: true, isso faz soft delete
-      return res.status(200).json({ mensagem: "Serviço desativado com sucesso" });
+      return res.status(200).json({ message: "Serviço desativado com sucesso" });
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao desativar serviço", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao desativar serviço", detalhes: error.message });
     }
   }
 };
 
 module.exports = servicoController;
+

@@ -1,4 +1,4 @@
-const { Local, Ativo } = require("../models");
+﻿const { Local, Ativo } = require("../models");
 
 const localController = {
   // Listar todos os locais
@@ -9,7 +9,7 @@ const localController = {
       });
       return res.status(200).json(locais);
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao listar locais", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao listar locais", detalhes: error.message });
     }
   },
 
@@ -20,10 +20,10 @@ const localController = {
       const local = await Local.findByPk(id, {
         include: [{ model: Ativo, as: "ativos" }]
       });
-      if (!local) return res.status(404).json({ erro: "Local não encontrado" });
+      if (!local) return res.status(404).json({ message: "Local não encontrado" });
       return res.status(200).json(local);
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao buscar local", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao buscar local", detalhes: error.message });
     }
   },
 
@@ -34,7 +34,7 @@ const localController = {
       const novoLocal = await Local.create({ nome });
       return res.status(201).json(novoLocal);
     } catch (error) {
-      return res.status(400).json({ erro: "Erro ao criar local", detalhes: error.message });
+      return res.status(400).json({ message: "Erro ao criar local", detalhes: error.message });
     }
   },
 
@@ -44,12 +44,12 @@ const localController = {
       const { id } = req.params;
       const { nome } = req.body;
       const local = await Local.findByPk(id);
-      if (!local) return res.status(404).json({ erro: "Local não encontrado" });
+      if (!local) return res.status(404).json({ message: "Local não encontrado" });
 
       await local.update({ nome });
       return res.status(200).json(local);
     } catch (error) {
-      return res.status(400).json({ erro: "Erro ao atualizar local", detalhes: error.message });
+      return res.status(400).json({ message: "Erro ao atualizar local", detalhes: error.message });
     }
   },
 
@@ -58,12 +58,12 @@ const localController = {
     try {
       const { id } = req.params;
       const local = await Local.findByPk(id);
-      if (!local) return res.status(404).json({ erro: "Local não encontrado" });
+      if (!local) return res.status(404).json({ message: "Local não encontrado" });
 
       await local.destroy(); // com paranoid: true, isso faz soft delete
-      return res.status(200).json({ mensagem: "Local desativado com sucesso" });
+      return res.status(200).json({ message: "Local desativado com sucesso" });
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao desativar local", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao desativar local", detalhes: error.message });
     }
   }
 };

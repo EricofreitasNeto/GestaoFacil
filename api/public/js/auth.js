@@ -1,4 +1,4 @@
-/* Fluxo de autenticação e controle de layout vinculado ao usuário */
+﻿/* Fluxo de autenticaÃ§Ã£o e controle de layout vinculado ao usuÃ¡rio */
 
 const loginPage = document.getElementById('login-page');
 const registerPage = document.getElementById('register-page');
@@ -71,7 +71,7 @@ async function handleLogin(event) {
       refreshAllDropdowns();
     }
   } catch (error) {
-    setStatus(loginStatus, error.message || 'Erro de conexão. Tente novamente.', 'error');
+    setStatus(loginStatus, error.message || 'Erro de conexÃ£o. Tente novamente.', 'error');
   } finally {
     loginText.style.display = 'inline-block';
     loginLoading.style.display = 'none';
@@ -89,7 +89,7 @@ async function handleRegister(event) {
   const confirmPassword = document.getElementById('register-confirm-password').value;
 
   if (password !== confirmPassword) {
-    setStatus(registerStatus, 'As senhas não coincidem.', 'error');
+    setStatus(registerStatus, 'As senhas nÃ£o coincidem.', 'error');
     return;
   }
 
@@ -110,14 +110,14 @@ async function handleRegister(event) {
       throw new Error(data.message || 'Erro ao criar conta');
     }
 
-    setStatus(registerStatus, 'Conta criada com sucesso! Faça login para continuar.', 'success');
+    setStatus(registerStatus, 'Conta criada com sucesso! FaÃ§a login para continuar.', 'success');
     registerForm.reset();
 
     setTimeout(() => {
       showLoginPage();
     }, 1500);
   } catch (error) {
-    setStatus(registerStatus, error.message || 'Erro de conexão. Tente novamente.', 'error');
+    setStatus(registerStatus, error.message || 'Erro de conexÃ£o. Tente novamente.', 'error');
   } finally {
     registerText.style.display = 'inline-block';
     registerLoading.style.display = 'none';
@@ -212,3 +212,4 @@ window.registerLink = registerLink;
 window.backToLogin = backToLogin;
 window.loginForm = loginForm;
 window.registerForm = registerForm;
+

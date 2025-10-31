@@ -1,4 +1,4 @@
-/* Utilit�rios globais para comunica��o com a API */
+﻿/* Utilitários globais para comunicação com a API */
 
 var API_BASE_URL = (function () {
   try {
@@ -52,7 +52,7 @@ async function apiRequest(endpoint, options = {}) {
     try {
       payload = JSON.parse(text);
     } catch (error) {
-      console.error('Não foi possível converter resposta em JSON:', error);
+      console.error('NÃ£o foi possÃ­vel converter resposta em JSON:', error);
       payload = null;
     }
   }
@@ -73,16 +73,16 @@ function parseJsonField(value) {
   try {
     return JSON.parse(value);
   } catch (error) {
-    throw new Error('Informe um JSON válido no campo de detalhes.');
+    throw new Error('Informe um JSON vÃ¡lido no campo de detalhes.');
   }
 }
 
 function formatDate(isoString) {
-  if (!isoString) return '—';
+  if (!isoString) return 'â€”';
   try {
     return new Date(isoString).toLocaleDateString('pt-BR');
   } catch (error) {
-    return '—';
+    return 'â€”';
   }
 }
 
@@ -115,6 +115,7 @@ function getStatusBadgeClass(status) {
 }
 
 window.getStatusBadgeClass = getStatusBadgeClass;
+
 
 
 

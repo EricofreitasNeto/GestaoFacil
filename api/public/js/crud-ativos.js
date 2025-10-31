@@ -1,4 +1,4 @@
-/* CRUD - Ativos */
+﻿/* CRUD - Ativos */
 
 async function loadAtivos(page = 1) {
   try {
@@ -18,9 +18,9 @@ async function loadAtivos(page = 1) {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${ativo.nome}</td>
-        <td>${ativo.numeroSerie || '—'}</td>
+        <td>${ativo.numeroSerie || 'â€”'}</td>
         <td><span class="badge bg-${getStatusBadgeClass(ativo.status)}">${ativo.status}</span></td>
-        <td>${ativo.local?.nome || '—'}</td>
+        <td>${ativo.local?.nome || 'â€”'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewAtivo(${ativo.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -42,13 +42,13 @@ async function loadAtivos(page = 1) {
 
 function getStatusBadgeClass(status) {
   switch ((status || '').toLowerCase()) {
-    case 'concluído':
+    case 'concluÃ­do':
     case 'concluido':
     case 'ativo':
       return 'success';
     case 'em andamento':
     case 'manutencao':
-    case 'manutenção':
+    case 'manutenÃ§Ã£o':
       return 'warning';
     case 'cancelado':
     case 'inativo':
@@ -89,17 +89,17 @@ async function saveAtivo() {
 
   try {
     if (ativoId) {
-      await apiRequest(`/v1/ativos/${ativoId}`, {
+      const res = await apiRequest(`/v1/ativos/${ativoId}`, {
         method: 'PUT',
         body: JSON.stringify(payload)
       });
-      showNotification('ativos-status', 'Ativo atualizado com sucesso!', true);
+      showNotification('ativos-status', res?.message || 'Ativo atualizado com sucesso!', true);
     } else {
-      await apiRequest('/v1/ativos', {
+      const res = await apiRequest('/v1/ativos', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      showNotification('ativos-status', 'Ativo criado com sucesso!', true);
+      showNotification('ativos-status', res?.message || 'Ativo criado com sucesso!', true);
     }
 
     bootstrap.Modal.getInstance(document.getElementById('addAtivoModal'))?.hide();
@@ -116,8 +116,8 @@ async function deleteAtivo(id) {
   }
 
   try {
-    await apiRequest(`/v1/ativos/${id}`, { method: 'DELETE' });
-    showNotification('ativos-status', 'Ativo removido com sucesso!', true);
+    const res = await apiRequest(`/v1/ativos/${id}`, { method: 'DELETE' });
+    showNotification('ativos-status', res?.message || 'Ativo removido com sucesso!', true);
     loadAtivos(currentPage.ativos || 1);
   } catch (error) {
     showNotification('ativos-status', `Erro ao remover ativo: ${error.message}`, false);
@@ -142,9 +142,9 @@ async function searchAtivos() {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${ativo.nome}</td>
-        <td>${ativo.numeroSerie || '—'}</td>
+        <td>${ativo.numeroSerie || 'â€”'}</td>
         <td><span class="badge bg-${getStatusBadgeClass(ativo.status)}">${ativo.status}</span></td>
-        <td>${ativo.local?.nome || '—'}</td>
+        <td>${ativo.local?.nome || 'â€”'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewAtivo(${ativo.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -165,8 +165,8 @@ async function searchAtivos() {
 async function viewAtivo(id) {
   try {
     const ativo = await apiRequest(`/v1/ativos/${id}`);
-    const detalhes = ativo.detalhes ? JSON.stringify(ativo.detalhes, null, 2) : '—';
-    alert(`Ativo: ${ativo.nome}\nNúmero de série: ${ativo.numeroSerie || '—'}\nStatus: ${ativo.status}\nLocal: ${ativo.local?.nome || '—'}\nDetalhes: ${detalhes}`);
+    const detalhes = ativo.detalhes ? JSON.stringify(ativo.detalhes, null, 2) : 'â€”';
+    alert(`Ativo: ${ativo.nome}\nNÃºmero de sÃ©rie: ${ativo.numeroSerie || 'â€”'}\nStatus: ${ativo.status}\nLocal: ${ativo.local?.nome || 'â€”'}\nDetalhes: ${detalhes}`);
   } catch (error) {
     showNotification('ativos-status', `Erro ao carregar ativo: ${error.message}`, false);
   }
@@ -201,3 +201,4 @@ function getStatusBadgeClass(status) {
     ? window.getStatusBadgeClass(status)
     : 'secondary';
 }
+

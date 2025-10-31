@@ -1,4 +1,4 @@
-/* Inicialização da aplicação web e controles de interface */
+﻿/* InicializaÃ§Ã£o da aplicaÃ§Ã£o web e controles de interface */
 
 const UI = {
   loginPage: document.getElementById('login-page'),
@@ -18,10 +18,10 @@ const SECTION_TITLES = {
   dashboard: 'Dashboard',
   clientes: 'Clientes',
   ativos: 'Ativos',
-  servicos: 'Serviços',
+  servicos: 'ServiÃ§os',
   locais: 'Locais',
-  'tipos-servicos': 'Tipos de serviço',
-  usuarios: 'Usuários'
+  'tipos-servicos': 'Tipos de serviÃ§o',
+  usuarios: 'UsuÃ¡rios'
 };
 
 const SECTION_LOADERS = {
@@ -148,7 +148,7 @@ function navigateToSection(section) {
   });
 
   if (UI.pageTitle) {
-    UI.pageTitle.textContent = SECTION_TITLES[section] || 'GestãoFácil';
+    UI.pageTitle.textContent = SECTION_TITLES[section] || 'GestÃ£oFÃ¡cil';
   }
 
   const loader = SECTION_LOADERS[section];
@@ -262,7 +262,7 @@ function updatePagination(section, totalItems, page) {
     container.appendChild(createButton(i, i));
   }
 
-  container.appendChild(createButton('Próximo', Math.min(totalPages, currentPage[key] + 1), currentPage[key] === totalPages));
+  container.appendChild(createButton('PrÃ³ximo', Math.min(totalPages, currentPage[key] + 1), currentPage[key] === totalPages));
 }
 
 async function refreshAllDropdowns() {
@@ -281,7 +281,7 @@ async function refreshAllDropdowns() {
     updateUsuarioDropdown(usuarios || []);
     updateTipoServicoDropdown(tiposServicos || []);
   } catch (error) {
-    console.warn('Não foi possível atualizar listas auxiliares:', error.message);
+    console.warn('NÃ£o foi possÃ­vel atualizar listas auxiliares:', error.message);
   }
 }
 
@@ -368,3 +368,4 @@ window.addEventListener('DOMContentLoaded', () => {
     showLoginPage();
   }
 });
+

@@ -70,17 +70,17 @@ async function saveServico() {
 
   try {
     if (servicoId) {
-      await apiRequest(`/v1/servicos/${servicoId}`, {
+      const res = await apiRequest(`/v1/servicos/${servicoId}`, {
         method: 'PUT',
         body: JSON.stringify(payload)
       });
-      showNotification('servicos-status', 'Serviço atualizado com sucesso!', true);
+      showNotification('servicos-status', res?.message || 'Serviço atualizado com sucesso!', true);
     } else {
-      await apiRequest('/v1/servicos', {
+      const res = await apiRequest('/v1/servicos', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      showNotification('servicos-status', 'Serviço criado com sucesso!', true);
+      showNotification('servicos-status', res?.message || 'Serviço criado com sucesso!', true);
     }
 
     bootstrap.Modal.getInstance(document.getElementById('addServicoModal'))?.hide();
@@ -98,8 +98,8 @@ async function deleteServico(id) {
   }
 
   try {
-    await apiRequest(`/v1/servicos/${id}`, { method: 'DELETE' });
-    showNotification('servicos-status', 'Serviço removido com sucesso!', true);
+    const res = await apiRequest(`/v1/servicos/${id}`, { method: 'DELETE' });
+    showNotification('servicos-status', res?.message || 'Serviço removido com sucesso!', true);
     loadServicos(currentPage.servicos || 1);
   } catch (error) {
     showNotification('servicos-status', `Erro ao remover serviço: ${error.message}`, false);
@@ -183,3 +183,4 @@ window.deleteServico = deleteServico;
 window.searchServicos = searchServicos;
 window.viewServico = viewServico;
 window.editServico = editServico;
+

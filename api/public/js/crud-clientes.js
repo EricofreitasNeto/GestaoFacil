@@ -1,4 +1,4 @@
-/* CRUD - Clientes */
+﻿/* CRUD - Clientes */
 
 async function loadClientes(page = 1) {
   try {
@@ -14,8 +14,8 @@ async function loadClientes(page = 1) {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${cliente.nome}</td>
-        <td>${cliente.cnpj || '—'}</td>
-        <td>${cliente.contatos || '—'}</td>
+        <td>${cliente.cnpj || 'â€”'}</td>
+        <td>${cliente.contatos || 'â€”'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewCliente(${cliente.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -47,17 +47,17 @@ async function saveClient() {
 
   try {
     if (clientId) {
-      await apiRequest(`/v1/clientes/${clientId}`, {
+      const res = await apiRequest(`/v1/clientes/${clientId}`, {
         method: 'PUT',
         body: JSON.stringify(payload)
       });
-      showNotification('clientes-status', 'Cliente atualizado com sucesso!', true);
+      showNotification('clientes-status', res?.message || 'Cliente atualizado com sucesso!', true);
     } else {
-      await apiRequest('/v1/clientes', {
+      const res = await apiRequest('/v1/clientes', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      showNotification('clientes-status', 'Cliente criado com sucesso!', true);
+      showNotification('clientes-status', res?.message || 'Cliente criado com sucesso!', true);
     }
 
     bootstrap.Modal.getInstance(document.getElementById('addClientModal'))?.hide();
@@ -74,8 +74,8 @@ async function deleteCliente(id) {
   }
 
   try {
-    await apiRequest(`/v1/clientes/${id}`, { method: 'DELETE' });
-    showNotification('clientes-status', 'Cliente removido com sucesso!', true);
+    const res = await apiRequest(`/v1/clientes/${id}`, { method: 'DELETE' });
+    showNotification('clientes-status', res?.message || 'Cliente removido com sucesso!', true);
     loadClientes(currentPage.clientes || 1);
   } catch (error) {
     showNotification('clientes-status', `Erro ao remover cliente: ${error.message}`, false);
@@ -99,8 +99,8 @@ async function searchClientes() {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${cliente.nome}</td>
-        <td>${cliente.cnpj || '—'}</td>
-        <td>${cliente.contatos || '—'}</td>
+        <td>${cliente.cnpj || 'â€”'}</td>
+        <td>${cliente.contatos || 'â€”'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewCliente(${cliente.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -121,7 +121,7 @@ async function searchClientes() {
 async function viewCliente(id) {
   try {
     const cliente = await apiRequest(`/v1/clientes/${id}`);
-    alert(`Cliente: ${cliente.nome}\nCNPJ: ${cliente.cnpj || '—'}\nContatos: ${cliente.contatos || '—'}`);
+    alert(`Cliente: ${cliente.nome}\nCNPJ: ${cliente.cnpj || 'â€”'}\nContatos: ${cliente.contatos || 'â€”'}`);
   } catch (error) {
     showNotification('clientes-status', `Erro ao carregar cliente: ${error.message}`, false);
   }
@@ -147,3 +147,4 @@ window.deleteCliente = deleteCliente;
 window.searchClientes = searchClientes;
 window.viewCliente = viewCliente;
 window.editCliente = editCliente;
+

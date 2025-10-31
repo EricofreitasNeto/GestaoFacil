@@ -52,17 +52,17 @@ async function saveTipoServico() {
 
   try {
     if (tipoId) {
-      await apiRequest(`/v1/tipos-servicos/${tipoId}`, {
+      const res = await apiRequest(`/v1/tipos-servicos/${tipoId}`, {
         method: 'PUT',
         body: JSON.stringify(payload)
       });
-      showNotification('tipos-servicos-status', 'Tipo de serviço atualizado com sucesso!', true);
+      showNotification('tipos-servicos-status', res?.message || 'Tipo de serviço atualizado com sucesso!', true);
     } else {
-      await apiRequest('/v1/tipos-servicos', {
+      const res = await apiRequest('/v1/tipos-servicos', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      showNotification('tipos-servicos-status', 'Tipo de serviço criado com sucesso!', true);
+      showNotification('tipos-servicos-status', res?.message || 'Tipo de serviço criado com sucesso!', true);
     }
 
     bootstrap.Modal.getInstance(document.getElementById('addTipoServicoModal'))?.hide();
@@ -80,8 +80,8 @@ async function deleteTipoServico(id) {
   }
 
   try {
-    await apiRequest(`/v1/tipos-servicos/${id}`, { method: 'DELETE' });
-    showNotification('tipos-servicos-status', 'Tipo de serviço removido com sucesso!', true);
+    const res = await apiRequest(`/v1/tipos-servicos/${id}`, { method: 'DELETE' });
+    showNotification('tipos-servicos-status', res?.message || 'Tipo de serviço removido com sucesso!', true);
     loadTiposServicos(currentPage.tiposServicos || 1);
   } catch (error) {
     showNotification('tipos-servicos-status', `Erro ao remover tipo de serviço: ${error.message}`, false);
@@ -153,3 +153,4 @@ window.deleteTipoServico = deleteTipoServico;
 window.searchTiposServicos = searchTiposServicos;
 window.viewTipoServico = viewTipoServico;
 window.editTipoServico = editTipoServico;
+

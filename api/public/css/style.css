@@ -1,5 +1,5 @@
-/* styles.css */
-/* ===================== VARIÁVEIS GLOBAIS ===================== */
+﻿/* styles.css */
+/* ===================== VARIÃVEIS GLOBAIS ===================== */
 :root {
     /* Cores Principais */
     --primary-color: #4361ee;
@@ -19,7 +19,7 @@
     --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
     
-    /* Cores Utilitárias */
+    /* Cores UtilitÃ¡rias */
     --info-color: #36b9cc;
     --danger-color: #e74a3b;
     
@@ -42,7 +42,7 @@ body {
     color: #333;
 }
 
-/* ===================== PÁGINAS DE AUTENTICAÇÃO ===================== */
+/* ===================== PÃGINAS DE AUTENTICAÃ‡ÃƒO ===================== */
 .auth-page {
     min-height: 100vh;
     display: flex;
@@ -138,7 +138,7 @@ body {
     text-decoration: underline;
 }
 
-/* ===================== FORMULÁRIOS ===================== */
+/* ===================== FORMULÃRIOS ===================== */
 .form-floating {
     margin-bottom: 20px;
 }
@@ -168,7 +168,7 @@ body {
     font-weight: 500;
 }
 
-/* ===================== BOTÕES ===================== */
+/* ===================== BOTÃ•ES ===================== */
 .btn-primary {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     border: none;
@@ -304,7 +304,7 @@ body {
     margin-right: 0;
 }
 
-/* ===================== CONTEÚDO PRINCIPAL ===================== */
+/* ===================== CONTEÃšDO PRINCIPAL ===================== */
 .main-content {
     margin-left: var(--sidebar-width);
     padding: 20px;
@@ -534,7 +534,7 @@ body {
     }
 }
 
-/* ===================== PÁGINAS ESPECÍFICAS ===================== */
+/* ===================== PÃGINAS ESPECÃFICAS ===================== */
 .page-content {
     display: none;
 }
@@ -555,7 +555,7 @@ body {
     }
 }
 
-/* ===================== BOTÃO MOBILE ===================== */
+/* ===================== BOTÃƒO MOBILE ===================== */
 .mobile-menu-btn {
     display: none;
     position: fixed;
@@ -575,7 +575,7 @@ body {
     background: var(--secondary-color);
 }
 
-/* ===================== PAGINAÇÃO ===================== */
+/* ===================== PAGINAÃ‡ÃƒO ===================== */
 .pagination {
     margin: 20px 0;
     justify-content: center;
@@ -593,7 +593,7 @@ body {
     border-color: var(--primary-color);
 }
 
-/* ===================== UTILITÁRIOS ===================== */
+/* ===================== UTILITÃRIOS ===================== */
 .skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0e0 75%);
     background-size: 200% 100%;
@@ -730,7 +730,7 @@ body {
     }
 }
 
-/* Foco visível para navegação por teclado */
+/* Foco visÃ­vel para navegaÃ§Ã£o por teclado */
 .btn:focus,
 .form-control:focus,
 .nav-link:focus {
@@ -864,3 +864,4 @@ body {
     }
 }
 >>>>>>> theirs
+

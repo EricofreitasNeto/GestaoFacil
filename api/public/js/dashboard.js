@@ -1,4 +1,4 @@
-/* Funções do dashboard (carregar dados e gráficos) */
+﻿/* FunÃ§Ãµes do dashboard (carregar dados e grÃ¡ficos) */
 
 // Override padronizado para mapeamento de status
 function getStatusBadgeClass(status) {
@@ -9,7 +9,7 @@ function getStatusBadgeClass(status) {
 
 async function loadDashboardData() {
             try {
-                // Carregar estatísticas
+                // Carregar estatÃ­sticas
                 const [clientes, ativos, servicos, usuarios] = await Promise.all([
                     apiRequest('/v1/clientes'),
                     apiRequest('/v1/ativos'),
@@ -17,16 +17,16 @@ async function loadDashboardData() {
                     currentUser.cargo === 'admin' ? apiRequest('/v1/usuarios') : Promise.resolve([])
                 ]);
                 
-                // Atualizar estatísticas
+                // Atualizar estatÃ­sticas
                 document.getElementById('stats-clientes').textContent = clientes.length;
                 document.getElementById('stats-ativos').textContent = ativos.length;
                 document.getElementById('stats-servicos').textContent = servicos.length;
                 document.getElementById('stats-usuarios').textContent = usuarios.length;
                 
-                // Carregar gráficos
+                // Carregar grÃ¡ficos
                 loadCharts(servicos);
                 
-                // Carregar serviços recentes
+                // Carregar serviÃ§os recentes
                 loadRecentServices(servicos);
             } catch (error) {
                 console.error('Erro ao carregar dados do dashboard:', error);
@@ -34,7 +34,7 @@ async function loadDashboardData() {
         }
 
 function loadCharts(servicos) {
-            // Gráfico de serviços por status
+            // GrÃ¡fico de serviÃ§os por status
             const statusCount = {};
             servicos.forEach(servico => {
                 statusCount[servico.status] = (statusCount[servico.status] || 0) + 1;
@@ -46,7 +46,7 @@ function loadCharts(servicos) {
                 data: {
                     labels: Object.keys(statusCount),
                     datasets: [{
-                        label: 'Serviços por Status',
+                        label: 'ServiÃ§os por Status',
                         data: Object.values(statusCount),
                         backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
                     }]
@@ -64,12 +64,12 @@ function loadCharts(servicos) {
                 }
             });
             
-            // Gráfico de tipos de serviços (simulado)
+            // GrÃ¡fico de tipos de serviÃ§os (simulado)
             const typesCtx = document.getElementById('serviceTypesChart').getContext('2d');
             new Chart(typesCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Manutenção', 'Instalação', 'Suporte', 'Consultoria'],
+                    labels: ['ManutenÃ§Ã£o', 'InstalaÃ§Ã£o', 'Suporte', 'Consultoria'],
                     datasets: [{
                         data: [35, 25, 20, 20],
                         backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
@@ -90,7 +90,7 @@ function loadRecentServices(servicos) {
             const recentServicesContainer = document.getElementById('recent-services');
             recentServicesContainer.innerHTML = '';
             
-            // Ordenar serviços por data (mais recentes primeiro)
+            // Ordenar serviÃ§os por data (mais recentes primeiro)
             const recentServices = servicos
                 .sort((a, b) => new Date(b.dataAgendada) - new Date(a.dataAgendada))
                 .slice(0, 5);
@@ -110,10 +110,11 @@ function loadRecentServices(servicos) {
 
 function getStatusBadgeClass(status) {
             switch(status) {
-                case 'Concluído': return 'success';
+                case 'ConcluÃ­do': return 'success';
                 case 'Em Andamento': return 'primary';
                 case 'Agendado': return 'info';
                 case 'Cancelado': return 'danger';
                 default: return 'secondary';
             }
         }
+

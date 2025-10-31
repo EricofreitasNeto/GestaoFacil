@@ -1,4 +1,4 @@
-/* CRUD - Locais */
+﻿/* CRUD - Locais */
 
 async function loadLocais(page = 1) {
   try {
@@ -46,17 +46,17 @@ async function saveLocal() {
 
   try {
     if (localId) {
-      await apiRequest(`/v1/locais/${localId}`, {
+      const res = await apiRequest(`/v1/locais/${localId}`, {
         method: 'PUT',
         body: JSON.stringify(payload)
       });
-      showNotification('locais-status', 'Local atualizado com sucesso!', true);
+      showNotification('locais-status', res?.message || 'Local atualizado com sucesso!', true);
     } else {
-      await apiRequest('/v1/locais', {
+      const res = await apiRequest('/v1/locais', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      showNotification('locais-status', 'Local criado com sucesso!', true);
+      showNotification('locais-status', res?.message || 'Local criado com sucesso!', true);
     }
 
     bootstrap.Modal.getInstance(document.getElementById('addLocalModal'))?.hide();
@@ -74,8 +74,8 @@ async function deleteLocal(id) {
   }
 
   try {
-    await apiRequest(`/v1/locais/${id}`, { method: 'DELETE' });
-    showNotification('locais-status', 'Local removido com sucesso!', true);
+    const res = await apiRequest(`/v1/locais/${id}`, { method: 'DELETE' });
+    showNotification('locais-status', res?.message || 'Local removido com sucesso!', true);
     loadLocais(currentPage.locais || 1);
   } catch (error) {
     showNotification('locais-status', `Erro ao remover local: ${error.message}`, false);
@@ -141,3 +141,4 @@ window.deleteLocal = deleteLocal;
 window.searchLocais = searchLocais;
 window.viewLocal = viewLocal;
 window.editLocal = editLocal;
+

@@ -1,4 +1,4 @@
-const { TipoServico } = require("../models");
+﻿const { TipoServico } = require("../models");
 
 const tipoServicoController = {
   // Listar todos os tipos (ativos e inativos)
@@ -7,7 +7,7 @@ const tipoServicoController = {
       const tipos = await TipoServico.unscoped().findAll();
       return res.status(200).json(tipos);
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao listar tipos de serviço", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao listar tipos de serviço", detalhes: error.message });
     }
   },
 
@@ -16,21 +16,20 @@ const tipoServicoController = {
     try {
       const { id } = req.params;
       const tipo = await TipoServico.findByPk(id);
-      if (!tipo) return res.status(404).json({ erro: "Tipo de serviço não encontrado" });
+      if (!tipo) return res.status(404).json({ message: "Tipo de serviço não encontrado" });
       return res.status(200).json(tipo);
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao buscar tipo de serviço", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao buscar tipo de serviço", detalhes: error.message });
     }
   },
 
   // Criar novo tipo
   async criar(req, res) {
     try {
-      const { nome, descricao } = req.body;
-      const novoTipo = await TipoServico.create({ nome, descricao });
+      const { nome, descricao, ativo } = req.body;`r`n      const novoTipo = await TipoServico.create({ nome, descricao, ativo: (typeof ativo === 'boolean') ? ativo : true });
       return res.status(201).json(novoTipo);
     } catch (error) {
-      return res.status(400).json({ erro: "Erro ao criar tipo de serviço", detalhes: error.message });
+      return res.status(400).json({ message: "Erro ao criar tipo de serviço", detalhes: error.message });
     }
   },
 
@@ -40,12 +39,12 @@ const tipoServicoController = {
       const { id } = req.params;
       const { nome, descricao, ativo } = req.body;
       const tipo = await TipoServico.findByPk(id);
-      if (!tipo) return res.status(404).json({ erro: "Tipo de serviço não encontrado" });
+      if (!tipo) return res.status(404).json({ message: "Tipo de serviço não encontrado" });
 
       await tipo.update({ nome, descricao, ativo });
       return res.status(200).json(tipo);
     } catch (error) {
-      return res.status(400).json({ erro: "Erro ao atualizar tipo de serviço", detalhes: error.message });
+      return res.status(400).json({ message: "Erro ao atualizar tipo de serviço", detalhes: error.message });
     }
   },
 
@@ -54,12 +53,12 @@ const tipoServicoController = {
     try {
       const { id } = req.params;
       const tipo = await TipoServico.findByPk(id);
-      if (!tipo) return res.status(404).json({ erro: "Tipo de serviço não encontrado" });
+      if (!tipo) return res.status(404).json({ message: "Tipo de serviço não encontrado" });
 
       await tipo.update({ ativo: false });
-      return res.status(200).json({ mensagem: "Tipo de serviço desativado com sucesso" });
+      return res.status(200).json({ message: "Tipo de serviço desativado com sucesso" });
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao desativar tipo de serviço", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao desativar tipo de serviço", detalhes: error.message });
     }
   },
 
@@ -68,15 +67,18 @@ const tipoServicoController = {
     try {
       const { id } = req.params;
       const tipo = await TipoServico.findByPk(id);
-      if (!tipo) return res.status(404).json({ erro: "Tipo de serviço não encontrado" });
+      if (!tipo) return res.status(404).json({ message: "Tipo de serviço não encontrado" });
 
       await tipo.destroy();
-      return res.status(200).json({ mensagem: "Tipo de serviço excluído com sucesso" });
+      return res.status(200).json({ message: "Tipo de serviço excluído com sucesso" });
     } catch (error) {
-      return res.status(500).json({ erro: "Erro ao excluir tipo de serviço", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao excluir tipo de serviço", detalhes: error.message });
     }
   }
 };
 
 module.exports = tipoServicoController;
+
+
+
 

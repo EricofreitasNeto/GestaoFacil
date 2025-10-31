@@ -61,21 +61,21 @@ async function saveUsuario() {
 
   try {
     if (usuarioId) {
-      await apiRequest(`/v1/usuarios/${usuarioId}`, {
+      const res = await apiRequest(`/v1/usuarios/${usuarioId}`, {
         method: 'PUT',
         body: JSON.stringify(payload)
       });
-      showNotification('usuarios-status', 'Usuário atualizado com sucesso!', true);
+      showNotification('usuarios-status', res?.message || 'Usuário atualizado com sucesso!', true);
     } else {
       if (!payload.password) {
         showNotification('usuarios-status', 'Defina uma senha para o novo usuário.', false);
         return;
       }
-      await apiRequest('/v1/usuarios', {
+      const res = await apiRequest('/v1/usuarios', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      showNotification('usuarios-status', 'Usuário criado com sucesso!', true);
+      showNotification('usuarios-status', res?.message || 'Usuário criado com sucesso!', true);
     }
 
     bootstrap.Modal.getInstance(document.getElementById('addUsuarioModal'))?.hide();
@@ -93,8 +93,8 @@ async function deleteUsuario(id) {
   }
 
   try {
-    await apiRequest(`/v1/usuarios/${id}`, { method: 'DELETE' });
-    showNotification('usuarios-status', 'Usuário removido com sucesso!', true);
+    const res = await apiRequest(`/v1/usuarios/${id}`, { method: 'DELETE' });
+    showNotification('usuarios-status', res?.message || 'Usuário removido com sucesso!', true);
     loadUsuarios(currentPage.usuarios || 1);
   } catch (error) {
     showNotification('usuarios-status', `Erro ao remover usuário: ${error.message}`, false);
@@ -168,3 +168,4 @@ window.deleteUsuario = deleteUsuario;
 window.searchUsuarios = searchUsuarios;
 window.viewUsuario = viewUsuario;
 window.editUsuario = editUsuario;
+
