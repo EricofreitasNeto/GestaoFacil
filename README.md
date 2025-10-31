@@ -160,6 +160,60 @@ Servico *---1 TipoServico
 
 ---
 
+## 🚢 Como aplicar o novo front-end responsivo
+
+Caso você já tenha uma instância antiga do projeto rodando, siga os passos abaixo para publicar a interface reconstruída (telas de login, dashboard e módulos CRUD) no ambiente desejado:
+
+1. **Atualize o código-fonte**
+   - Faça backup dos arquivos atuais de produção, caso necessário.
+   - Execute `git checkout main` (ou o branch de produção) e em seguida `git pull` para baixar as alterações mais recentes.
+
+2. **Instale (ou atualize) as dependências do backend**
+   - Na raiz do projeto rode `npm install` para garantir que as versões mais atuais das dependências estejam disponíveis.
+
+3. **Configure as variáveis de ambiente**
+   - Revise o arquivo `.env` existente; se estiver montando o projeto do zero, copie `.env.example` (quando disponível) e ajuste credenciais do banco, segredo JWT e portas utilizadas.
+
+4. **Execute migrações e popular o banco (opcional, quando aplicável)**
+   - Utilize os comandos padrão do Sequelize, por exemplo `npx sequelize db:migrate` e `npx sequelize db:seed:all`, para alinhar a estrutura do banco ao backend atual.
+
+5. **Publique os assets do front-end**
+   - Os arquivos estáticos atualizados estão em `api/public/` (HTML, CSS e JavaScript dos módulos CRUD).
+   - Se você usa um servidor Node/Express (como no projeto), basta manter o diretório `api/public/` sincronizado com o ambiente de execução.
+   - Para hospedagem estática, copie o conteúdo de `api/public/` para o bucket/CDN ou servidor web responsável.
+
+6. **Reinicie o serviço**
+   - Em ambiente local, rode `npm run dev` para acompanhar o front-end novo em `http://localhost:3000`.
+   - Em produção, reinicie o processo (PM2, Docker, systemd etc.) que executa `npm start` para que o servidor sirva os novos arquivos.
+
+7. **Valide o funcionamento**
+   - Acesse o login pelo navegador ou dispositivo móvel e garanta que os módulos de Clientes, Ativos, Serviços, Usuários, Locais e Tipos de Serviço estejam carregando e salvando dados conforme esperado.
+   - Utilize as ferramentas de desenvolvedor do navegador para confirmar a responsividade e o consumo correto da API (`api/v1`).
+
+Seguindo essa sequência, a interface renovada ficará disponível tanto em desktop quanto em dispositivos móveis, consumindo a API existente sem que seja necessário um processo de build adicional.
+
+### 📦 Baixar os arquivos prontos para substituir
+
+Se você prefere apenas baixar os arquivos novos em vez de revisar o código linha a linha, existem duas formas simples de obter o pacote pronto para substituir na sua máquina ou servidor:
+
+1. **Baixar o repositório em formato `.zip` pela interface do GitHub**
+   - Acesse a página do projeto no GitHub.
+   - Clique em **Code ▸ Download ZIP** para baixar todo o repositório já com o front-end atualizado.
+   - Extraia o `.zip` e copie o conteúdo da pasta `api/public/` extraída por cima da pasta `api/public/` do seu ambiente atual (faça um backup prévio se quiser guardar a versão antiga).
+
+2. **Baixar apenas o diretório `api/public/` com `git archive` (sem precisar clonar tudo)**
+   - Certifique-se de ter o `git` instalado.
+   - Dentro de uma pasta temporária, execute:
+     ```bash
+     git archive --format=tar --remote=<url-do-repositorio.git> HEAD api/public | tar -xf -
+     ```
+     Substitua `<url-do-repositorio.git>` pela URL HTTPS ou SSH do seu repositório.
+   - O comando gera os arquivos do diretório `api/public/` prontos para copiar. Transfira-os para a pasta `api/public/` do ambiente em que deseja atualizar o front.
+
+Após copiar os arquivos, siga os passos da seção anterior a partir do item **6. Reinicie o serviço** para garantir que o servidor passe a servir a nova interface.
+
+---
+
 ## 🧪 Estruturas JSON para Testes das Entidades
 
 ### Cliente

@@ -1,137 +1,370 @@
-/* Inicialização e funções gerais (main.js) */
+/* Inicialização da aplicação web e controles de interface */
 
-// 🔧 Configuração da API
-const API_BASE_URL = 'http://localhost:3000'; // Altere para ambiente local se necessário
-let authToken = localStorage.getItem('authToken');
-let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-
-// 📦 Controle de CRUD e paginação
-let currentEntity = null;
-let currentItemId = null;
-const itemsPerPage = 10;
-const currentPage = {
-  clientes: 1,
-  ativos: 1,
-  servicos: 1,
-  usuarios: 1,
-  locais: 1,
-  tiposServicos: 1
-};
-
-// 🎨 Elementos da interface
 const UI = {
   loginPage: document.getElementById('login-page'),
   registerPage: document.getElementById('register-page'),
   mainLayout: document.getElementById('main-layout'),
-  loginForm: document.getElementById('login-form'),
-  registerForm: document.getElementById('register-form'),
-  loginStatus: document.getElementById('login-status'),
-  registerStatus: document.getElementById('register-status'),
-  loginBtn: document.getElementById('login-btn'),
-  registerBtn: document.getElementById('register-btn'),
-  loginText: document.getElementById('login-text'),
-  registerText: document.getElementById('register-text'),
-  loginLoading: document.getElementById('login-loading'),
-  registerLoading: document.getElementById('register-loading'),
-  userName: document.getElementById('user-name'),
-  userAvatar: document.getElementById('user-avatar'),
-  userRoleBadge: document.getElementById('user-role-badge'),
-  registerLink: document.getElementById('register-link'),
-  backToLogin: document.getElementById('back-to-login'),
+  sidebar: document.getElementById('sidebar'),
+  sidebarToggle: document.getElementById('sidebarToggle'),
+  mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+  contentWrapper: document.getElementById('content-wrapper'),
   logoutBtn: document.getElementById('logout-btn'),
   dropdownLogoutBtn: document.getElementById('dropdown-logout-btn'),
-  sidebarToggle: document.getElementById('sidebarToggle'),
-  contentWrapper: document.getElementById('content-wrapper'),
-  sidebar: document.getElementById('sidebar'),
-  confirmDeleteBtn: document.getElementById('confirm-delete-btn')
+  confirmDeleteBtn: document.getElementById('confirm-delete-btn'),
+  pageTitle: document.getElementById('page-title')
 };
 
-// 🚀 Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-  authToken ? showMainLayout() && loadDashboardData() : showLoginPage();
-  setupEventListeners();
-});
+const SECTION_TITLES = {
+  dashboard: 'Dashboard',
+  clientes: 'Clientes',
+  ativos: 'Ativos',
+  servicos: 'Serviços',
+  locais: 'Locais',
+  'tipos-servicos': 'Tipos de serviço',
+  usuarios: 'Usuários'
+};
 
-// 🧩 Eventos globais
+const SECTION_LOADERS = {
+  dashboard: () => typeof loadDashboardData === 'function' && loadDashboardData(),
+  clientes: page => typeof loadClientes === 'function' && loadClientes(page),
+  ativos: page => typeof loadAtivos === 'function' && loadAtivos(page),
+  servicos: page => typeof loadServicos === 'function' && loadServicos(page),
+  locais: page => typeof loadLocais === 'function' && loadLocais(page),
+  'tipos-servicos': page => typeof loadTiposServicos === 'function' && loadTiposServicos(page),
+  usuarios: page => typeof loadUsuarios === 'function' && loadUsuarios(page)
+};
+
+const DELETE_HANDLERS = {
+  cliente: id => typeof deleteCliente === 'function' && deleteCliente(id),
+  ativo: id => typeof deleteAtivo === 'function' && deleteAtivo(id),
+  servico: id => typeof deleteServico === 'function' && deleteServico(id),
+  usuario: id => typeof deleteUsuario === 'function' && deleteUsuario(id),
+  local: id => typeof deleteLocal === 'function' && deleteLocal(id),
+  'tipo-servico': id => typeof deleteTipoServico === 'function' && deleteTipoServico(id)
+};
+
+let currentEntity = null;
+let currentItemId = null;
+
+function getPaginationKey(section) {
+  return section === 'tipos-servicos' ? 'tiposServicos' : section;
+}
+
 function setupEventListeners() {
-  UI.loginForm.addEventListener('submit', handleLogin);
-  UI.registerForm.addEventListener('submit', handleRegister);
-  UI.registerLink.addEventListener('click', e => { e.preventDefault(); showRegisterPage(); });
-  UI.backToLogin.addEventListener('click', e => { e.preventDefault(); showLoginPage(); });
-  UI.logoutBtn.addEventListener('click', handleLogout);
-  UI.dropdownLogoutBtn.addEventListener('click', handleLogout);
-  UI.sidebarToggle.addEventListener('click', toggleSidebar);
-  UI.confirmDeleteBtn.addEventListener('click', confirmDelete);
+  if (window.loginForm) {
+    loginForm.addEventListener('submit', handleLogin);
+  }
+  if (window.registerForm) {
+    registerForm.addEventListener('submit', handleRegister);
+  }
+  if (window.registerLink) {
+    registerLink.addEventListener('click', event => {
+      event.preventDefault();
+      showRegisterPage();
+    });
+  }
+  if (window.backToLogin) {
+    backToLogin.addEventListener('click', event => {
+      event.preventDefault();
+      showLoginPage();
+    });
+  }
 
   document.querySelectorAll('.nav-link[data-section]').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      navigateToSection(link.getAttribute('data-section'));
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      const section = link.getAttribute('data-section');
+      navigateToSection(section);
     });
   });
 
-  const crudMap = {
-    clientes: ['client'],
-    ativos: ['ativo'],
-    servicos: ['servico'],
-    usuarios: ['usuario'],
-    locais: ['local'],
-    tiposServicos: ['tipo-servico']
-  };
+  UI.logoutBtn?.addEventListener('click', handleLogout);
+  UI.dropdownLogoutBtn?.addEventListener('click', handleLogout);
 
-  Object.entries(crudMap).forEach(([section, prefix]) => {
-    document.getElementById(`save-${prefix}-btn`).addEventListener('click', window[`save${capitalize(prefix)}`]);
-    document.getElementById(`search-${prefix}-btn`).addEventListener('click', window[`search${capitalize(section)}`]);
-  });
+  UI.sidebarToggle?.addEventListener('click', toggleSidebar);
+  UI.mobileMenuBtn?.addEventListener('click', toggleSidebar);
 
-  document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('hidden.bs.modal', () => {
-      clearForm(modal.querySelector('form'));
+  UI.confirmDeleteBtn?.addEventListener('click', confirmDelete);
+
+  document.querySelectorAll('.modal').forEach(modalElement => {
+    modalElement.addEventListener('hidden.bs.modal', () => {
+      const form = modalElement.querySelector('form');
+      if (form) {
+        clearForm(form);
+      }
+      currentEntity = null;
       currentItemId = null;
     });
   });
+
+  const searchButtons = [
+    ['search-client-btn', () => typeof searchClientes === 'function' && searchClientes()],
+    ['search-ativo-btn', () => typeof searchAtivos === 'function' && searchAtivos()],
+    ['search-servico-btn', () => typeof searchServicos === 'function' && searchServicos()],
+    ['search-usuario-btn', () => typeof searchUsuarios === 'function' && searchUsuarios()],
+    ['search-local-btn', () => typeof searchLocais === 'function' && searchLocais()],
+    ['search-tipo-servico-btn', () => typeof searchTiposServicos === 'function' && searchTiposServicos()]
+  ];
+
+  searchButtons.forEach(([id, handler]) => {
+    const button = document.getElementById(id);
+    if (button) {
+      button.addEventListener('click', handler);
+    }
+  });
+
+  const saveButtons = [
+    ['save-client-btn', () => typeof saveClient === 'function' && saveClient()],
+    ['save-ativo-btn', () => typeof saveAtivo === 'function' && saveAtivo()],
+    ['save-servico-btn', () => typeof saveServico === 'function' && saveServico()],
+    ['save-usuario-btn', () => typeof saveUsuario === 'function' && saveUsuario()],
+    ['save-local-btn', () => typeof saveLocal === 'function' && saveLocal()],
+    ['save-tipo-servico-btn', () => typeof saveTipoServico === 'function' && saveTipoServico()]
+  ];
+
+  saveButtons.forEach(([id, handler]) => {
+    const button = document.getElementById(id);
+    if (button) {
+      button.addEventListener('click', handler);
+    }
+  });
+
+  window.addEventListener('resize', handleResponsiveSidebar);
 }
 
-// 📍 Navegação entre seções
 function navigateToSection(section) {
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  document.querySelector(`.nav-link[data-section="${section}"]`).classList.add('active');
+  const sections = document.querySelectorAll('.content-section');
+  sections.forEach(area => {
+    area.style.display = 'none';
+  });
 
-  document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-  document.getElementById(`${section}-section`).style.display = 'block';
+  const target = document.getElementById(`${section}-section`);
+  if (target) {
+    target.style.display = 'block';
+  }
 
-  const loaders = {
-    dashboard: loadDashboardData,
-    clientes: loadClientes,
-    ativos: loadAtivos,
-    servicos: loadServicos,
-    usuarios: loadUsuarios,
-    locais: loadLocais,
-    'tipos-servicos': loadTiposServicos
-  };
+  document.querySelectorAll('.nav-link[data-section]').forEach(link => {
+    link.classList.toggle('active', link.getAttribute('data-section') === section);
+  });
 
-  if (loaders[section]) loaders[section]();
-}
+  if (UI.pageTitle) {
+    UI.pageTitle.textContent = SECTION_TITLES[section] || 'GestãoFácil';
+  }
 
-// 📱 Sidebar responsiva
-function toggleSidebar() {
-  const isMobile = window.innerWidth < 576;
-  if (isMobile) {
-    UI.sidebar.classList.toggle('mobile-show');
-    UI.contentWrapper.classList.toggle('mobile-pushed');
-  } else {
-    const compact = UI.sidebar.style.width === '80px';
-    UI.sidebar.style.width = compact ? '250px' : '80px';
-    UI.contentWrapper.style.marginLeft = compact ? '250px' : '80px';
-    UI.contentWrapper.style.width = compact ? 'calc(100% - 250px)' : 'calc(100% - 80px)';
+  const loader = SECTION_LOADERS[section];
+  const key = getPaginationKey(section);
+  const page = currentPage?.[key] || 1;
+  if (loader) {
+    loader(page);
+  }
 
-    document.querySelectorAll('.sidebar .nav-link span').forEach(span => {
-      span.style.display = compact ? 'inline' : 'none';
-    });
+  if (window.innerWidth < 768) {
+    UI.sidebar?.classList.remove('mobile-open');
   }
 }
 
-// 🔠 Utilitário para capitalizar nomes
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+function toggleSidebar() {
+  if (window.innerWidth < 768) {
+    UI.sidebar?.classList.toggle('mobile-open');
+  } else {
+    UI.sidebar?.classList.toggle('collapsed');
+    UI.contentWrapper?.classList.toggle('expanded');
+  }
 }
+
+function handleResponsiveSidebar() {
+  if (window.innerWidth >= 768) {
+    UI.sidebar?.classList.remove('mobile-open');
+  }
+}
+
+function showNotification(elementId, message, isSuccess = true) {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+
+  element.textContent = message;
+  element.className = `api-status ${isSuccess ? 'success' : 'error'} show`;
+}
+
+function clearForm(form) {
+  if (!form) return;
+  form.reset();
+  const hiddenId = form.querySelector('input[type="hidden"][name="id"], input[type="hidden"][id$="-id"]');
+  if (hiddenId) {
+    hiddenId.value = '';
+  }
+}
+
+function askForDelete(entity, itemId) {
+  currentEntity = entity;
+  currentItemId = itemId;
+  const modalElement = document.getElementById('confirmDeleteModal');
+  if (modalElement) {
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+    modal.show();
+  }
+}
+
+async function confirmDelete() {
+  if (!currentEntity || !currentItemId) return;
+
+  const handler = DELETE_HANDLERS[currentEntity];
+  if (typeof handler === 'function') {
+    await handler(currentItemId);
+  }
+
+  const modalElement = document.getElementById('confirmDeleteModal');
+  if (modalElement) {
+    bootstrap.Modal.getInstance(modalElement)?.hide();
+  }
+
+  currentEntity = null;
+  currentItemId = null;
+}
+
+function updatePagination(section, totalItems, page) {
+  const container = document.getElementById(`${section}-pagination`);
+  if (!container) return;
+
+  const key = getPaginationKey(section);
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  currentPage[key] = Math.min(page, totalPages);
+
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = '';
+
+  const createButton = (label, targetPage, disabled = false) => {
+    const button = document.createElement('button');
+    button.textContent = label;
+    if (disabled) {
+      button.disabled = true;
+    }
+    if (targetPage === currentPage[key]) {
+      button.classList.add('active');
+    }
+    button.addEventListener('click', () => {
+      currentPage[key] = targetPage;
+      const loader = SECTION_LOADERS[section];
+      if (loader) {
+        loader(targetPage);
+      }
+    });
+    return button;
+  };
+
+  container.appendChild(createButton('Anterior', Math.max(1, currentPage[key] - 1), currentPage[key] === 1));
+
+  for (let i = 1; i <= totalPages; i += 1) {
+    container.appendChild(createButton(i, i));
+  }
+
+  container.appendChild(createButton('Próximo', Math.min(totalPages, currentPage[key] + 1), currentPage[key] === totalPages));
+}
+
+async function refreshAllDropdowns() {
+  try {
+    const [clientes, locais, ativos, usuarios, tiposServicos] = await Promise.all([
+      apiRequest('/v1/clientes'),
+      apiRequest('/v1/locais'),
+      apiRequest('/v1/ativos'),
+      currentUser?.cargo === 'admin' ? apiRequest('/v1/usuarios') : Promise.resolve([]),
+      apiRequest('/v1/tipos-servicos')
+    ]);
+
+    updateClientDropdowns(clientes || []);
+    updateLocalDropdown(locais || []);
+    updateAtivoDropdown(ativos || []);
+    updateUsuarioDropdown(usuarios || []);
+    updateTipoServicoDropdown(tiposServicos || []);
+  } catch (error) {
+    console.warn('Não foi possível atualizar listas auxiliares:', error.message);
+  }
+}
+
+function updateClientDropdowns(clientes) {
+  const clienteSelect = document.getElementById('servicoCliente');
+  if (!clienteSelect) return;
+  clienteSelect.innerHTML = '<option value="">Selecione</option>';
+  clientes.forEach(cliente => {
+    const option = document.createElement('option');
+    option.value = cliente.id;
+    option.textContent = cliente.nome;
+    clienteSelect.appendChild(option);
+  });
+}
+
+function updateLocalDropdown(locais) {
+  const localSelect = document.getElementById('ativoLocal');
+  if (!localSelect) return;
+  localSelect.innerHTML = '<option value="">Selecione</option>';
+  locais.forEach(local => {
+    const option = document.createElement('option');
+    option.value = local.id;
+    option.textContent = local.nome;
+    localSelect.appendChild(option);
+  });
+}
+
+function updateAtivoDropdown(ativos) {
+  const ativoSelect = document.getElementById('servicoAtivo');
+  if (!ativoSelect) return;
+  ativoSelect.innerHTML = '<option value="">Selecione</option>';
+  ativos.forEach(ativo => {
+    const option = document.createElement('option');
+    option.value = ativo.id;
+    option.textContent = ativo.nome;
+    ativoSelect.appendChild(option);
+  });
+}
+
+function updateUsuarioDropdown(usuarios) {
+  const usuarioSelect = document.getElementById('servicoUsuario');
+  if (!usuarioSelect) return;
+  usuarioSelect.innerHTML = '<option value="">Selecione</option>';
+  usuarios.forEach(usuario => {
+    const option = document.createElement('option');
+    option.value = usuario.id;
+    option.textContent = usuario.nome;
+    usuarioSelect.appendChild(option);
+  });
+}
+
+function updateTipoServicoDropdown(tipos) {
+  const tipoSelect = document.getElementById('servicoTipo');
+  if (!tipoSelect) return;
+  tipoSelect.innerHTML = '<option value="">Selecione</option>';
+  tipos.forEach(tipo => {
+    const option = document.createElement('option');
+    option.value = tipo.id;
+    option.textContent = tipo.nome;
+    tipoSelect.appendChild(option);
+  });
+}
+
+window.askForDelete = askForDelete;
+window.showNotification = showNotification;
+window.clearForm = clearForm;
+window.updatePagination = updatePagination;
+window.updateClientDropdowns = updateClientDropdowns;
+window.updateLocalDropdown = updateLocalDropdown;
+window.updateAtivoDropdown = updateAtivoDropdown;
+window.updateUsuarioDropdown = updateUsuarioDropdown;
+window.updateTipoServicoDropdown = updateTipoServicoDropdown;
+window.refreshAllDropdowns = refreshAllDropdowns;
+window.navigateToSection = navigateToSection;
+
+window.addEventListener('DOMContentLoaded', () => {
+  setupEventListeners();
+
+  if (authToken) {
+    showMainLayout();
+    refreshAllDropdowns();
+    SECTION_LOADERS.dashboard();
+  } else {
+    showLoginPage();
+  }
+});

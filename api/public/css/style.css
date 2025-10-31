@@ -720,7 +720,6 @@ body {
     .stat-icon {
         font-size: 30px;
     }
-}
 
 /* ===================== ACESSIBILIDADE ===================== */
 @media (prefers-reduced-motion: reduce) {
@@ -754,3 +753,114 @@ body {
         border: 2px solid var(--dark-bg);
     }
 }
+<<<<<<< ours
+
+=======
+/* ===================== COMPONENTES COMPLEMENTARES ===================== */
+.content-section {
+    display: none;
+}
+
+#dashboard-section {
+    display: block;
+}
+
+.dashboard-card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.dashboard-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid #eef1f6;
+    padding: 18px 24px;
+}
+
+.dashboard-card .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.card .card-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.card .text-muted {
+    font-size: 14px;
+}
+
+.table-header {
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.table-header .input-group {
+    max-width: 260px;
+}
+
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.pagination button {
+    border: none;
+    background: white;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-weight: 500;
+    color: #495057;
+    transition: var(--transition);
+}
+
+.pagination button.active,
+.pagination button:hover {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.api-status {
+    display: none;
+}
+
+.api-status.show {
+    display: block;
+}
+
+.role-badge {
+    text-transform: capitalize;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 12px;
+}
+
+.auth-link.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+@media (max-width: 576px) {
+    .table-header {
+        align-items: stretch;
+    }
+
+    .table-header .input-group {
+        width: 100%;
+    }
+
+    .table-header .btn {
+        width: 100%;
+    }
+}
+>>>>>>> theirs
