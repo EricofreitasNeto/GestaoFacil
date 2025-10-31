@@ -17,6 +17,11 @@ const userNameElement = document.getElementById('user-name');
 const userAvatarElement = document.getElementById('user-avatar');
 const userRoleBadge = document.getElementById('user-role-badge');
 
+// Base da API conforme configuracao global
+const API_BASE = (typeof window !== 'undefined' && window.API_BASE_URL)
+  ? window.API_BASE_URL
+  : (window.location.origin.includes('localhost') ? 'http://localhost:3000' : window.location.origin);
+
 function setStatus(element, message, type = 'info') {
   if (!element) return;
   element.textContent = message;
@@ -39,7 +44,7 @@ async function handleLogin(event) {
   setStatus(loginStatus, '');
 
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const response = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -54,7 +59,15 @@ async function handleLogin(event) {
     authToken = data.token;
     localStorage.setItem('authToken', authToken);
 
-    const payload = JSON.parse(atob(authToken.split('.')[1]));
+    // Prefere dados do usuário retornados pela API; fallback para payload do token
+    let payload = data.user;
+    if (!payload) {
+      try {
+        payload = JSON.parse(atob(authToken.split('.')[1]));
+      } catch (e) {
+        payload = {};
+      }
+    }
     currentUser = {
       id: payload.id,
       nome: payload.nome,
@@ -98,7 +111,7 @@ async function handleRegister(event) {
   setStatus(registerStatus, '');
 
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    const response = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nome, email, cargo, telefone, password, confirmPassword })

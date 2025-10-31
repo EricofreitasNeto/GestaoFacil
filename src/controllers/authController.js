@@ -54,3 +54,28 @@ exports.register = async (req, res) => {
     return res.status(500).json({ erro: 'Erro ao fazer login', detalhes: error.message });
   }
 };  
+
+// Compatibilidade com o front-end: inclui `nome` no JWT e retorna também o usuário
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario) {
+      return res.status(401).json({ message: 'Usuário não encontrado' });
+    }
+
+    const senhaValida = await usuario.validPassword(password);
+    if (!senhaValida) {
+      return res.status(401).json({ message: 'Senha incorreta' });
+    }
+
+    const payload = { id: usuario.id, nome: usuario.nome, email: usuario.email, cargo: usuario.cargo };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    return res.status(200).json({ token, user: payload, message: 'Login realizado com sucesso' });
+  } catch (error) {
+    console.error('Erro no login (compat):', error);
+    return res.status(500).json({ message: 'Erro ao fazer login', detalhes: error.message });
+  }
+};

@@ -274,6 +274,24 @@ app.get('/api/debug/scripts/:filename', (req, res) => {
 });
 
 // ─── Rotas Públicas ────────────────────────────────────────────
+// Configuração do front-end (config.js)
+app.get('/config.js', (req, res) => {
+  try {
+    const envBase = process.env.PUBLIC_API_BASE_URL;
+    const defaultBase = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = envBase || defaultBase;
+    const payload = `// Arquivo gerado pelo servidor\nwindow.API_BASE_URL = ${JSON.stringify(baseUrl)};\n`;
+    res.setHeader('Content-Type', 'application/javascript');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.send(payload);
+  } catch (err) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.status(500).send('window.API_BASE_URL = null;');
+  }
+});
+
 app.use('/auth', authRoutes);
 app.get('/health', (req, res) => {
   res.json({ 
