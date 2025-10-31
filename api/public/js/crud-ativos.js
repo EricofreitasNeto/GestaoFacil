@@ -194,3 +194,10 @@ window.deleteAtivo = deleteAtivo;
 window.searchAtivos = searchAtivos;
 window.viewAtivo = viewAtivo;
 window.editAtivo = editAtivo;
+
+// Padroniza mapeamento de status para badges com helper global
+function getStatusBadgeClass(status) {
+  return (typeof window !== 'undefined' && typeof window.getStatusBadgeClass === 'function')
+    ? window.getStatusBadgeClass(status)
+    : 'secondary';
+}

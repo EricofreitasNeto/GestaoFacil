@@ -1,10 +1,10 @@
 const { TipoServico } = require("../models");
 
 const tipoServicoController = {
-  // Listar todos os tipos ativos
+  // Listar todos os tipos (ativos e inativos)
   async listar(req, res) {
     try {
-      const tipos = await TipoServico.findAll();
+      const tipos = await TipoServico.unscoped().findAll();
       return res.status(200).json(tipos);
     } catch (error) {
       return res.status(500).json({ erro: "Erro ao listar tipos de serviço", detalhes: error.message });
@@ -79,3 +79,4 @@ const tipoServicoController = {
 };
 
 module.exports = tipoServicoController;
+

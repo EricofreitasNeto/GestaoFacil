@@ -1,5 +1,12 @@
 /* Funções do dashboard (carregar dados e gráficos) */
 
+// Override padronizado para mapeamento de status
+function getStatusBadgeClass(status) {
+  return (typeof window !== 'undefined' && typeof window.getStatusBadgeClass === 'function')
+    ? window.getStatusBadgeClass(status)
+    : 'secondary';
+}
+
 async function loadDashboardData() {
             try {
                 // Carregar estatísticas
@@ -110,4 +117,3 @@ function getStatusBadgeClass(status) {
                 default: return 'secondary';
             }
         }
-

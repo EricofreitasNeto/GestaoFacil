@@ -50,18 +50,16 @@
  *           schema:
  *             type: object
  *             properties:
- *               codigo:
- *                 type: string
  *               nome:
  *                 type: string
- *               tipo:
+ *               numeroSerie:
  *                 type: string
  *               status:
  *                 type: string
- *               clienteId:
- *                 type: integer
  *               localId:
  *                 type: integer
+ *               detalhes:
+ *                 type: object
  *     responses:
  *       201:
  *         description: Ativo criado
@@ -93,18 +91,16 @@
  *           schema:
  *             type: object
  *             properties:
- *               codigo:
- *                 type: string
  *               nome:
  *                 type: string
- *               tipo:
+ *               numeroSerie:
  *                 type: string
  *               status:
  *                 type: string
- *               clienteId:
- *                 type: integer
  *               localId:
  *                 type: integer
+ *               detalhes:
+ *                 type: object
  *     responses:
  *       200:
  *         description: Ativo atualizado
@@ -142,16 +138,17 @@
 
 const express = require("express");
 const router = express.Router();
-const clienteController = require("../controllers/clienteController");
+const ativoController = require("../controllers/ativoController");
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // Qualquer usuário autenticado pode acessar
-router.get("/", authMiddleware(), clienteController.listar);
-router.get("/:id", authMiddleware(), clienteController.buscarPorId);
+router.get("/", authMiddleware(), ativoController.listar);
+router.get("/:id", authMiddleware(), ativoController.buscarPorId);
 
-// Apenas administradores podem modificar////
-router.post("/", authMiddleware(['admin']), clienteController.criar);
-router.put("/:id", authMiddleware(['admin']), clienteController.atualizar);
-router.delete("/:id", authMiddleware(['admin']), clienteController.desativar);
+// Apenas administradores podem modificar
+router.post("/", authMiddleware(['admin']), ativoController.criar);
+router.put("/:id", authMiddleware(['admin']), ativoController.atualizar);
+router.delete("/:id", authMiddleware(['admin']), ativoController.desativar);
 
 module.exports = router;
+

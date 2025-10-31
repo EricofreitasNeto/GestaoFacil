@@ -1,56 +1,51 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Usuario } = require('../models');
-const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.register = async (req, res) => {
   try {
     const { nome, email, cargo, telefone, password, confirmPassword } = req.body;
 
-    // Validação de senha duplicada
     if (password !== confirmPassword) {
-      return res.status(400).json({ erro: "As senhas não coincidem" });
+      return res.status(400).json({ message: 'As senhas não coincidem' });
     }
 
-    // Verifica se o e-mail já existe
     const existente = await Usuario.findOne({ where: { email } });
     if (existente) {
-      return res.status(409).json({ erro: "E-mail já cadastrado" });
+      return res.status(409).json({ message: 'E-mail já cadastrado' });
     }
 
-    // Cria o usuário
     const novoUsuario = await Usuario.create({ nome, email, cargo, telefone, password });
-
-    // Remove o campo password da resposta
-    const { password: _, ...usuarioSemSenha } = novoUsuario.toJSON();
+    const { password: _omit, ...usuarioSemSenha } = novoUsuario.toJSON();
     return res.status(201).json(usuarioSemSenha);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ erro: "Erro ao registrar usuário", detalhes: error.message });
+    return res.status(500).json({ message: 'Erro ao registrar usuário', detalhes: error.message });
   }
-};exports.login = async (req, res) => {
+};
+
+// Login padronizado para compatibilidade com o front
+exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const usuario = await Usuario.findOne({ where: { email } });
     if (!usuario) {
-      return res.status(401).json({ erro: 'Usuário não encontrado' });
+      return res.status(401).json({ message: 'Usuário não encontrado' });
     }
 
-    const senhaValida = await usuario.validPassword(password);
+    const senhaValida = await bcrypt.compare(password, usuario.password);
     if (!senhaValida) {
-      return res.status(401).json({ erro: 'Senha incorreta' });
+      return res.status(401).json({ message: 'Senha incorreta' });
     }
 
-    const token = jwt.sign(
-      { id: usuario.id, email: usuario.email, cargo: usuario.cargo },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+    const payload = { id: usuario.id, nome: usuario.nome, email: usuario.email, cargo: usuario.cargo };
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ token, user: payload, message: 'Login realizado com sucesso' });
   } catch (error) {
-    console.error("Erro no login:", error);
-    return res.status(500).json({ erro: 'Erro ao fazer login', detalhes: error.message });
+    console.error('Erro no login:', error);
+    return res.status(500).json({ message: 'Erro ao fazer login', detalhes: error.message });
   }
-};  
+};
+
