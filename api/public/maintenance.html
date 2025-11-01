@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GestãoFácil — Manutenção</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:#0b1020;color:#e6e8ef;display:flex;min-height:100vh;}
+    .wrap{margin:auto;max-width:640px;padding:32px;text-align:center}
+    h1{font-weight:700;letter-spacing:.3px;margin:.2rem 0 1rem}
+    p{opacity:.9;line-height:1.6}
+    .card{background:#111832;border:1px solid #223056;border-radius:12px;padding:28px}
+    .tag{display:inline-block;padding:4px 10px;border-radius:999px;background:#223056;color:#9fb3ff;font-weight:600;font-size:.85rem;margin-bottom:12px}
+    .muted{color:#b8bfd5;font-size:.95rem}
+    .cta{margin-top:18px;display:inline-block;padding:10px 16px;border-radius:8px;background:#315cf6;color:white;text-decoration:none;font-weight:600}
+    .cta:hover{filter:brightness(1.05)}
+  </style>
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="robots" content="noindex" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="tag">Serviço temporariamente indisponível</div>
+      <h1>Estamos em manutenção</h1>
+      <p class="muted">Estamos realizando ajustes para melhorar sua experiência no GestãoFácil. Volte em alguns minutos.</p>
+      <p class="muted">Status: 503 • Última verificação em <span id="now"></span></p>
+      <a class="cta" href="/health" rel="nofollow">Verificar status</a>
+    </div>
+  </div>
+  <script>
+    document.getElementById('now').textContent = new Date().toLocaleString();
+    setTimeout(() => location.reload(), 60000);
+  </script>
+  <!-- Caso esteja em desenvolvimento local, /config.js continua acessível -->
+</body>
+</html>
+

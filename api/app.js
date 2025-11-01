@@ -51,6 +51,23 @@ app.use('/public', express.static(publicPath, {
   }
 }));
 
+// Modo de manutenção (controlado por MAINTENANCE_MODE)
+const MAINTENANCE_MODE = process.env.MAINTENANCE_MODE === 'true';
+if (MAINTENANCE_MODE) {
+  app.use((req, res, next) => {
+    // Permite apenas rotas essenciais durante manutenção
+    if (
+      req.path === '/health' ||
+      req.path === '/config.js' ||
+      req.path.startsWith('/public') ||
+      req.path.startsWith('/docs')
+    ) {
+      return next();
+    }
+    res.status(503).sendFile(path.join(publicPath, 'maintenance.html'));
+  });
+}
+
 // Scripts e CSS (garante existência das pastas)
 ['scripts', 'css'].forEach(folder => {
   const dir = path.join(__dirname, 'public', folder);
