@@ -51,8 +51,9 @@ async function saveServico() {
   const formData = new FormData(form);
   const servicoId = document.getElementById('servico-id').value;
 
+  // Monta 'detalhes': usa JSON avançado se preenchido; caso contrário, usa campos estruturados amigáveis
   let detalhes = null;
-  const detalhesValue = formData.get('detalhes');
+  const detalhesValue = (formData.get('detalhes') || '').trim();
   if (detalhesValue) {
     try {
       detalhes = parseJsonField(detalhesValue);
@@ -60,6 +61,19 @@ async function saveServico() {
       showNotification('servicos-status', error.message, false);
       return;
     }
+  } else {
+    const det = {};
+    const prioridade = (document.getElementById('servicoPrioridade')?.value || '').trim();
+    const custoStr = (document.getElementById('servicoCusto')?.value || '').trim();
+    const tempoStr = (document.getElementById('servicoTempoEstimado')?.value || '').trim();
+    const materiais = (document.getElementById('servicoMateriais')?.value || '').trim();
+    const observacoes = (document.getElementById('servicoObservacoes')?.value || '').trim();
+    if (prioridade) det.prioridade = prioridade;
+    if (custoStr) det.custoEstimado = Number(custoStr.replace(',', '.'));
+    if (tempoStr) det.tempoEstimadoHoras = Number(tempoStr.replace(',', '.'));
+    if (materiais) det.materiais = materiais;
+    if (observacoes) det.observacoes = observacoes;
+    detalhes = Object.keys(det).length ? det : null;
   }
 
   const payload = {
@@ -187,6 +201,15 @@ async function editServico(id) {
     document.getElementById('servicoUsuario').value = servico.usuarioId || '';
     document.getElementById('servicoAtivo').value = servico.ativoId || '';
     document.getElementById('servicoTipo').value = servico.tipoServicoId || '';
+    // Preenche campos estruturados a partir de detalhes
+    const d = servico.detalhes || {};
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+    set('servicoPrioridade', d.prioridade || '');
+    set('servicoCusto', d.custoEstimado != null ? String(d.custoEstimado) : '');
+    set('servicoTempoEstimado', d.tempoEstimadoHoras != null ? String(d.tempoEstimadoHoras) : '');
+    set('servicoMateriais', d.materiais || '');
+    set('servicoObservacoes', d.observacoes || '');
+    // Mantém JSON avançado disponível
     document.getElementById('servicoDetalhes').value = servico.detalhes ? JSON.stringify(servico.detalhes, null, 2) : '';
 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addServicoModal')).show();

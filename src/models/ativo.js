@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       unique: true
     },
+    clienteId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -31,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Ativo.associate = (models) => {
     Ativo.belongsTo(models.Local, { foreignKey: "localId", as: "local" });
+    Ativo.belongsTo(models.Cliente, { foreignKey: "clienteId", as: "cliente" });
     Ativo.hasMany(models.Servico, { foreignKey: "ativoId", as: "servicos" });
   };
 

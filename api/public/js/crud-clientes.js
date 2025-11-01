@@ -45,6 +45,21 @@ async function saveClient() {
   const payload = Object.fromEntries(formData.entries());
   const clientId = document.getElementById('client-id').value;
 
+  // Se campo livre 'contatos' estiver vazio, monta a partir dos campos estruturados
+  try {
+    const nome = (document.getElementById('clientContactName')?.value || '').trim();
+    const email = (document.getElementById('clientContactEmail')?.value || '').trim();
+    const telefone = (document.getElementById('clientContactPhone')?.value || '').trim();
+    const livre = (payload.contatos || '').trim();
+    if (!livre && (nome || email || telefone)) {
+      const partes = [];
+      if (nome) partes.push(nome);
+      if (email) partes.push(`<${email}>`);
+      if (telefone) partes.push(`- ${telefone}`);
+      payload.contatos = partes.join(' ').trim();
+    }
+  } catch (_) { /* ignora erros de leitura de campos */ }
+
   try {
     if (clientId) {
       const res = await apiRequest(`/v1/clientes/${clientId}`, {
@@ -134,6 +149,11 @@ async function editCliente(id) {
     document.getElementById('clientName').value = cliente.nome || '';
     document.getElementById('clientCnpj').value = cliente.cnpj || '';
     document.getElementById('clientContacts').value = cliente.contatos || '';
+    // Limpa campos estruturados (não tentamos parsear string livre)
+    const clear = id => { const el = document.getElementById(id); if (el) el.value = ''; };
+    clear('clientContactName');
+    clear('clientContactEmail');
+    clear('clientContactPhone');
 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addClientModal')).show();
   } catch (error) {

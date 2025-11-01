@@ -155,7 +155,662 @@
     </aside>
 
     <main class="main-content" id="content-wrapper">
-      <!-- Conteúdo dinâmico controlado por JS -->
+      <!-- Topbar / Header -->
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-outline-secondary d-md-none" id="mobileMenuBtn" aria-label="Abrir menu">
+            <i class="bi bi-list"></i>
+          </button>
+          <h3 id="page-title" class="m-0">Dashboard</h3>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="badge role-badge" id="user-role-badge">Usuário</span>
+          <span id="user-name" class="fw-semibold">—</span>
+          <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" alt="Avatar" width="36" height="36" class="rounded-circle border" />
+          <button class="btn btn-outline-danger" id="dropdown-logout-btn">
+            <i class="bi bi-box-arrow-right me-1"></i> Sair
+          </button>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <section id="dashboard-section" class="content-section">
+        <div class="row g-3 mb-3">
+          <div class="col-sm-6 col-lg-3">
+            <div class="card dashboard-card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted">Clientes</div>
+                    <div id="stats-clientes" class="display-6">0</div>
+                  </div>
+                  <i class="bi bi-building fs-2 text-primary"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="card dashboard-card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted">Ativos</div>
+                    <div id="stats-ativos" class="display-6">0</div>
+                  </div>
+                  <i class="bi bi-cpu fs-2 text-success"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="card dashboard-card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted">Serviços</div>
+                    <div id="stats-servicos" class="display-6">0</div>
+                  </div>
+                  <i class="bi bi-tools fs-2 text-info"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-lg-3">
+            <div class="card dashboard-card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="text-muted">Usuários</div>
+                    <div id="stats-usuarios" class="display-6">0</div>
+                  </div>
+                  <i class="bi bi-people fs-2 text-warning"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-lg-8">
+            <div class="card dashboard-card h-100">
+              <div class="card-header"><strong>Serviços por status</strong></div>
+              <div class="card-body" style="height: 320px;">
+                <canvas id="servicesChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card dashboard-card h-100">
+              <div class="card-header"><strong>Tipos de serviços</strong></div>
+              <div class="card-body" style="height: 320px;">
+                <canvas id="serviceTypesChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card dashboard-card">
+          <div class="card-header"><strong>Serviços recentes</strong></div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Descrição</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-services"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Clientes -->
+      <section id="clientes-section" class="content-section" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="input-group w-auto">
+            <input id="searchClient" type="text" class="form-control" placeholder="Buscar clientes" />
+            <button id="search-client-btn" class="btn btn-outline-secondary">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addClientModal">
+            <i class="bi bi-plus-lg me-1"></i> Adicionar Cliente
+          </button>
+        </div>
+        <div id="clientes-status" class="api-status"></div>
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>CNPJ</th>
+                  <th>Contatos</th>
+                  <th class="text-end">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="clientes-list"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="clientes-pagination" class="pagination mt-3"></div>
+      </section>
+
+      <!-- Ativos -->
+      <section id="ativos-section" class="content-section" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="input-group w-auto">
+            <input id="searchAtivo" type="text" class="form-control" placeholder="Buscar ativos" />
+            <button id="search-ativo-btn" class="btn btn-outline-secondary">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addAtivoModal">
+            <i class="bi bi-plus-lg me-1"></i> Adicionar Ativo
+          </button>
+        </div>
+        <div id="ativos-status" class="api-status"></div>
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Nº Série</th>
+                  <th>Status</th>
+                  <th>Local</th>
+                  <th class="text-end">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="ativos-list"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="ativos-pagination" class="pagination mt-3"></div>
+      </section>
+
+      <!-- Serviços -->
+      <section id="servicos-section" class="content-section" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="input-group w-auto">
+            <input id="searchServico" type="text" class="form-control" placeholder="Buscar serviços" />
+            <button id="search-servico-btn" class="btn btn-outline-secondary">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addServicoModal">
+            <i class="bi bi-plus-lg me-1"></i> Adicionar Serviço
+          </button>
+        </div>
+        <div id="servicos-status" class="api-status"></div>
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Status</th>
+                  <th>Cliente</th>
+                  <th>Responsável</th>
+                  <th>Data</th>
+                  <th class="text-end">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="servicos-list"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="servicos-pagination" class="pagination mt-3"></div>
+      </section>
+
+      <!-- Locais -->
+      <section id="locais-section" class="content-section" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="input-group w-auto">
+            <input id="searchLocal" type="text" class="form-control" placeholder="Buscar locais" />
+            <button id="search-local-btn" class="btn btn-outline-secondary">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addLocalModal">
+            <i class="bi bi-plus-lg me-1"></i> Adicionar Local
+          </button>
+        </div>
+        <div id="locais-status" class="api-status"></div>
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Criado em</th>
+                  <th class="text-end">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="locais-list"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="locais-pagination" class="pagination mt-3"></div>
+      </section>
+
+      <!-- Tipos de Serviços -->
+      <section id="tipos-servicos-section" class="content-section" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="input-group w-auto">
+            <input id="searchTipoServico" type="text" class="form-control" placeholder="Buscar tipos de serviço" />
+            <button id="search-tipo-servico-btn" class="btn btn-outline-secondary">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addTipoServicoModal">
+            <i class="bi bi-plus-lg me-1"></i> Adicionar Tipo de Serviço
+          </button>
+        </div>
+        <div id="tipos-servicos-status" class="api-status"></div>
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Descrição</th>
+                  <th>Status</th>
+                  <th class="text-end">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tipos-servicos-list"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="tipos-servicos-pagination" class="pagination mt-3"></div>
+      </section>
+
+      <!-- Usuários (apenas admin) -->
+      <section id="usuarios-section" class="content-section" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="input-group w-auto">
+            <input id="searchUsuario" type="text" class="form-control" placeholder="Buscar usuários" />
+            <button id="search-usuario-btn" class="btn btn-outline-secondary">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addUsuarioModal">
+            <i class="bi bi-plus-lg me-1"></i> Adicionar Usuário
+          </button>
+        </div>
+        <div id="usuarios-status" class="api-status"></div>
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Cargo</th>
+                  <th>Telefone</th>
+                  <th class="text-end">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="usuarios-list"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="usuarios-pagination" class="pagination mt-3"></div>
+      </section>
+
+      <!-- Modals: Clientes -->
+      <div class="modal fade" id="addClientModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Cliente</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="client-form">
+                <input type="hidden" id="client-id" name="id" />
+                <div class="mb-3">
+                  <label for="clientName" class="form-label">Nome</label>
+                  <input id="clientName" name="nome" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="clientCnpj" class="form-label">CNPJ</label>
+                  <input id="clientCnpj" name="cnpj" type="text" class="form-control" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Contato</label>
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <input id="clientContactName" type="text" class="form-control" placeholder="Nome" />
+                    </div>
+                    <div class="col-md-4">
+                      <input id="clientContactEmail" type="email" class="form-control" placeholder="E-mail" />
+                    </div>
+                    <div class="col-md-4">
+                      <input id="clientContactPhone" type="text" class="form-control" placeholder="Telefone" />
+                    </div>
+                  </div>
+                  <div class="form-text">Se preferir, use o campo abaixo para um texto livre.</div>
+                </div>
+                <div class="mb-3">
+                  <label for="clientContacts" class="form-label">Contatos (livre)</label>
+                  <input id="clientContacts" name="contatos" type="text" class="form-control" placeholder="Ex.: Fulano &lt;fulano@empresa.com&gt; - (11) 99999-0000" />
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" id="save-client-btn" class="btn btn-primary">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modals: Ativos -->
+      <div class="modal fade" id="addAtivoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Ativo</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="ativo-form">
+                <input type="hidden" id="ativo-id" name="id" />
+                <div class="mb-3">
+                  <label for="ativoNome" class="form-label">Nome</label>
+                  <input id="ativoNome" name="nome" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="ativoNumeroSerie" class="form-label">Número de série</label>
+                  <input id="ativoNumeroSerie" name="numeroSerie" type="text" class="form-control" />
+                </div>
+                <div class="mb-3">
+                  <label for="ativoStatus" class="form-label">Status</label>
+                  <select id="ativoStatus" name="status" class="form-select">
+                    <option value="ativo">Ativo</option>
+                    <option value="manutencao">Manutenção</option>
+                    <option value="inativo">Inativo</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="ativoLocal" class="form-label">Local</label>
+                  <select id="ativoLocal" name="localId" class="form-select"></select>
+                </div>
+
+                <!-- Detalhes estruturados (mais amigável) -->
+                <div class="border rounded p-3 mb-2 bg-light">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>Detalhes</strong>
+                    <a class="small" data-bs-toggle="collapse" href="#ativoDetalhesAdvanced" role="button" aria-expanded="false" aria-controls="ativoDetalhesAdvanced">Modo avançado (JSON)</a>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="ativoFabricante" class="form-label">Fabricante</label>
+                      <input id="ativoFabricante" type="text" class="form-control" placeholder="Ex.: Dell" />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="ativoModelo" class="form-label">Modelo</label>
+                      <input id="ativoModelo" type="text" class="form-control" placeholder="Ex.: OptiPlex 7000" />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="ativoPatrimonio" class="form-label">Nº Patrimônio</label>
+                      <input id="ativoPatrimonio" type="text" class="form-control" placeholder="Ex.: PT-12345" />
+                    </div>
+                    <div class="col-md-6">
+                      <label for="ativoGarantia" class="form-label">Garantia até</label>
+                      <input id="ativoGarantia" type="date" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                      <label for="ativoObservacoes" class="form-label">Observações</label>
+                      <textarea id="ativoObservacoes" rows="2" class="form-control" placeholder="Anotações livres"></textarea>
+                    </div>
+                  </div>
+                  <div class="collapse mt-3" id="ativoDetalhesAdvanced">
+                    <label for="ativoDetalhes" class="form-label">Detalhes (JSON)</label>
+                    <textarea id="ativoDetalhes" name="detalhes" rows="4" class="form-control" placeholder='{"fabricante":"...","modelo":"..."}'></textarea>
+                    <div class="form-text">Se preencher o JSON, ele terá prioridade sobre os campos acima.</div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" id="save-ativo-btn" class="btn btn-primary">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modals: Serviços -->
+      <div class="modal fade" id="addServicoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Serviço</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="servico-form">
+                <input type="hidden" id="servico-id" name="id" />
+                <div class="row g-3">
+                  <div class="col-md-8">
+                    <label for="servicoDescricao" class="form-label">Descrição</label>
+                    <input id="servicoDescricao" name="descricao" type="text" class="form-control" required />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="servicoStatus" class="form-label">Status</label>
+                    <select id="servicoStatus" name="status" class="form-select">
+                      <option value="Pendente">Pendente</option>
+                      <option value="Em Andamento">Em Andamento</option>
+                      <option value="Agendado">Agendado</option>
+                      <option value="Concluído">Concluído</option>
+                      <option value="Cancelado">Cancelado</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="servicoDataAgendada" class="form-label">Data agendada</label>
+                    <input id="servicoDataAgendada" name="dataAgendada" type="date" class="form-control" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="servicoDataConclusao" class="form-label">Data conclusão</label>
+                    <input id="servicoDataConclusao" name="dataConclusao" type="date" class="form-control" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="servicoCliente" class="form-label">Cliente</label>
+                    <select id="servicoCliente" name="clienteId" class="form-select"></select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="servicoUsuario" class="form-label">Responsável</label>
+                    <select id="servicoUsuario" name="usuarioId" class="form-select"></select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="servicoAtivo" class="form-label">Ativo</label>
+                    <select id="servicoAtivo" name="ativoId" class="form-select"></select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="servicoTipo" class="form-label">Tipo de serviço</label>
+                    <select id="servicoTipo" name="tipoServicoId" class="form-select"></select>
+                  </div>
+                  <div class="col-12">
+                    <div class="border rounded p-3 bg-light">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>Detalhes</strong>
+                        <a class="small" data-bs-toggle="collapse" href="#servicoDetalhesAdvanced" role="button" aria-expanded="false" aria-controls="servicoDetalhesAdvanced">Modo avançado (JSON)</a>
+                      </div>
+                      <div class="row g-3">
+                        <div class="col-md-4">
+                          <label for="servicoPrioridade" class="form-label">Prioridade</label>
+                          <select id="servicoPrioridade" class="form-select">
+                            <option value="">—</option>
+                            <option value="baixa">Baixa</option>
+                            <option value="media">Média</option>
+                            <option value="alta">Alta</option>
+                          </select>
+                        </div>
+                        <div class="col-md-4">
+                          <label for="servicoCusto" class="form-label">Custo Estimado (R$)</label>
+                          <input id="servicoCusto" type="number" step="0.01" class="form-control" placeholder="0,00" />
+                        </div>
+                        <div class="col-md-4">
+                          <label for="servicoTempoEstimado" class="form-label">Tempo Estimado (h)</label>
+                          <input id="servicoTempoEstimado" type="number" step="0.1" class="form-control" placeholder="Ex.: 2.5" />
+                        </div>
+                        <div class="col-12">
+                          <label for="servicoMateriais" class="form-label">Materiais</label>
+                          <input id="servicoMateriais" type="text" class="form-control" placeholder="Ex.: Parafusos, cabos ..." />
+                        </div>
+                        <div class="col-12">
+                          <label for="servicoObservacoes" class="form-label">Observações</label>
+                          <textarea id="servicoObservacoes" rows="2" class="form-control" placeholder="Notas adicionais"></textarea>
+                        </div>
+                      </div>
+                      <div class="collapse mt-3" id="servicoDetalhesAdvanced">
+                        <label for="servicoDetalhes" class="form-label">Detalhes (JSON)</label>
+                        <textarea id="servicoDetalhes" name="detalhes" rows="4" class="form-control" placeholder='{"observacoes":"...","prioridade":"alta"}'></textarea>
+                        <div class="form-text">Se preencher o JSON, ele terá prioridade sobre os campos acima.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" id="save-servico-btn" class="btn btn-primary">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modals: Locais -->
+      <div class="modal fade" id="addLocalModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Local</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="local-form">
+                <input type="hidden" id="local-id" name="id" />
+                <div class="mb-3">
+                  <label for="localNome" class="form-label">Nome</label>
+                  <input id="localNome" name="nome" type="text" class="form-control" required />
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" id="save-local-btn" class="btn btn-primary">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modals: Tipos de Serviço -->
+      <div class="modal fade" id="addTipoServicoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Tipo de Serviço</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="tipo-servico-form">
+                <input type="hidden" id="tipo-servico-id" name="id" />
+                <div class="mb-3">
+                  <label for="tipoServicoNome" class="form-label">Nome</label>
+                  <input id="tipoServicoNome" name="nome" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="tipoServicoDescricao" class="form-label">Descrição</label>
+                  <textarea id="tipoServicoDescricao" name="descricao" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-check">
+                  <input id="tipoServicoAtivo" name="ativo" class="form-check-input" type="checkbox" />
+                  <label class="form-check-label" for="tipoServicoAtivo">Ativo</label>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" id="save-tipo-servico-btn" class="btn btn-primary">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modals: Usuários -->
+      <div class="modal fade" id="addUsuarioModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Usuário</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="usuario-form">
+                <input type="hidden" id="usuario-id" name="id" />
+                <div class="mb-3">
+                  <label for="usuarioNome" class="form-label">Nome</label>
+                  <input id="usuarioNome" name="nome" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="usuarioEmail" class="form-label">E-mail</label>
+                  <input id="usuarioEmail" name="email" type="email" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="usuarioCargo" class="form-label">Cargo</label>
+                  <select id="usuarioCargo" name="cargo" class="form-select">
+                    <option value="admin">Administrador</option>
+                    <option value="tecnico">Técnico</option>
+                    <option value="usuario">Usuário</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="usuarioTelefone" class="form-label">Telefone</label>
+                  <input id="usuarioTelefone" name="telefone" type="text" class="form-control" />
+                </div>
+                <div class="mb-3">
+                  <label for="usuarioPassword" class="form-label">Senha (apenas novo usuário)</label>
+                  <input id="usuarioPassword" name="password" type="password" class="form-control" />
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" id="save-usuario-btn" class="btn btn-primary">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de confirmação de exclusão -->
+      <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirmar exclusão</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" id="confirm-delete-btn" class="btn btn-danger">Excluir</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 
@@ -163,15 +818,15 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 
-  <script src="../public/js/api.js"></script>
-  <script src="../public/js/auth.js"></script>
-  <script src="../public/js/dashboard.js"></script>
-  <script src="../public/js/crud-clientes.js"></script>
-  <script src="../public/js/crud-locais.js"></script>
-  <script src="../public/js/crud-tipos-servicos.js"></script>
-  <script src="../public/js/crud-ativos.js"></script>
-  <script src="../public/js/crud-servicos.js"></script>
-  <script src="../public/js/crud-usuarios.js"></script>
-  <script src="../public/js/main.js"></script>
+  <script src="/public/js/api.js"></script>
+  <script src="/public/js/auth.js"></script>
+  <script src="/public/js/dashboard.js"></script>
+  <script src="/public/js/crud-clientes.js"></script>
+  <script src="/public/js/crud-locais.js"></script>
+  <script src="/public/js/crud-tipos-servicos.js"></script>
+  <script src="/public/js/crud-ativos.js"></script>
+  <script src="/public/js/crud-servicos.js"></script>
+  <script src="/public/js/crud-usuarios.js"></script>
+  <script src="/public/js/main.js"></script>
 </body>
 </html>

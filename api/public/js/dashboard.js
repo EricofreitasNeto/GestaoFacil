@@ -7,27 +7,26 @@ function getStatusBadgeClass(status) {
     : 'secondary';
 }
 
-// Carrega os dados principais do dashboard
+// Carrega os dados principais do dashboard (dados reais do banco)
 async function loadDashboardData() {
   try {
-    // Requisições em paralelo
     const [clientes, ativos, servicos, usuarios] = await Promise.all([
       apiRequest('/v1/clientes'),
       apiRequest('/v1/ativos'),
       apiRequest('/v1/servicos'),
-      currentUser.cargo === 'admin' ? apiRequest('/v1/usuarios') : Promise.resolve([])
+      currentUser?.cargo === 'admin' ? apiRequest('/v1/usuarios') : Promise.resolve([])
     ]);
 
-    // Atualizar estatísticas
-    document.getElementById('stats-clientes').textContent = clientes.length;
-    document.getElementById('stats-ativos').textContent = ativos.length;
-    document.getElementById('stats-servicos').textContent = servicos.length;
-    document.getElementById('stats-usuarios').textContent = usuarios.length;
+    // Estatísticas
+    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = String(val ?? 0); };
+    setText('stats-clientes', clientes?.length || 0);
+    setText('stats-ativos', ativos?.length || 0);
+    setText('stats-servicos', servicos?.length || 0);
+    setText('stats-usuarios', usuarios?.length || 0);
 
-    // Carregar gráficos e serviços recentes
-    loadCharts(servicos);
-    loadRecentServices(servicos);
-
+    // Gráficos e lista recentes usando dados reais
+    loadCharts(servicos || []);
+    loadRecentServices(servicos || []);
   } catch (error) {
     console.error('Erro ao carregar dados do dashboard:', error);
   }
@@ -35,52 +34,65 @@ async function loadDashboardData() {
 
 // Gráficos principais do painel
 function loadCharts(servicos) {
-  // Gráfico de serviços por status
+  const safeNormalize = (s) => {
+    if (!s) return '';
+    try { return String(s).normalize('NFD').replace(/\p{Diacritic}/gu, ''); } catch (_) { return String(s); }
+  };
+
+  // 1) Serviços por status (base real)
   const statusCount = {};
-  servicos.forEach(servico => {
-    statusCount[servico.status] = (statusCount[servico.status] || 0) + 1;
+  servicos.forEach(sv => {
+    const raw = sv.status || 'Pendente';
+    const key = safeNormalize(raw).trim();
+    statusCount[raw] = (statusCount[raw] || 0) + 1; // mantém rótulo original para exibir legível
   });
+  const statusLabels = Object.keys(statusCount);
+  const statusData = statusLabels.map(l => statusCount[l]);
 
-  const statusCtx = document.getElementById('servicesChart').getContext('2d');
-  new Chart(statusCtx, {
-    type: 'bar',
-    data: {
-      labels: Object.keys(statusCount),
-      datasets: [{
-        label: 'Serviços por Status',
-        data: Object.values(statusCount),
-        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
-      }]
-    },
-    options: {
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { precision: 0 }
-        }
+  if (document.getElementById('servicesChart')) {
+    const ctx = document.getElementById('servicesChart').getContext('2d');
+    if (window._servicesChart) window._servicesChart.destroy();
+    window._servicesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: statusLabels,
+        datasets: [{
+          label: 'Serviços por Status',
+          data: statusData,
+          backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796']
+        }]
+      },
+      options: {
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
       }
-    }
-  });
+    });
+  }
 
-  // Gráfico de tipos de serviço (simulado)
-  const typesCtx = document.getElementById('serviceTypesChart').getContext('2d');
-  new Chart(typesCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Manutenção', 'Instalação', 'Suporte', 'Consultoria'],
-      datasets: [{
-        data: [35, 25, 20, 20],
-        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
-      }]
-    },
-    options: {
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      }
-    }
+  // 2) Tipos de serviço (base real via servico.tipoServico?.nome)
+  const typeCount = {};
+  servicos.forEach(sv => {
+    const label = (sv.tipoServico?.nome) || 'Sem tipo';
+    typeCount[label] = (typeCount[label] || 0) + 1;
   });
+  const typeLabels = Object.keys(typeCount);
+  const typeData = typeLabels.map(l => typeCount[l]);
+
+  if (document.getElementById('serviceTypesChart')) {
+    const tctx = document.getElementById('serviceTypesChart').getContext('2d');
+    if (window._serviceTypesChart) window._serviceTypesChart.destroy();
+    window._serviceTypesChart = new Chart(tctx, {
+      type: 'doughnut',
+      data: {
+        labels: typeLabels,
+        datasets: [{
+          data: typeData,
+          backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#20c997']
+        }]
+      },
+      options: { maintainAspectRatio: false }
+    });
+  }
 }
 
 // Lista dos serviços mais recentes
@@ -106,13 +118,4 @@ function loadRecentServices(servicos) {
   });
 }
 
-// Classes de cor para status padrão
-function getStatusBadgeClass(status) {
-  switch (status) {
-    case 'Concluído': return 'success';
-    case 'Em Andamento': return 'primary';
-    case 'Agendado': return 'info';
-    case 'Cancelado': return 'danger';
-    default: return 'secondary';
-  }
-}
+// Usa o helper global definido em api.js

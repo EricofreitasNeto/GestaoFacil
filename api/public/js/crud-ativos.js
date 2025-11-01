@@ -68,8 +68,9 @@ async function saveAtivo() {
   const formData = new FormData(form);
   const ativoId = document.getElementById('ativo-id').value;
 
+  // Monta 'detalhes' de forma amigável: usa JSON avançado se preenchido; caso contrário, usa campos estruturados
   let detalhes = null;
-  const detalhesValue = formData.get('detalhes');
+  const detalhesValue = (formData.get('detalhes') || '').trim();
   if (detalhesValue) {
     try {
       detalhes = parseJsonField(detalhesValue);
@@ -77,6 +78,19 @@ async function saveAtivo() {
       showNotification('ativos-status', error.message, false);
       return;
     }
+  } else {
+    const det = {};
+    const fabricante = (document.getElementById('ativoFabricante')?.value || '').trim();
+    const modelo = (document.getElementById('ativoModelo')?.value || '').trim();
+    const patrimonio = (document.getElementById('ativoPatrimonio')?.value || '').trim();
+    const garantia = (document.getElementById('ativoGarantia')?.value || '').trim();
+    const observacoes = (document.getElementById('ativoObservacoes')?.value || '').trim();
+    if (fabricante) det.fabricante = fabricante;
+    if (modelo) det.modelo = modelo;
+    if (patrimonio) det.patrimonio = patrimonio;
+    if (garantia) det.garantia = garantia; // ISO yyyy-mm-dd
+    if (observacoes) det.observacoes = observacoes;
+    detalhes = Object.keys(det).length ? det : null;
   }
 
   const payload = {
@@ -180,6 +194,15 @@ async function editAtivo(id) {
     document.getElementById('ativoNumeroSerie').value = ativo.numeroSerie || '';
     document.getElementById('ativoStatus').value = ativo.status || 'ativo';
     document.getElementById('ativoLocal').value = ativo.localId || '';
+    // Preenche campos estruturados
+    const d = ativo.detalhes || {};
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('ativoFabricante', d.fabricante || '');
+    set('ativoModelo', d.modelo || '');
+    set('ativoPatrimonio', d.patrimonio || '');
+    set('ativoGarantia', d.garantia || '');
+    set('ativoObservacoes', d.observacoes || '');
+    // Mantém JSON avançado disponível
     document.getElementById('ativoDetalhes').value = ativo.detalhes ? JSON.stringify(ativo.detalhes, null, 2) : '';
 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addAtivoModal')).show();
@@ -195,9 +218,32 @@ window.searchAtivos = searchAtivos;
 window.viewAtivo = viewAtivo;
 window.editAtivo = editAtivo;
 
-// Padroniza mapeamento de status para badges com helper global
-function getStatusBadgeClass(status) {
-  return (typeof window !== 'undefined' && typeof window.getStatusBadgeClass === 'function')
-    ? window.getStatusBadgeClass(status)
-    : 'secondary';
-}
+// Correção: evita recursão e padroniza mapeamento localmente
+// Esta definição final substitui quaisquer anteriores e não chama window.getStatusBadgeClass.
+window.getStatusBadgeClass = function (status) {
+  try {
+    var s = String(status || '')
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLowerCase()
+      .trim();
+  } catch (e) {
+    var s = (status || '').toString().toLowerCase().trim();
+  }
+  switch (s) {
+    case 'concluido':
+    case 'ativo':
+      return 'success';
+    case 'em andamento':
+      return 'primary';
+    case 'agendado':
+      return 'info';
+    case 'manutencao':
+      return 'warning';
+    case 'cancelado':
+    case 'inativo':
+      return 'danger';
+    default:
+      return 'secondary';
+  }
+};
