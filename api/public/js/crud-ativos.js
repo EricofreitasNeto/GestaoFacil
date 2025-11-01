@@ -119,7 +119,11 @@ async function saveAtivo() {
     bootstrap.Modal.getInstance(document.getElementById('addAtivoModal'))?.hide();
     loadAtivos(currentPage.ativos || 1);
   } catch (error) {
-    showNotification('ativos-status', `Erro ao salvar ativo: ${error.message}`, false);
+    handleApiError(error, 'ativos-status', [
+      { key: 'série', selector: '#ativoNumeroSerie' },
+      { key: 'serie', selector: '#ativoNumeroSerie' },
+      { key: 'numeroserie', selector: '#ativoNumeroSerie' }
+    ]);
   }
 }
 
@@ -217,6 +221,9 @@ window.deleteAtivo = deleteAtivo;
 window.searchAtivos = searchAtivos;
 window.viewAtivo = viewAtivo;
 window.editAtivo = editAtivo;
+
+// Limpa erro do número de série ao digitar
+document.getElementById('ativoNumeroSerie')?.addEventListener('input', () => clearFieldError('#ativoNumeroSerie'));
 
 // Correção: evita recursão e padroniza mapeamento localmente
 // Esta definição final substitui quaisquer anteriores e não chama window.getStatusBadgeClass.

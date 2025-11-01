@@ -78,7 +78,7 @@ async function apiRequest(endpoint, options = {}) {
 
   if (!response.ok) {
     const message = payload?.message || payload?.erro || `Erro ${response.status}`;
-    throw new Error(message);
+    const err = new Error(message); err.status = response.status; err.body = payload; throw err;
   }
 
   return payload;
@@ -134,6 +134,7 @@ function getStatusBadgeClass(status) {
 }
 
 window.getStatusBadgeClass = getStatusBadgeClass;
+
 
 
 

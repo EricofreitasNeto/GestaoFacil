@@ -1,4 +1,4 @@
-﻿const { TipoServico } = require("../models");
+const { TipoServico } = require("../models");
 
 const tipoServicoController = {
   // Listar todos os tipos (ativos e inativos)
@@ -24,24 +24,27 @@ const tipoServicoController = {
   },
 
   // Criar novo tipo
-async criar(req, res) {
-  try {
-    const { nome, descricao, ativo } = req.body;
+  async criar(req, res) {
+    try {
+      const { nome, descricao, ativo } = req.body;
 
-    const novoTipo = await TipoServico.create({
-      nome,
-      descricao,
-      ativo: typeof ativo === 'boolean' ? ativo : true
-    });
+      const novoTipo = await TipoServico.create({
+        nome,
+        descricao,
+        ativo: typeof ativo === 'boolean' ? ativo : true
+      });
 
-    return res.status(201).json(novoTipo);
-  } catch (error) {
-    return res.status(400).json({
-      message: "Erro ao criar tipo de serviço",
-      detalhes: error.message
-    });
-  }
-},
+      return res.status(201).json(novoTipo);
+    } catch (error) {
+      if (error?.name === 'SequelizeUniqueConstraintError') {
+        return res.status(409).json({ message: 'Nome de tipo de serviço já cadastrado' });
+      }
+      return res.status(400).json({
+        message: "Erro ao criar tipo de serviço",
+        detalhes: error.message
+      });
+    }
+  },
 
   // Atualizar tipo existente
   async atualizar(req, res) {
@@ -54,6 +57,9 @@ async criar(req, res) {
       await tipo.update({ nome, descricao, ativo });
       return res.status(200).json(tipo);
     } catch (error) {
+      if (error?.name === 'SequelizeUniqueConstraintError') {
+        return res.status(409).json({ message: 'Nome de tipo de serviço já cadastrado' });
+      }
       return res.status(400).json({ message: "Erro ao atualizar tipo de serviço", detalhes: error.message });
     }
   },
@@ -88,3 +94,4 @@ async criar(req, res) {
 };
 
 module.exports = tipoServicoController;
+

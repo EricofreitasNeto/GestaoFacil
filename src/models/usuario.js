@@ -37,7 +37,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     timestamps: true,
-    paranoid: true
+    paranoid: true,
+    indexes: [
+      { unique: true, fields: ['email', 'deletedAt'] }
+    ]
+  });
+
+  Usuario.beforeValidate((usuario) => {
+    if (usuario.email) usuario.email = String(usuario.email).trim().toLowerCase();
+    if (usuario.nome) usuario.nome = String(usuario.nome).trim();
   });
 
   Usuario.beforeCreate(async (usuario) => {

@@ -159,6 +159,66 @@ function showNotification(elementId, message, isSuccess = true) {
   el.className = `api-status ${isSuccess ? 'success' : 'error'} show`;
 }
 
+// Utilitários de erro por campo e tratamento padrão
+function markFieldError(selector, message) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  el.classList.add('is-invalid');
+  let fb = el.parentElement && el.parentElement.querySelector('.invalid-feedback');
+  if (!fb) {
+    fb = document.createElement('div');
+    fb.className = 'invalid-feedback';
+    el.parentElement && el.parentElement.appendChild(fb);
+  }
+  if (fb) fb.textContent = message || '';
+}
+
+function clearFieldError(selector) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  el.classList.remove('is-invalid');
+  const fb = el.parentElement && el.parentElement.querySelector('.invalid-feedback');
+  if (fb) fb.textContent = '';
+}
+
+function handleApiError(err, fallbackElementId, fieldMap = []) {
+  if (!err || typeof err !== 'object') {
+    showNotification(fallbackElementId, 'Erro desconhecido', false);
+    return;
+  }
+  const msg = String(err.message || '').toLowerCase();
+  const status = err.status || 0;
+
+  if (status === 401) {
+    try { localStorage.removeItem('authToken'); } catch (_) {}
+    if (typeof showLoginPage === 'function') showLoginPage();
+    return;
+  }
+  if (status === 403) {
+    showNotification(fallbackElementId, 'Acesso negado', false);
+    return;
+  }
+  if (status === 409) {
+    for (const { key, selector } of fieldMap) {
+      if (msg.includes(key)) {
+        markFieldError(selector, err.message);
+        return;
+      }
+    }
+    showNotification(fallbackElementId, err.message || 'Registro já existe', false);
+    return;
+  }
+  if (status === 400) {
+    showNotification(fallbackElementId, err.message || 'Dados inválidos', false);
+    return;
+  }
+  showNotification(fallbackElementId, err.message || 'Erro no servidor', false);
+}
+
+window.markFieldError = markFieldError;
+window.clearFieldError = clearFieldError;
+window.handleApiError = handleApiError;
+
 function clearForm(form) {
   if (!form) return;
   form.reset();

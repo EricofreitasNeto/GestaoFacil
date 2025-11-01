@@ -1,4 +1,5 @@
-const { Ativo, Local, Cliente } = require("../models");
+﻿const { Ativo, Local, Cliente } = require("../models");
+const { Op } = require("sequelize");
 
 const ALLOWED_STATUS = ["ativo", "manutencao", "inativo"]; // valores aceitos
 
@@ -28,7 +29,7 @@ const ativoController = {
           { model: Cliente, as: "cliente", attributes: ["id", "nome"] }
         ]
       });
-      if (!ativo) return res.status(404).json({ message: "Ativo não encontrado" });
+      if (!ativo) return res.status(404).json({ message: "Ativo nÃ£o encontrado" });
       return res.status(200).json(ativo);
     } catch (error) {
       return res.status(500).json({ message: "Erro ao buscar ativo", detalhes: error.message });
@@ -41,16 +42,16 @@ const ativoController = {
       const { nome, numeroSerie, status, detalhes, localId, clienteId } = req.body;
 
       if (status && !ALLOWED_STATUS.includes(String(status).toLowerCase())) {
-        return res.status(400).json({ message: "Status inválido", detalhes: `Permitidos: ${ALLOWED_STATUS.join(', ')}` });
+        return res.status(400).json({ message: "Status invÃ¡lido", detalhes: `Permitidos: ${ALLOWED_STATUS.join(', ')}` });
       }
 
-      const novoAtivo = await Ativo.create({ nome, numeroSerie, status, detalhes, localId, clienteId });
+      // Restaura por numeroSerie se houver registro soft-deletado\n      if (numeroSerie) {\n        const softDeleted = await Ativo.findOne({ where: { numeroSerie, deletedAt: { [Op.ne]: null } }, paranoid: false });\n        if (softDeleted) {\n          await softDeleted.restore();\n          await softDeleted.update({ nome, numeroSerie, status, detalhes, localId, clienteId });\n          return res.status(201).json(softDeleted);\n        }\n      }\n      const novoAtivo = await Ativo.create({ nome, numeroSerie, status, detalhes, localId, clienteId });
       return res.status(201).json(novoAtivo);
     } catch (error) {
       if (error?.name === 'SequelizeUniqueConstraintError') {
         const target = (error.errors && error.errors[0]?.path) || '';
         if (String(target).toLowerCase().includes('numeroserie')) {
-          return res.status(409).json({ message: "Número de série já cadastrado" });
+          return res.status(409).json({ message: "NÃºmero de sÃ©rie jÃ¡ cadastrado" });
         }
       }
       return res.status(400).json({ message: "Erro ao criar ativo", detalhes: error.message });
@@ -63,10 +64,10 @@ const ativoController = {
       const { id } = req.params;
       const { nome, numeroSerie, status, detalhes, localId, clienteId } = req.body;
       const ativo = await Ativo.findByPk(id);
-      if (!ativo) return res.status(404).json({ message: "Ativo não encontrado" });
+      if (!ativo) return res.status(404).json({ message: "Ativo nÃ£o encontrado" });
 
       if (status && !ALLOWED_STATUS.includes(String(status).toLowerCase())) {
-        return res.status(400).json({ message: "Status inválido", detalhes: `Permitidos: ${ALLOWED_STATUS.join(', ')}` });
+        return res.status(400).json({ message: "Status invÃ¡lido", detalhes: `Permitidos: ${ALLOWED_STATUS.join(', ')}` });
       }
 
       await ativo.update({ nome, numeroSerie, status, detalhes, localId, clienteId });
@@ -75,7 +76,7 @@ const ativoController = {
       if (error?.name === 'SequelizeUniqueConstraintError') {
         const target = (error.errors && error.errors[0]?.path) || '';
         if (String(target).toLowerCase().includes('numeroserie')) {
-          return res.status(409).json({ message: "Número de série já cadastrado" });
+          return res.status(409).json({ message: "NÃºmero de sÃ©rie jÃ¡ cadastrado" });
         }
       }
       return res.status(400).json({ message: "Erro ao atualizar ativo", detalhes: error.message });
@@ -87,7 +88,7 @@ const ativoController = {
     try {
       const { id } = req.params;
       const ativo = await Ativo.findByPk(id);
-      if (!ativo) return res.status(404).json({ message: "Ativo não encontrado" });
+      if (!ativo) return res.status(404).json({ message: "Ativo nÃ£o encontrado" });
 
       await ativo.destroy(); // com paranoid: true, isso faz soft delete
       return res.status(200).json({ message: "Ativo desativado com sucesso" });
@@ -98,4 +99,6 @@ const ativoController = {
 };
 
 module.exports = ativoController;
+
+
 

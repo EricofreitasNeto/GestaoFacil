@@ -52,6 +52,18 @@ const servicoController = {
         tipoServicoId
       } = req.body;
 
+      // Validação: não permitir criar serviço para ativo inativo ou soft-deletado
+      if (ativoId) {
+        const ativo = await Ativo.findByPk(ativoId, { paranoid: false, attributes: ['id', 'status', 'deletedAt'] });
+        if (!ativo) {
+          return res.status(400).json({ message: 'Ativo informado é inválido' });
+        }
+        const st = String(ativo.status || '').toLowerCase();
+        if (ativo.deletedAt || st === 'inativo') {
+          return res.status(400).json({ message: 'Não é permitido criar serviço para ativo desativado' });
+        }
+      }
+
       const novoServico = await Servico.create({
         descricao,
         status,
@@ -88,6 +100,18 @@ const servicoController = {
 
       const servico = await Servico.findByPk(id);
       if (!servico) return res.status(404).json({ message: "Serviço não encontrado" });
+
+      // Validação: se ativoId foi informado, não permitir apontar para ativo inativo/soft-deletado
+      if (typeof ativoId !== 'undefined' && ativoId !== null) {
+        const ativo = await Ativo.findByPk(ativoId, { paranoid: false, attributes: ['id', 'status', 'deletedAt'] });
+        if (!ativo) {
+          return res.status(400).json({ message: 'Ativo informado é inválido' });
+        }
+        const st = String(ativo.status || '').toLowerCase();
+        if (ativo.deletedAt || st === 'inativo') {
+          return res.status(400).json({ message: 'Não é permitido atualizar serviço para ativo desativado' });
+        }
+      }
 
       await servico.update({
         descricao,

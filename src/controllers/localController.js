@@ -1,4 +1,5 @@
 ﻿const { Local, Ativo } = require("../models");
+const { Op } = require("sequelize");
 
 const localController = {
   // Listar todos os locais
@@ -31,9 +32,12 @@ const localController = {
   async criar(req, res) {
     try {
       const { nome } = req.body;
-      const novoLocal = await Local.create({ nome });
+      // Restaura registro soft-deletado com o mesmo nome, se existir\n      const softDeleted = await Local.findOne({ where: { nome, deletedAt: { [Op.ne]: null } }, paranoid: false });\n      if (softDeleted) {\n        await softDeleted.restore();\n        await softDeleted.update({ nome });\n        return res.status(201).json(softDeleted);\n      }\n      const novoLocal = await Local.create({ nome });
       return res.status(201).json(novoLocal);
     } catch (error) {
+      if (error?.name === 'SequelizeUniqueConstraintError') {
+        return res.status(409).json({ message: 'Nome de local já cadastrado' });
+      }
       return res.status(400).json({ message: "Erro ao criar local", detalhes: error.message });
     }
   },
@@ -49,6 +53,9 @@ const localController = {
       await local.update({ nome });
       return res.status(200).json(local);
     } catch (error) {
+      if (error?.name === 'SequelizeUniqueConstraintError') {
+        return res.status(409).json({ message: 'Nome de local já cadastrado' });
+      }
       return res.status(400).json({ message: "Erro ao atualizar local", detalhes: error.message });
     }
   },
@@ -69,3 +76,5 @@ const localController = {
 };
 
 module.exports = localController;
+
+

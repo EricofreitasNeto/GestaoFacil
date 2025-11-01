@@ -8,12 +8,10 @@ module.exports = (sequelize, DataTypes) => {
     nome: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: { notEmpty: true }
     },
     cnpj: {
       type: DataTypes.STRING,
-      unique: true,
       allowNull: true,
       validate: {
         // valida CNPJ no formato 00.000.000/0000-00 quando informado
@@ -26,7 +24,11 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     tableName: 'clientes', // nome da tabela no banco
     timestamps: true,      // adiciona createdAt e updatedAt
-    paranoid: true         // adiciona deletedAt para soft delete
+    paranoid: true,        // adiciona deletedAt para soft delete
+    indexes: [
+      { unique: true, fields: ['nome', 'deletedAt'] },
+      { unique: true, fields: ['cnpj', 'deletedAt'] }
+    ]
   });
 
   // Relacionamentos (se os modelos Ativo e Servico existirem)
@@ -41,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
       as: 'servicos'
     });
   };
+
+  Cliente.beforeValidate((cliente) => {
+    if (cliente.nome) cliente.nome = String(cliente.nome).trim();
+    if (cliente.cnpj) cliente.cnpj = String(cliente.cnpj).trim();
+  });
 
   return Cliente;
 };

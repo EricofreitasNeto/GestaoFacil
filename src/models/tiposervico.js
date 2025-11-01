@@ -25,9 +25,16 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     timestamps: true,
     paranoid: true,
+    indexes: [
+      { unique: true, fields: ['nome', 'deletedAt'] }
+    ],
     defaultScope: {
       where: { ativo: true }
     }
+  });
+
+  TipoServico.beforeValidate((tipo) => {
+    if (tipo.nome) tipo.nome = String(tipo.nome).trim();
   });
 
   TipoServico.associate = (models) => {

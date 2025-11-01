@@ -56,7 +56,7 @@
  *                 type: string
  *                 format: date-time
  *               detalhes:
- *                 type: string
+ *                 type: object
  *               clienteId:
  *                 type: integer
  *               usuarioId:
@@ -103,7 +103,7 @@
  *                 type: string
  *                 format: date-time
  *               detalhes:
- *                 type: string
+ *                 type: object
  *               clienteId:
  *                 type: integer
  *               usuarioId:

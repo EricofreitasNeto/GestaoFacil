@@ -24,13 +24,16 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: "ativo"
     },
     detalhes: {
-      type: DataTypes.JSON, // 🔹 dados dinâmicos
+      type: DataTypes.JSON, //  dados dinâmicos
       allowNull: true,
       defaultValue: {}
     }
   }, {
     timestamps: true,
-    paranoid: true
+    paranoid: true,
+    indexes: [
+      { unique: true, fields: ['numeroSerie', 'deletedAt'] }
+    ]
   });
 
   Ativo.associate = (models) => {
@@ -38,6 +41,12 @@ module.exports = (sequelize, DataTypes) => {
     Ativo.belongsTo(models.Cliente, { foreignKey: "clienteId", as: "cliente" });
     Ativo.hasMany(models.Servico, { foreignKey: "ativoId", as: "servicos" });
   };
+
+  Ativo.beforeValidate((ativo) => {
+    if (ativo.nome) ativo.nome = String(ativo.nome).trim();
+    if (ativo.numeroSerie) ativo.numeroSerie = String(ativo.numeroSerie).trim();
+    if (ativo.status) ativo.status = String(ativo.status).trim().toLowerCase();
+  });
 
   return Ativo;
 };

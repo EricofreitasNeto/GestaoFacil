@@ -78,7 +78,10 @@ async function saveClient() {
     bootstrap.Modal.getInstance(document.getElementById('addClientModal'))?.hide();
     loadClientes(currentPage.clientes || 1);
   } catch (error) {
-    showNotification('clientes-status', `Erro ao salvar cliente: ${error.message}`, false);
+    handleApiError(error, 'clientes-status', [
+      { key: 'nome', selector: '#clientName' },
+      { key: 'cnpj', selector: '#clientCnpj' }
+    ]);
   }
 }
 
@@ -167,3 +170,7 @@ window.deleteCliente = deleteCliente;
 window.searchClientes = searchClientes;
 window.viewCliente = viewCliente;
 window.editCliente = editCliente;
+
+// Limpa erros de campos ao digitar
+document.getElementById('clientName')?.addEventListener('input', () => clearFieldError('#clientName'));
+document.getElementById('clientCnpj')?.addEventListener('input', () => clearFieldError('#clientCnpj'));
