@@ -18,9 +18,9 @@ async function loadAtivos(page = 1) {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${ativo.nome}</td>
-        <td>${ativo.numeroSerie || 'â€”'}</td>
+        <td>${ativo.numeroSerie || '—'}</td>
         <td><span class="badge bg-${getStatusBadgeClass(ativo.status)}">${ativo.status}</span></td>
-        <td>${ativo.local?.nome || 'â€”'}</td>
+        <td>${ativo.local?.nome || '—'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewAtivo(${ativo.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -42,13 +42,13 @@ async function loadAtivos(page = 1) {
 
 function getStatusBadgeClass(status) {
   switch ((status || '').toLowerCase()) {
-    case 'concluÃ­do':
+    case 'concluído':
     case 'concluido':
     case 'ativo':
       return 'success';
     case 'em andamento':
     case 'manutencao':
-    case 'manutenÃ§Ã£o':
+    case 'manutenção':
       return 'warning';
     case 'cancelado':
     case 'inativo':
@@ -142,9 +142,9 @@ async function searchAtivos() {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${ativo.nome}</td>
-        <td>${ativo.numeroSerie || 'â€”'}</td>
+        <td>${ativo.numeroSerie || '—'}</td>
         <td><span class="badge bg-${getStatusBadgeClass(ativo.status)}">${ativo.status}</span></td>
-        <td>${ativo.local?.nome || 'â€”'}</td>
+        <td>${ativo.local?.nome || '—'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewAtivo(${ativo.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -165,8 +165,8 @@ async function searchAtivos() {
 async function viewAtivo(id) {
   try {
     const ativo = await apiRequest(`/v1/ativos/${id}`);
-    const detalhes = ativo.detalhes ? JSON.stringify(ativo.detalhes, null, 2) : 'â€”';
-    alert(`Ativo: ${ativo.nome}\nNÃºmero de sÃ©rie: ${ativo.numeroSerie || 'â€”'}\nStatus: ${ativo.status}\nLocal: ${ativo.local?.nome || 'â€”'}\nDetalhes: ${detalhes}`);
+    const detalhes = ativo.detalhes ? JSON.stringify(ativo.detalhes, null, 2) : '—';
+    alert(`Ativo: ${ativo.nome}\nNúmero de série: ${ativo.numeroSerie || '—'}\nStatus: ${ativo.status}\nLocal: ${ativo.local?.nome || '—'}\nDetalhes: ${detalhes}`);
   } catch (error) {
     showNotification('ativos-status', `Erro ao carregar ativo: ${error.message}`, false);
   }
@@ -201,4 +201,3 @@ function getStatusBadgeClass(status) {
     ? window.getStatusBadgeClass(status)
     : 'secondary';
 }
-

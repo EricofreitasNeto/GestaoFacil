@@ -15,12 +15,20 @@ async function loadTiposServicos(page = 1) {
       row.innerHTML = `
         <td>${tipo.nome}</td>
         <td>${tipo.descricao || '—'}</td>
-        <td><span class="badge ${tipo.ativo ? 'bg-success' : 'bg-secondary'}">${tipo.ativo ? 'Ativo' : 'Inativo'}</span></td>
+        <td><span class="badge ${tipo.ativo ? 'bg-success' : 'bg-secondary'}">
+          ${tipo.ativo ? 'Ativo' : 'Inativo'}
+        </span></td>
         <td class="table-actions text-end">
-          <button class="btn btn-sm btn-info btn-action" onclick="viewTipoServico(${tipo.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
+          <button class="btn btn-sm btn-info btn-action" onclick="viewTipoServico(${tipo.id})" title="Visualizar">
+            <i class="bi bi-eye"></i>
+          </button>
           ${currentUser?.cargo === 'admin' ? `
-            <button class="btn btn-sm btn-warning btn-action" onclick="editTipoServico(${tipo.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('tipo-servico', ${tipo.id})" title="Remover"><i class="bi bi-trash"></i></button>
+            <button class="btn btn-sm btn-warning btn-action" onclick="editTipoServico(${tipo.id})" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('tipo-servico', ${tipo.id})" title="Remover">
+              <i class="bi bi-trash"></i>
+            </button>
           ` : ''}
         </td>
       `;
@@ -106,12 +114,20 @@ async function searchTiposServicos() {
       row.innerHTML = `
         <td>${tipo.nome}</td>
         <td>${tipo.descricao || '—'}</td>
-        <td><span class="badge ${tipo.ativo ? 'bg-success' : 'bg-secondary'}">${tipo.ativo ? 'Ativo' : 'Inativo'}</span></td>
+        <td><span class="badge ${tipo.ativo ? 'bg-success' : 'bg-secondary'}">
+          ${tipo.ativo ? 'Ativo' : 'Inativo'}
+        </span></td>
         <td class="table-actions text-end">
-          <button class="btn btn-sm btn-info btn-action" onclick="viewTipoServico(${tipo.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
+          <button class="btn btn-sm btn-info btn-action" onclick="viewTipoServico(${tipo.id})" title="Visualizar">
+            <i class="bi bi-eye"></i>
+          </button>
           ${currentUser?.cargo === 'admin' ? `
-            <button class="btn btn-sm btn-warning btn-action" onclick="editTipoServico(${tipo.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('tipo-servico', ${tipo.id})" title="Remover"><i class="bi bi-trash"></i></button>
+            <button class="btn btn-sm btn-warning btn-action" onclick="editTipoServico(${tipo.id})" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('tipo-servico', ${tipo.id})" title="Remover">
+              <i class="bi bi-trash"></i>
+            </button>
           ` : ''}
         </td>
       `;
@@ -127,7 +143,9 @@ async function searchTiposServicos() {
 async function viewTipoServico(id) {
   try {
     const tipo = await apiRequest(`/v1/tipos-servicos/${id}`);
-    alert(`Tipo de serviço: ${tipo.nome}\nDescrição: ${tipo.descricao || '—'}\nStatus: ${tipo.ativo ? 'Ativo' : 'Inativo'}`);
+    alert(`Tipo de serviço: ${tipo.nome}
+Descrição: ${tipo.descricao || '—'}
+Status: ${tipo.ativo ? 'Ativo' : 'Inativo'}`);
   } catch (error) {
     showNotification('tipos-servicos-status', `Erro ao carregar tipo de serviço: ${error.message}`, false);
   }
@@ -153,4 +171,3 @@ window.deleteTipoServico = deleteTipoServico;
 window.searchTiposServicos = searchTiposServicos;
 window.viewTipoServico = viewTipoServico;
 window.editTipoServico = editTipoServico;
-

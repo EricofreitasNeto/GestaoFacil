@@ -2,34 +2,33 @@
 require('module-alias/register');
 const path = require('path');
 const fs = require('fs');
-const http = require('http');
-const https = require('https');
-
-// ─── Configuração de paths ────────────────────────────────────
-const resolvePath = (...segments) => {
-  return path.resolve(__dirname, ...segments);
-};
-
-require('dotenv').config({ path: resolvePath('.env') });
-
-// ─── DEBUG ────────────────────────────────────────────────────
-const isDebug = process.argv.includes('--debug');
-if (isDebug) {
-  console.log('🐞 Modo DEBUG ativado');
-  console.log('CWD:', process.cwd());
-  console.log('BasePath usado:', resolvePath());
-}
-
-// ─── Express e segurança ──────────────────────────────────────
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const http = require('http');
+const https = require('https');
+
+// ─── Configuração de paths e variáveis ─────────────────────────
+const resolvePath = (...segments) => path.resolve(__dirname, ...segments);
+require('dotenv').config({ path: resolvePath('.env') });
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+const APP_MODE = process.env.APP_MODE || 'production';
 
-// ✅ CORREÇÃO COMPLETA DO CSP
+// ─── Debug opcional ────────────────────────────────────────────
+const isDebug = process.argv.includes('--debug');
+if (isDebug) {
+  console.log('🐞 Modo DEBUG ativado');
+  console.log('📂 CWD:', process.cwd());
+  console.log('📁 BasePath usado:', resolvePath());
+}
+
+// ─── Segurança e cabeçalhos CSP ───────────────────────────────
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
@@ -42,73 +41,37 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Servir arquivos estáticos corretamente
+// ─── Servir arquivos estáticos ─────────────────────────────────
 const publicPath = path.join(__dirname, 'public');
 console.log('📁 Public path:', publicPath);
-
-// Servir arquivos HTML e assets
 app.use('/public', express.static(publicPath, {
   setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
+    if (path.endsWith('.js')) res.setHeader('Content-Type', 'application/javascript');
+    if (path.endsWith('.css')) res.setHeader('Content-Type', 'text/css');
   }
 }));
 
-// ✅ Servir scripts
-const scriptPath = path.join(__dirname, 'public', 'scripts');
-console.log('📁 Script path:', scriptPath);
-
-if (fs.existsSync(scriptPath)) {
-  console.log('✅ Pasta de scripts encontrada:', scriptPath);
-} else {
-  console.log('❌ Pasta de scripts NÃO encontrada:', scriptPath);
-  fs.mkdirSync(scriptPath, { recursive: true });
-  console.log('📁 Pasta de scripts criada:', scriptPath);
-}
-
-app.use('/api/public/scripts', express.static(scriptPath, {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-      console.log('📦 Servindo arquivo JS:', path);
-    }
+// Scripts e CSS (garante existência das pastas)
+['scripts', 'css'].forEach(folder => {
+  const dir = path.join(__dirname, 'public', folder);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`📁 Pasta criada: ${dir}`);
   }
-}));
-
-// ✅ Servir CSS
-const cssPath = path.join(__dirname, 'public', 'css');
-console.log('📁 CSS path:', cssPath);
-
-if (fs.existsSync(cssPath)) {
-  console.log('✅ Pasta de CSS encontrada:', cssPath);
-} else {
-  console.log('❌ Pasta de CSS NÃO encontrada:', cssPath);
-  fs.mkdirSync(cssPath, { recursive: true });
-  console.log('📁 Pasta de CSS criada:', cssPath);
-}
-
-app.use('/api/public/css', express.static(cssPath, {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-      console.log('🎨 Servindo arquivo CSS:', path);
+  app.use(`/api/public/${folder}`, express.static(dir, {
+    setHeaders: (res, path) => {
+      if (path.endsWith('.js')) res.setHeader('Content-Type', 'application/javascript');
+      if (path.endsWith('.css')) res.setHeader('Content-Type', 'text/css');
     }
-  }
-}));
+  }));
+});
 
-// ✅ Rotas básicas
-app.get('/', (req, res) => {
+// ─── Páginas básicas ───────────────────────────────────────────
+app.get(['/', '/teste'], (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-app.get('/teste', (req, res) => {
-  res.sendFile(path.join(publicPath, 'index.html'));
-});
-
-// ─── Imports simplificados (sem pkg) ──────────────────────────
+// ─── Imports e rotas ───────────────────────────────────────────
 const db = require('@models');
 const authenticateJWT = require('@middlewares/authMiddleware');
 const clienteRoutes = require('@routes/clienteRoutes');
@@ -119,18 +82,11 @@ const localRoutes = require('@routes/localRoutes');
 const tipoServicoRoutes = require('@routes/tipoServicoRoutes');
 const authRoutes = require('@routes/authRoutes');
 
-// ─── Tratamento de erros globais ──────────────────────────────
-process.on('uncaughtException', err => {
-  console.error('❌ Erro não tratado:', err);
-});
-process.on('unhandledRejection', reason => {
-  console.error('❌ Promessa rejeitada sem tratamento:', reason);
-});
+// ─── Tratamento global de erros ────────────────────────────────
+process.on('uncaughtException', err => console.error('❌ Erro não tratado:', err));
+process.on('unhandledRejection', reason => console.error('❌ Promessa rejeitada:', reason));
 
-// ─── Swagger Docs ─────────────────────────────────────────────
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-
+// ─── Swagger Docs ──────────────────────────────────────────────
 const swaggerOptions = {
   swaggerDefinition: {
     openapi: '3.0.0',
@@ -138,10 +94,7 @@ const swaggerOptions = {
       title: 'Gestão Fácil API',
       version: '1.0.0',
       description: 'Documentação da API de Gestão de Ativos e Serviços',
-      contact: {
-        name: 'Seu Nome',
-        email: 'seu@email.com'
-      }
+      contact: { name: 'Equipe Gestão Fácil', email: 'contato@gestaofacil.com' }
     },
     servers: [
       { url: 'http://localhost:3000', description: 'Servidor local' },
@@ -154,154 +107,81 @@ const swaggerOptions = {
       { name: 'Ativos', description: 'Gestão de ativos' },
       { name: 'Locais', description: 'Gestão de locais' },
       { name: 'Serviços', description: 'Gestão de serviços técnicos' },
-      { name: 'Tipos de Serviços', description: 'Classificação dos serviços' }
+      { name: 'Tipos de Serviços', description: 'Classificação de serviços' }
     ],
     components: {
       securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
+        bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
       }
     },
     security: [{ bearerAuth: [] }]
   },
   apis: ['./src/routes/*.js']
 };
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerJsdoc(swaggerOptions)));
 
-const swaggerDocs = swaggerJsdoc(swaggerOptions);
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
-// ─── Middlewares ──────────────────────────────────────────────
-app.use(helmet({
-  contentSecurityPolicy: false
-}));
+// ─── Middlewares globais ───────────────────────────────────────
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || '*' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
+// Log detalhado de requisições
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    const method = req.method;
-    const url = req.originalUrl;
-    const status = res.statusCode;
+    const { method, originalUrl, statusCode } = req;
     const user = req.user || {};
-
-    console.log([
-      `[${new Date().toISOString()}]`,
-      `${method} ${url}`,
-      `→ ${status} (${duration}ms)`,
-      `| IP: ${ip}`,
-      `| User: ${user.email || 'anon'}`,
-      `| Cargo: ${user.cargo || 'n/a'}`
-    ].join(' '));
+    console.log(`[${new Date().toISOString()}] ${method} ${originalUrl} → ${statusCode} (${duration}ms) | IP: ${ip} | User: ${user.email || 'anon'} | Cargo: ${user.cargo || 'n/a'}`);
   });
   next();
 });
 
-// ─── Rotas para debug ─────────────────────────────────────────
+// ─── Rotas de debug ───────────────────────────────────────────
 app.get('/api/debug/scripts', (req, res) => {
   const scriptDir = path.join(__dirname, 'public', 'scripts');
-  
   try {
     if (!fs.existsSync(scriptDir)) {
-      return res.status(404).json({
-        success: false,
-        error: 'Pasta de scripts não encontrada',
-        scriptPath: scriptDir
-      });
+      return res.status(404).json({ success: false, error: 'Pasta não encontrada', scriptPath: scriptDir });
     }
-
-    const files = fs.readdirSync(scriptDir);
-    const fileInfo = files.map(file => {
+    const files = fs.readdirSync(scriptDir).map(file => {
       const filePath = path.join(scriptDir, file);
       const stats = fs.statSync(filePath);
-      return {
-        name: file,
-        size: stats.size,
-        accessible: true,
-        url: `/api/public/scripts/${file}`,
-        fullPath: filePath
-      };
+      return { name: file, size: stats.size, url: `/api/public/scripts/${file}` };
     });
-    
-    res.json({
-      success: true,
-      scriptPath: scriptDir,
-      files: fileInfo,
-      totalFiles: files.length
-    });
+    res.json({ success: true, total: files.length, files });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      scriptPath: scriptDir
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-app.get('/api/debug/scripts/:filename', (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(__dirname, 'public', 'scripts', filename);
-  
-  try {
-    if (fs.existsSync(filePath)) {
-      res.setHeader('Content-Type', 'application/javascript');
-      res.sendFile(filePath);
-    } else {
-      res.status(404).json({
-        success: false,
-        error: `Arquivo ${filename} não encontrado`,
-        filePath: filePath
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      filePath: filePath
-    });
-  }
-});
-
-// ─── Rotas Públicas ────────────────────────────────────────────
-// Configuração do front-end (config.js)
+// ─── Config.js dinâmico para frontend ─────────────────────────
 app.get('/config.js', (req, res) => {
   try {
     const envBase = process.env.PUBLIC_API_BASE_URL;
     const defaultBase = `${req.protocol}://${req.get('host')}`;
     const baseUrl = envBase || defaultBase;
-    const payload = `// Arquivo gerado pelo servidor\nwindow.API_BASE_URL = ${JSON.stringify(baseUrl)};\n`;
+    const payload = `// Gerado dinamicamente\nwindow.API_BASE_URL = ${JSON.stringify(baseUrl)};\n`;
     res.setHeader('Content-Type', 'application/javascript');
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
     res.send(payload);
-  } catch (err) {
-    res.setHeader('Content-Type', 'application/javascript');
+  } catch {
     res.status(500).send('window.API_BASE_URL = null;');
   }
 });
 
+// ─── Rotas públicas e healthcheck ─────────────────────────────
 app.use('/auth', authRoutes);
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    timestamp: new Date().toISOString(),
-    uptime: Math.floor(process.uptime())
-  });
+  res.json({ status: 'OK', timestamp: new Date().toISOString(), uptime: Math.floor(process.uptime()) });
 });
 
-// ─── Rotas protegidas ──────────────────────────────────────────
+// ─── Rotas protegidas (API v1) ─────────────────────────────────
 const apiRouter = express.Router();
 apiRouter.use('/clientes', authenticateJWT(), clienteRoutes);
 apiRouter.use('/usuarios', authenticateJWT(), usuarioRoutes);
@@ -311,9 +191,8 @@ apiRouter.use('/locais', authenticateJWT(), localRoutes);
 apiRouter.use('/tipos-servicos', authenticateJWT(), tipoServicoRoutes);
 app.use('/v1', apiRouter);
 
-// ─── Banco de dados ────────────────────────────────────────────
+// ─── Banco de dados ───────────────────────────────────────────
 console.log('DATABASE_URL:', process.env.DATABASE_URL);
-
 db.sequelize.authenticate()
   .then(() => console.log('✅ Conectado ao banco de dados'))
   .catch(err => console.error('❌ Erro ao conectar ao banco:', err));
@@ -322,13 +201,10 @@ db.sequelize.sync()
   .then(() => console.log('🔄 Modelos sincronizados'))
   .catch(err => console.error('❌ Erro ao sincronizar modelos:', err));
 
-// ─── Inicialização do servidor ────────────────────────────────
-const PORT = process.env.PORT || 3000;
-const APP_MODE = process.env.APP_MODE || 'production';
-
+// ─── Inicialização do servidor ─────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
   console.log(`🌐 Modo: ${APP_MODE}`);
-  console.log(`📚 Documentação: http://localhost:${PORT}/docs`);
-  console.log(`❤️  Health check: http://localhost:${PORT}/health`);
+  console.log(`📚 Swagger Docs: http://localhost:${PORT}/docs`);
+  console.log(`❤️  Health: http://localhost:${PORT}/health`);
 });

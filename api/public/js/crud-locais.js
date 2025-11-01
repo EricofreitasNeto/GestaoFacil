@@ -16,10 +16,16 @@ async function loadLocais(page = 1) {
         <td>${local.nome}</td>
         <td>${formatDate(local.createdAt)}</td>
         <td class="table-actions text-end">
-          <button class="btn btn-sm btn-info btn-action" onclick="viewLocal(${local.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
+          <button class="btn btn-sm btn-info btn-action" onclick="viewLocal(${local.id})" title="Visualizar">
+            <i class="bi bi-eye"></i>
+          </button>
           ${currentUser?.cargo === 'admin' ? `
-            <button class="btn btn-sm btn-warning btn-action" onclick="editLocal(${local.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('local', ${local.id})" title="Remover"><i class="bi bi-trash"></i></button>
+            <button class="btn btn-sm btn-warning btn-action" onclick="editLocal(${local.id})" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('local', ${local.id})" title="Remover">
+              <i class="bi bi-trash"></i>
+            </button>
           ` : ''}
         </td>
       `;
@@ -87,7 +93,9 @@ async function searchLocais() {
 
   try {
     const locais = await apiRequest('/v1/locais');
-    const filtered = locais.filter(local => local.nome.toLowerCase().includes(term));
+    const filtered = locais.filter(local =>
+      local.nome.toLowerCase().includes(term)
+    );
 
     const locaisList = document.getElementById('locais-list');
     locaisList.innerHTML = '';
@@ -98,10 +106,16 @@ async function searchLocais() {
         <td>${local.nome}</td>
         <td>${formatDate(local.createdAt)}</td>
         <td class="table-actions text-end">
-          <button class="btn btn-sm btn-info btn-action" onclick="viewLocal(${local.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
+          <button class="btn btn-sm btn-info btn-action" onclick="viewLocal(${local.id})" title="Visualizar">
+            <i class="bi bi-eye"></i>
+          </button>
           ${currentUser?.cargo === 'admin' ? `
-            <button class="btn btn-sm btn-warning btn-action" onclick="editLocal(${local.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('local', ${local.id})" title="Remover"><i class="bi bi-trash"></i></button>
+            <button class="btn btn-sm btn-warning btn-action" onclick="editLocal(${local.id})" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('local', ${local.id})" title="Remover">
+              <i class="bi bi-trash"></i>
+            </button>
           ` : ''}
         </td>
       `;
@@ -141,4 +155,3 @@ window.deleteLocal = deleteLocal;
 window.searchLocais = searchLocais;
 window.viewLocal = viewLocal;
 window.editLocal = editLocal;
-

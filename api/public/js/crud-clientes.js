@@ -14,8 +14,8 @@ async function loadClientes(page = 1) {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${cliente.nome}</td>
-        <td>${cliente.cnpj || 'â€”'}</td>
-        <td>${cliente.contatos || 'â€”'}</td>
+        <td>${cliente.cnpj || '—'}</td>
+        <td>${cliente.contatos || '—'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewCliente(${cliente.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -99,8 +99,8 @@ async function searchClientes() {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${cliente.nome}</td>
-        <td>${cliente.cnpj || 'â€”'}</td>
-        <td>${cliente.contatos || 'â€”'}</td>
+        <td>${cliente.cnpj || '—'}</td>
+        <td>${cliente.contatos || '—'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewCliente(${cliente.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -121,7 +121,7 @@ async function searchClientes() {
 async function viewCliente(id) {
   try {
     const cliente = await apiRequest(`/v1/clientes/${id}`);
-    alert(`Cliente: ${cliente.nome}\nCNPJ: ${cliente.cnpj || 'â€”'}\nContatos: ${cliente.contatos || 'â€”'}`);
+    alert(`Cliente: ${cliente.nome}\nCNPJ: ${cliente.cnpj || '—'}\nContatos: ${cliente.contatos || '—'}`);
   } catch (error) {
     showNotification('clientes-status', `Erro ao carregar cliente: ${error.message}`, false);
   }
@@ -147,4 +147,3 @@ window.deleteCliente = deleteCliente;
 window.searchClientes = searchClientes;
 window.viewCliente = viewCliente;
 window.editCliente = editCliente;
-

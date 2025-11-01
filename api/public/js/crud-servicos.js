@@ -19,10 +19,16 @@ async function loadServicos(page = 1) {
         <td>${servico.responsavel?.nome || '—'}</td>
         <td>${formatDate(servico.dataAgendada)}</td>
         <td class="table-actions text-end">
-          <button class="btn btn-sm btn-info btn-action" onclick="viewServico(${servico.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
+          <button class="btn btn-sm btn-info btn-action" onclick="viewServico(${servico.id})" title="Visualizar">
+            <i class="bi bi-eye"></i>
+          </button>
           ${currentUser?.cargo === 'admin' ? `
-            <button class="btn btn-sm btn-warning btn-action" onclick="editServico(${servico.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('servico', ${servico.id})" title="Remover"><i class="bi bi-trash"></i></button>
+            <button class="btn btn-sm btn-warning btn-action" onclick="editServico(${servico.id})" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('servico', ${servico.id})" title="Remover">
+              <i class="bi bi-trash"></i>
+            </button>
           ` : ''}
         </td>
       `;
@@ -131,10 +137,16 @@ async function searchServicos() {
         <td>${servico.responsavel?.nome || '—'}</td>
         <td>${formatDate(servico.dataAgendada)}</td>
         <td class="table-actions text-end">
-          <button class="btn btn-sm btn-info btn-action" onclick="viewServico(${servico.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
+          <button class="btn btn-sm btn-info btn-action" onclick="viewServico(${servico.id})" title="Visualizar">
+            <i class="bi bi-eye"></i>
+          </button>
           ${currentUser?.cargo === 'admin' ? `
-            <button class="btn btn-sm btn-warning btn-action" onclick="editServico(${servico.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('servico', ${servico.id})" title="Remover"><i class="bi bi-trash"></i></button>
+            <button class="btn btn-sm btn-warning btn-action" onclick="editServico(${servico.id})" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('servico', ${servico.id})" title="Remover">
+              <i class="bi bi-trash"></i>
+            </button>
           ` : ''}
         </td>
       `;
@@ -151,7 +163,13 @@ async function viewServico(id) {
   try {
     const servico = await apiRequest(`/v1/servicos/${id}`);
     const detalhes = servico.detalhes ? JSON.stringify(servico.detalhes, null, 2) : '—';
-    alert(`Serviço: ${servico.descricao}\nStatus: ${servico.status}\nCliente: ${servico.cliente?.nome || '—'}\nResponsável: ${servico.responsavel?.nome || '—'}\nAtivo: ${servico.ativo?.nome || '—'}\nTipo: ${servico.tipoServico?.nome || '—'}\nDetalhes: ${detalhes}`);
+    alert(`Serviço: ${servico.descricao}
+Status: ${servico.status}
+Cliente: ${servico.cliente?.nome || '—'}
+Responsável: ${servico.responsavel?.nome || '—'}
+Ativo: ${servico.ativo?.nome || '—'}
+Tipo: ${servico.tipoServico?.nome || '—'}
+Detalhes: ${detalhes}`);
   } catch (error) {
     showNotification('servicos-status', `Erro ao carregar serviço: ${error.message}`, false);
   }
@@ -183,4 +201,3 @@ window.deleteServico = deleteServico;
 window.searchServicos = searchServicos;
 window.viewServico = viewServico;
 window.editServico = editServico;
-

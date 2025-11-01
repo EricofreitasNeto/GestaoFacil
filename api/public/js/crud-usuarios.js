@@ -23,9 +23,15 @@ async function loadUsuarios(page = 1) {
         <td>${usuario.cargo}</td>
         <td>${usuario.telefone || '—'}</td>
         <td class="table-actions text-end">
-          <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
-          <button class="btn btn-sm btn-warning btn-action" onclick="editUsuario(${usuario.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('usuario', ${usuario.id})" title="Remover"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar">
+            <i class="bi bi-eye"></i>
+          </button>
+          <button class="btn btn-sm btn-warning btn-action" onclick="editUsuario(${usuario.id})" title="Editar">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('usuario', ${usuario.id})" title="Remover">
+            <i class="bi bi-trash"></i>
+          </button>
         </td>
       `;
       usuariosList.appendChild(row);
@@ -123,9 +129,15 @@ async function searchUsuarios() {
         <td>${usuario.cargo}</td>
         <td>${usuario.telefone || '—'}</td>
         <td class="table-actions text-end">
-          <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
-          <button class="btn btn-sm btn-warning btn-action" onclick="editUsuario(${usuario.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-          <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('usuario', ${usuario.id})" title="Remover"><i class="bi bi-trash"></i></button>
+          <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar">
+            <i class="bi bi-eye"></i>
+          </button>
+          <button class="btn btn-sm btn-warning btn-action" onclick="editUsuario(${usuario.id})" title="Editar">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-sm btn-danger btn-action" onclick="askForDelete('usuario', ${usuario.id})" title="Remover">
+            <i class="bi bi-trash"></i>
+          </button>
         </td>
       `;
       usuariosList.appendChild(row);
@@ -140,7 +152,10 @@ async function searchUsuarios() {
 async function viewUsuario(id) {
   try {
     const usuario = await apiRequest(`/v1/usuarios/${id}`);
-    alert(`Usuário: ${usuario.nome}\nE-mail: ${usuario.email}\nCargo: ${usuario.cargo}\nTelefone: ${usuario.telefone || '—'}`);
+    alert(`Usuário: ${usuario.nome}
+E-mail: ${usuario.email}
+Cargo: ${usuario.cargo}
+Telefone: ${usuario.telefone || '—'}`);
   } catch (error) {
     showNotification('usuarios-status', `Erro ao carregar usuário: ${error.message}`, false);
   }
@@ -168,4 +183,3 @@ window.deleteUsuario = deleteUsuario;
 window.searchUsuarios = searchUsuarios;
 window.viewUsuario = viewUsuario;
 window.editUsuario = editUsuario;
-

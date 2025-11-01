@@ -1,4 +1,4 @@
-﻿/* InicializaÃ§Ã£o da aplicaÃ§Ã£o web e controles de interface */
+﻿/* Inicialização da aplicação web e controles de interface */
 
 const UI = {
   loginPage: document.getElementById('login-page'),
@@ -18,10 +18,10 @@ const SECTION_TITLES = {
   dashboard: 'Dashboard',
   clientes: 'Clientes',
   ativos: 'Ativos',
-  servicos: 'ServiÃ§os',
+  servicos: 'Serviços',
   locais: 'Locais',
-  'tipos-servicos': 'Tipos de serviÃ§o',
-  usuarios: 'UsuÃ¡rios'
+  'tipos-servicos': 'Tipos de Serviço',
+  usuarios: 'Usuários'
 };
 
 const SECTION_LOADERS = {
@@ -51,30 +51,25 @@ function getPaginationKey(section) {
 }
 
 function setupEventListeners() {
-  if (window.loginForm) {
-    loginForm.addEventListener('submit', handleLogin);
-  }
-  if (window.registerForm) {
-    registerForm.addEventListener('submit', handleRegister);
-  }
-  if (window.registerLink) {
-    registerLink.addEventListener('click', event => {
-      event.preventDefault();
+  if (window.loginForm) loginForm.addEventListener('submit', handleLogin);
+  if (window.registerForm) registerForm.addEventListener('submit', handleRegister);
+
+  if (window.registerLink)
+    registerLink.addEventListener('click', e => {
+      e.preventDefault();
       showRegisterPage();
     });
-  }
-  if (window.backToLogin) {
-    backToLogin.addEventListener('click', event => {
-      event.preventDefault();
+
+  if (window.backToLogin)
+    backToLogin.addEventListener('click', e => {
+      e.preventDefault();
       showLoginPage();
     });
-  }
 
   document.querySelectorAll('.nav-link[data-section]').forEach(link => {
-    link.addEventListener('click', event => {
-      event.preventDefault();
-      const section = link.getAttribute('data-section');
-      navigateToSection(section);
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      navigateToSection(link.getAttribute('data-section'));
     });
   });
 
@@ -83,15 +78,12 @@ function setupEventListeners() {
 
   UI.sidebarToggle?.addEventListener('click', toggleSidebar);
   UI.mobileMenuBtn?.addEventListener('click', toggleSidebar);
-
   UI.confirmDeleteBtn?.addEventListener('click', confirmDelete);
 
-  document.querySelectorAll('.modal').forEach(modalElement => {
-    modalElement.addEventListener('hidden.bs.modal', () => {
-      const form = modalElement.querySelector('form');
-      if (form) {
-        clearForm(form);
-      }
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('hidden.bs.modal', () => {
+      const form = modal.querySelector('form');
+      if (form) clearForm(form);
       currentEntity = null;
       currentItemId = null;
     });
@@ -107,10 +99,8 @@ function setupEventListeners() {
   ];
 
   searchButtons.forEach(([id, handler]) => {
-    const button = document.getElementById(id);
-    if (button) {
-      button.addEventListener('click', handler);
-    }
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', handler);
   });
 
   const saveButtons = [
@@ -123,44 +113,30 @@ function setupEventListeners() {
   ];
 
   saveButtons.forEach(([id, handler]) => {
-    const button = document.getElementById(id);
-    if (button) {
-      button.addEventListener('click', handler);
-    }
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', handler);
   });
 
   window.addEventListener('resize', handleResponsiveSidebar);
 }
 
 function navigateToSection(section) {
-  const sections = document.querySelectorAll('.content-section');
-  sections.forEach(area => {
-    area.style.display = 'none';
-  });
-
+  document.querySelectorAll('.content-section').forEach(sec => (sec.style.display = 'none'));
   const target = document.getElementById(`${section}-section`);
-  if (target) {
-    target.style.display = 'block';
-  }
+  if (target) target.style.display = 'block';
 
   document.querySelectorAll('.nav-link[data-section]').forEach(link => {
     link.classList.toggle('active', link.getAttribute('data-section') === section);
   });
 
-  if (UI.pageTitle) {
-    UI.pageTitle.textContent = SECTION_TITLES[section] || 'GestÃ£oFÃ¡cil';
-  }
+  if (UI.pageTitle) UI.pageTitle.textContent = SECTION_TITLES[section] || 'GestãoFácil';
 
   const loader = SECTION_LOADERS[section];
   const key = getPaginationKey(section);
   const page = currentPage?.[key] || 1;
-  if (loader) {
-    loader(page);
-  }
+  if (loader) loader(page);
 
-  if (window.innerWidth < 768) {
-    UI.sidebar?.classList.remove('mobile-open');
-  }
+  if (window.innerWidth < 768) UI.sidebar?.classList.remove('mobile-open');
 }
 
 function toggleSidebar() {
@@ -173,51 +149,35 @@ function toggleSidebar() {
 }
 
 function handleResponsiveSidebar() {
-  if (window.innerWidth >= 768) {
-    UI.sidebar?.classList.remove('mobile-open');
-  }
+  if (window.innerWidth >= 768) UI.sidebar?.classList.remove('mobile-open');
 }
 
 function showNotification(elementId, message, isSuccess = true) {
-  const element = document.getElementById(elementId);
-  if (!element) return;
-
-  element.textContent = message;
-  element.className = `api-status ${isSuccess ? 'success' : 'error'} show`;
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.textContent = message;
+  el.className = `api-status ${isSuccess ? 'success' : 'error'} show`;
 }
 
 function clearForm(form) {
   if (!form) return;
   form.reset();
   const hiddenId = form.querySelector('input[type="hidden"][name="id"], input[type="hidden"][id$="-id"]');
-  if (hiddenId) {
-    hiddenId.value = '';
-  }
+  if (hiddenId) hiddenId.value = '';
 }
 
 function askForDelete(entity, itemId) {
   currentEntity = entity;
   currentItemId = itemId;
-  const modalElement = document.getElementById('confirmDeleteModal');
-  if (modalElement) {
-    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modal.show();
-  }
+  const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmDeleteModal'));
+  modal?.show();
 }
 
 async function confirmDelete() {
   if (!currentEntity || !currentItemId) return;
-
   const handler = DELETE_HANDLERS[currentEntity];
-  if (typeof handler === 'function') {
-    await handler(currentItemId);
-  }
-
-  const modalElement = document.getElementById('confirmDeleteModal');
-  if (modalElement) {
-    bootstrap.Modal.getInstance(modalElement)?.hide();
-  }
-
+  if (typeof handler === 'function') await handler(currentItemId);
+  bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal'))?.hide();
   currentEntity = null;
   currentItemId = null;
 }
@@ -235,34 +195,25 @@ function updatePagination(section, totalItems, page) {
     return;
   }
 
-  container.innerHTML = '';
-
   const createButton = (label, targetPage, disabled = false) => {
-    const button = document.createElement('button');
-    button.textContent = label;
-    if (disabled) {
-      button.disabled = true;
-    }
-    if (targetPage === currentPage[key]) {
-      button.classList.add('active');
-    }
-    button.addEventListener('click', () => {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    if (disabled) btn.disabled = true;
+    if (targetPage === currentPage[key]) btn.classList.add('active');
+    btn.addEventListener('click', () => {
       currentPage[key] = targetPage;
       const loader = SECTION_LOADERS[section];
-      if (loader) {
-        loader(targetPage);
-      }
+      if (loader) loader(targetPage);
     });
-    return button;
+    return btn;
   };
 
+  container.innerHTML = '';
   container.appendChild(createButton('Anterior', Math.max(1, currentPage[key] - 1), currentPage[key] === 1));
 
-  for (let i = 1; i <= totalPages; i += 1) {
-    container.appendChild(createButton(i, i));
-  }
+  for (let i = 1; i <= totalPages; i++) container.appendChild(createButton(i, i));
 
-  container.appendChild(createButton('PrÃ³ximo', Math.min(totalPages, currentPage[key] + 1), currentPage[key] === totalPages));
+  container.appendChild(createButton('Próximo', Math.min(totalPages, currentPage[key] + 1), currentPage[key] === totalPages));
 }
 
 async function refreshAllDropdowns() {
@@ -281,70 +232,72 @@ async function refreshAllDropdowns() {
     updateUsuarioDropdown(usuarios || []);
     updateTipoServicoDropdown(tiposServicos || []);
   } catch (error) {
-    console.warn('NÃ£o foi possÃ­vel atualizar listas auxiliares:', error.message);
+    console.warn('Não foi possível atualizar listas auxiliares:', error.message);
   }
 }
 
+/* Atualização de selects (dropdowns) */
 function updateClientDropdowns(clientes) {
-  const clienteSelect = document.getElementById('servicoCliente');
-  if (!clienteSelect) return;
-  clienteSelect.innerHTML = '<option value="">Selecione</option>';
-  clientes.forEach(cliente => {
-    const option = document.createElement('option');
-    option.value = cliente.id;
-    option.textContent = cliente.nome;
-    clienteSelect.appendChild(option);
+  const select = document.getElementById('servicoCliente');
+  if (!select) return;
+  select.innerHTML = '<option value="">Selecione</option>';
+  clientes.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.nome;
+    select.appendChild(opt);
   });
 }
 
 function updateLocalDropdown(locais) {
-  const localSelect = document.getElementById('ativoLocal');
-  if (!localSelect) return;
-  localSelect.innerHTML = '<option value="">Selecione</option>';
-  locais.forEach(local => {
-    const option = document.createElement('option');
-    option.value = local.id;
-    option.textContent = local.nome;
-    localSelect.appendChild(option);
+  const select = document.getElementById('ativoLocal');
+  if (!select) return;
+  select.innerHTML = '<option value="">Selecione</option>';
+  locais.forEach(l => {
+    const opt = document.createElement('option');
+    opt.value = l.id;
+    opt.textContent = l.nome;
+    select.appendChild(opt);
   });
 }
 
 function updateAtivoDropdown(ativos) {
-  const ativoSelect = document.getElementById('servicoAtivo');
-  if (!ativoSelect) return;
-  ativoSelect.innerHTML = '<option value="">Selecione</option>';
-  ativos.forEach(ativo => {
-    const option = document.createElement('option');
-    option.value = ativo.id;
-    option.textContent = ativo.nome;
-    ativoSelect.appendChild(option);
+  const select = document.getElementById('servicoAtivo');
+  if (!select) return;
+  select.innerHTML = '<option value="">Selecione</option>';
+  ativos.forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = a.nome;
+    select.appendChild(opt);
   });
 }
 
 function updateUsuarioDropdown(usuarios) {
-  const usuarioSelect = document.getElementById('servicoUsuario');
-  if (!usuarioSelect) return;
-  usuarioSelect.innerHTML = '<option value="">Selecione</option>';
-  usuarios.forEach(usuario => {
-    const option = document.createElement('option');
-    option.value = usuario.id;
-    option.textContent = usuario.nome;
-    usuarioSelect.appendChild(option);
+  const select = document.getElementById('servicoUsuario');
+  if (!select) return;
+  select.innerHTML = '<option value="">Selecione</option>';
+  usuarios.forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u.id;
+    opt.textContent = u.nome;
+    select.appendChild(opt);
   });
 }
 
 function updateTipoServicoDropdown(tipos) {
-  const tipoSelect = document.getElementById('servicoTipo');
-  if (!tipoSelect) return;
-  tipoSelect.innerHTML = '<option value="">Selecione</option>';
-  tipos.forEach(tipo => {
-    const option = document.createElement('option');
-    option.value = tipo.id;
-    option.textContent = tipo.nome;
-    tipoSelect.appendChild(option);
+  const select = document.getElementById('servicoTipo');
+  if (!select) return;
+  select.innerHTML = '<option value="">Selecione</option>';
+  tipos.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = t.nome;
+    select.appendChild(opt);
   });
 }
 
+/* Exporta funções globais */
 window.askForDelete = askForDelete;
 window.showNotification = showNotification;
 window.clearForm = clearForm;
@@ -357,6 +310,7 @@ window.updateTipoServicoDropdown = updateTipoServicoDropdown;
 window.refreshAllDropdowns = refreshAllDropdowns;
 window.navigateToSection = navigateToSection;
 
+/* Inicialização */
 window.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
 
@@ -368,4 +322,3 @@ window.addEventListener('DOMContentLoaded', () => {
     showLoginPage();
   }
 });
-

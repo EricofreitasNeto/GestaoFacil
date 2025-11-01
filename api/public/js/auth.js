@@ -1,4 +1,4 @@
-﻿/* Fluxo de autenticaÃ§Ã£o e controle de layout vinculado ao usuÃ¡rio */
+﻿/* Fluxo de autenticação e controle de layout vinculado ao usuário */
 
 const loginPage = document.getElementById('login-page');
 const registerPage = document.getElementById('register-page');
@@ -21,11 +21,8 @@ function setStatus(element, message, type = 'info') {
   if (!element) return;
   element.textContent = message;
   element.className = `api-status ${type !== 'info' ? type : ''}`.trim();
-  if (message) {
-    element.classList.add('show');
-  } else {
-    element.classList.remove('show');
-  }
+  if (message) element.classList.add('show');
+  else element.classList.remove('show');
 }
 
 async function handleLogin(event) {
@@ -46,10 +43,7 @@ async function handleLogin(event) {
     });
 
     const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Erro ao fazer login');
-    }
+    if (!response.ok) throw new Error(data.message || 'Erro ao fazer login');
 
     authToken = data.token;
     localStorage.setItem('authToken', authToken);
@@ -64,14 +58,10 @@ async function handleLogin(event) {
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
     showMainLayout();
-    if (typeof loadDashboardData === 'function') {
-      loadDashboardData();
-    }
-    if (typeof refreshAllDropdowns === 'function') {
-      refreshAllDropdowns();
-    }
+    if (typeof loadDashboardData === 'function') loadDashboardData();
+    if (typeof refreshAllDropdowns === 'function') refreshAllDropdowns();
   } catch (error) {
-    setStatus(loginStatus, error.message || 'Erro de conexÃ£o. Tente novamente.', 'error');
+    setStatus(loginStatus, error.message || 'Erro de conexão. Tente novamente.', 'error');
   } finally {
     loginText.style.display = 'inline-block';
     loginLoading.style.display = 'none';
@@ -89,7 +79,7 @@ async function handleRegister(event) {
   const confirmPassword = document.getElementById('register-confirm-password').value;
 
   if (password !== confirmPassword) {
-    setStatus(registerStatus, 'As senhas nÃ£o coincidem.', 'error');
+    setStatus(registerStatus, 'As senhas não coincidem.', 'error');
     return;
   }
 
@@ -105,19 +95,14 @@ async function handleRegister(event) {
     });
 
     const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Erro ao criar conta');
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Erro ao criar conta');
-    }
-
-    setStatus(registerStatus, 'Conta criada com sucesso! FaÃ§a login para continuar.', 'success');
+    setStatus(registerStatus, 'Conta criada com sucesso! Faça login para continuar.', 'success');
     registerForm.reset();
 
-    setTimeout(() => {
-      showLoginPage();
-    }, 1500);
+    setTimeout(() => showLoginPage(), 1500);
   } catch (error) {
-    setStatus(registerStatus, error.message || 'Erro de conexÃ£o. Tente novamente.', 'error');
+    setStatus(registerStatus, error.message || 'Erro de conexão. Tente novamente.', 'error');
   } finally {
     registerText.style.display = 'inline-block';
     registerLoading.style.display = 'none';
@@ -126,12 +111,10 @@ async function handleRegister(event) {
 
 function handleLogout(event) {
   if (event) event.preventDefault();
-
   authToken = null;
   currentUser = {};
   localStorage.removeItem('authToken');
   localStorage.removeItem('currentUser');
-
   showLoginPage();
 }
 
@@ -161,44 +144,23 @@ function showMainLayout() {
     userRoleBadge.textContent = currentUser.cargo;
     let badgeClass = 'bg-secondary';
     switch (currentUser.cargo) {
-      case 'admin':
-        badgeClass = 'bg-danger';
-        break;
-      case 'tecnico':
-        badgeClass = 'bg-warning text-dark';
-        break;
-      case 'usuario':
-        badgeClass = 'bg-info text-dark';
-        break;
+      case 'admin': badgeClass = 'bg-danger'; break;
+      case 'tecnico': badgeClass = 'bg-warning text-dark'; break;
+      case 'usuario': badgeClass = 'bg-info text-dark'; break;
     }
     userRoleBadge.className = `badge ${badgeClass} role-badge`;
     updateUIForUserRole(currentUser.cargo);
   }
 
-  if (typeof navigateToSection === 'function') {
-    navigateToSection('dashboard');
-  }
+  if (typeof navigateToSection === 'function') navigateToSection('dashboard');
 }
 
 function updateUIForUserRole(role) {
   const adminMenus = document.querySelectorAll('.admin-only');
   const adminButtons = document.querySelectorAll('.btn-admin-only');
 
-  adminMenus.forEach(menu => {
-    if (role === 'admin') {
-      menu.classList.add('visible');
-    } else {
-      menu.classList.remove('visible');
-    }
-  });
-
-  adminButtons.forEach(button => {
-    if (role === 'admin') {
-      button.classList.add('visible');
-    } else {
-      button.classList.remove('visible');
-    }
-  });
+  adminMenus.forEach(menu => menu.classList.toggle('visible', role === 'admin'));
+  adminButtons.forEach(button => button.classList.toggle('visible', role === 'admin'));
 }
 
 window.handleLogin = handleLogin;
@@ -212,4 +174,3 @@ window.registerLink = registerLink;
 window.backToLogin = backToLogin;
 window.loginForm = loginForm;
 window.registerForm = registerForm;
-
