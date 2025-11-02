@@ -193,6 +193,89 @@ Aberto → Em andamento → Concluído → Encerrado
 
 Instale:
 
+---
+
+## 🔄 Mudanças Recentes Importantes
+
+- Alinhamento do sequelize-cli
+  - Adicionados `.sequelizerc` e `config/config.js` para apontar `models`, `migrations` e `seeders` e ler `.env`.
+  - Comandos: `npx sequelize-cli db:migrate`, `npx sequelize-cli db:seed:all`.
+
+- Migrations e Regras de Integridade
+  - Índices únicos com soft delete: garantem unicidade considerando `deletedAt`.
+  - Trigger: bloqueia criar/atualizar serviço para ativo inativo/soft-deletado.
+  - NOT NULL + FK: `Servicos.ativoId` agora é obrigatório e referencia `Ativos(id)`.
+  - Função de criação: `create_servico(...)` centraliza validações no Postgres e retorna o `id` criado.
+
+- Seeds de dados
+  - `src/seeders/*` para Locais, Clientes, Tipos de Serviço, Usuários, Ativos e Serviços.
+  - Idempotentes: removem registros-alvo antes de inserir.
+
+- Scripts úteis (npm scripts)
+  - `npm run seed` / `npm run seed:undo`: popular/desfazer dados.
+  - `npm run inspect:relations`: imprime relações via Sequelize com includes.
+  - `npm run inspect:orphans`: lista serviços com `ativoId` nulo.
+  - `npm run test:create-servico`: exemplo de uso da função `create_servico` via Sequelize.
+  - `npm run set-icon`: aplica ícone ao executável (Windows).
+
+---
+
+## 🧩 Criação de Serviço via Banco (create_servico)
+
+- Endpoint `POST /v1/servicos` agora chama a função SQL `create_servico` (validações no DB):
+  - Exige `descricao` e `ativoId`.
+  - Infere `clienteId` do `ativoId` quando omitido.
+  - Valida `usuarioId` e `tipoServicoId` quando enviados.
+  - Bloqueia criação para ativo inativo/soft-deletado.
+  - `dataConclusao` não é aceita na criação.
+
+Exemplo de body:
+
+```
+{
+  "descricao": "Visita técnica",
+  "ativoId": 6,
+  "usuarioId": 6,
+  "tipoServicoId": 1,
+  "status": "pendente",
+  "dataAgendada": "2025-11-05T10:00:00.000Z",
+  "detalhes": { "prioridade": "alta", "origem": "portal" }
+}
+```
+
+Uso direto via Sequelize:
+
+```
+const { sequelize } = require('@models');
+const rows = await sequelize.query(
+  'SELECT create_servico(:descricao, :ativoId, :status, :clienteId, :usuarioId, :tipoServicoId, :dataAgendada, :detalhes) AS id',
+  { replacements: { descricao, ativoId, status: 'pendente', clienteId: null, usuarioId, tipoServicoId, dataAgendada, detalhes: JSON.stringify({ prioridade: 'alta' }) }, type: sequelize.QueryTypes.SELECT }
+);
+```
+
+---
+
+## 🧪 Verificação Rápida
+
+- Migrar: `npx sequelize-cli db:migrate`
+- Seed: `npm run seed`
+- Inspecionar relações: `npm run inspect:relations`
+- Testar criação via função: `npm run test:create-servico`
+
+---
+
+## 🛠️ Manutenção Administrativa
+
+- Endpoint: `POST /v1/servicos/admin/fix-client-services`
+  - Requer role admin e JWT.
+  - Body:
+    - `clienteId` (int, obrigatório)
+    - `numeroSerie` (string, obrigatório)
+    - `nome` (string, opcional)
+  - Ação: cria (ou reaproveita) um ativo para o cliente e realoca serviços desse cliente que estejam sem ativo ou com ativo de outro cliente.
+  - Query param opcional:
+    - `dryRun=true` — não altera nada; retorna a ação prevista (criar/reaproveitar ativo) e a lista de serviços que seriam atualizados.
+
 ```bash
 npm install swagger-ui-express swagger-jsdoc
 ```

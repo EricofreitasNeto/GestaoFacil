@@ -1,4 +1,4 @@
-﻿const { Ativo, Local, Cliente } = require("../models");
+﻿const { Ativo, Local, Cliente, Servico } = require("../models");
 const { Op } = require("sequelize");
 
 const ALLOWED_STATUS = ["ativo", "manutencao", "inativo"]; // valores aceitos
@@ -89,6 +89,13 @@ const ativoController = {
       const { id } = req.params;
       const ativo = await Ativo.findByPk(id);
       if (!ativo) return res.status(404).json({ message: "Ativo nÃ£o encontrado" });
+
+      
+      // Bloqueia desativacao se houver servicos vinculados nao deletados
+      const hasServicos = await require('../models').Servico.findOne({ where: { ativoId: id } });
+      if (hasServicos) {
+        return res.status(400).json({ message: 'Nao e permitido desativar o ativo enquanto houver servicos vinculados.' });
+      }
 
       await ativo.destroy(); // com paranoid: true, isso faz soft delete
       return res.status(200).json({ message: "Ativo desativado com sucesso" });

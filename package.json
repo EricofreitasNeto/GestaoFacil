@@ -1,9 +1,9 @@
 {
   "name": "gestao-facil",
   "version": "1.0.0",
-  "description": "Este projeto tem como objetivo oferecer uma estrutura completa para o gerenciamento de ativos, serviços técnicos e fluxo operacional com controle de SLA.",
+  "description": "Este projeto tem como objetivo oferecer uma estrutura completa para o gerenciamento de ativos, servi??os t??cnicos e fluxo operacional com controle de SLA.",
   "keywords": [
-    "gestão",
+    "gest??o",
     "API",
     "Node",
     "PostgreSQL",
@@ -23,8 +23,14 @@
   "scripts": {
     "dev": "nodemon api/app.js",
     "start": "node api/app.js",
-     "build": "echo 'Build não é mais necessário com pkg'",
-    "test": "echo \"No tests yet\""
+    "build": "echo 'Build n??o ?? mais necess??rio com pkg'",
+    "test": "echo \"No tests yet\"",
+    "set-icon": "node scripts/set-icon.js",
+    "seed": "npx sequelize-cli db:seed:all",
+    "seed:undo": "npx sequelize-cli db:seed:undo:all",
+    "inspect:relations": "node scripts/inspect-relations.js",
+    "inspect:orphans": "node scripts/inspect-orphans.js",
+    "test:create-servico": "node scripts/test-create-servico.js"
   },
   "_moduleAliases": {
     "@models": "src/models",
@@ -74,7 +80,8 @@
     "esbuild": "^0.25.9",
     "jest": "^29.7.0",
     "nodemon": "^3.1.0",
-    "rcedit": "^4.0.1"
+    "rcedit": "^4.0.1",
+    "sequelize-cli": "^6.6.3"
   },
   "engines": {
     "node": ">=18.0.0"

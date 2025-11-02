@@ -22,10 +22,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: true
     },
-    ativoId: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
     detalhes: {
       type: DataTypes.JSON, // 🔹 dados adicionais e variáveis
       allowNull: true,
@@ -45,3 +41,4 @@ module.exports = (sequelize, DataTypes) => {
 
   return Servico;
 };
+

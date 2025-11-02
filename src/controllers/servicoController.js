@@ -1,7 +1,7 @@
-Ôªøconst { Servico, Cliente, Usuario, Ativo, TipoServico } = require("../models");
+const { Servico, Cliente, Usuario, Ativo, TipoServico } = require("../models");
 
 const servicoController = {
-  // Listar todos os servi√ßos com seus relacionamentos
+  // Listar todos os serviÁos com seus relacionamentos
   async listar(req, res) {
     try {
       const servicos = await Servico.findAll({
@@ -14,11 +14,11 @@ const servicoController = {
       });
       return res.status(200).json(servicos);
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao listar servi√ßos", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao listar serviÁos", detalhes: error.message });
     }
   },
 
-  // Buscar servi√ßo por ID
+  // Buscar serviÁo por ID
   async buscarPorId(req, res) {
     try {
       const { id } = req.params;
@@ -30,14 +30,14 @@ const servicoController = {
           { model: TipoServico, as: "tipoServico" }
         ]
       });
-      if (!servico) return res.status(404).json({ message: "Servi√ßo n√£o encontrado" });
+      if (!servico) return res.status(404).json({ message: "ServiÁo n„o encontrado" });
       return res.status(200).json(servico);
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao buscar servi√ßo", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao buscar serviÁo", detalhes: error.message });
     }
   },
 
-  // Criar novo servi√ßo
+  // Criar novo serviÁo
   async criar(req, res) {
     try {
       const {
@@ -52,15 +52,15 @@ const servicoController = {
         tipoServicoId
       } = req.body;
 
-      // Valida√ß√£o: n√£o permitir criar servi√ßo para ativo inativo ou soft-deletado
+      // ValidaÁ„o: n„o permitir criar serviÁo para ativo inativo ou soft-deletado
       if (ativoId) {
         const ativo = await Ativo.findByPk(ativoId, { paranoid: false, attributes: ['id', 'status', 'deletedAt'] });
         if (!ativo) {
-          return res.status(400).json({ message: 'Ativo informado √© inv√°lido' });
+          return res.status(400).json({ message: 'Ativo informado È inv·lido' });
         }
         const st = String(ativo.status || '').toLowerCase();
         if (ativo.deletedAt || st === 'inativo') {
-          return res.status(400).json({ message: 'N√£o √© permitido criar servi√ßo para ativo desativado' });
+          return res.status(400).json({ message: 'N„o È permitido criar serviÁo para ativo desativado' });
         }
       }
 
@@ -78,11 +78,11 @@ const servicoController = {
 
       return res.status(201).json(novoServico);
     } catch (error) {
-      return res.status(400).json({ message: "Erro ao criar servi√ßo", detalhes: error.message });
+      return res.status(400).json({ message: "Erro ao criar serviÁo", detalhes: error.message });
     }
   },
 
-  // Atualizar servi√ßo existente
+  // Atualizar serviÁo existente
   async atualizar(req, res) {
     try {
       const { id } = req.params;
@@ -99,17 +99,17 @@ const servicoController = {
       } = req.body;
 
       const servico = await Servico.findByPk(id);
-      if (!servico) return res.status(404).json({ message: "Servi√ßo n√£o encontrado" });
+      if (!servico) return res.status(404).json({ message: "ServiÁo n„o encontrado" });
 
-      // Valida√ß√£o: se ativoId foi informado, n√£o permitir apontar para ativo inativo/soft-deletado
+      // ValidaÁ„o: se ativoId foi informado, n„o permitir apontar para ativo inativo/soft-deletado
       if (typeof ativoId !== 'undefined' && ativoId !== null) {
         const ativo = await Ativo.findByPk(ativoId, { paranoid: false, attributes: ['id', 'status', 'deletedAt'] });
         if (!ativo) {
-          return res.status(400).json({ message: 'Ativo informado √© inv√°lido' });
+          return res.status(400).json({ message: 'Ativo informado È inv·lido' });
         }
         const st = String(ativo.status || '').toLowerCase();
         if (ativo.deletedAt || st === 'inativo') {
-          return res.status(400).json({ message: 'N√£o √© permitido atualizar servi√ßo para ativo desativado' });
+          return res.status(400).json({ message: 'N„o È permitido atualizar serviÁo para ativo desativado' });
         }
       }
 
@@ -127,24 +127,81 @@ const servicoController = {
 
       return res.status(200).json(servico);
     } catch (error) {
-      return res.status(400).json({ message: "Erro ao atualizar servi√ßo", detalhes: error.message });
+      return res.status(400).json({ message: "Erro ao atualizar serviÁo", detalhes: error.message });
     }
   },
 
-  // Desativar servi√ßo (soft delete)
+  // Desativar serviÁo (soft delete)
   async desativar(req, res) {
     try {
       const { id } = req.params;
       const servico = await Servico.findByPk(id);
-      if (!servico) return res.status(404).json({ message: "Servi√ßo n√£o encontrado" });
+      if (!servico) return res.status(404).json({ message: "ServiÁo n„o encontrado" });
 
       await servico.destroy(); // com paranoid: true, isso faz soft delete
-      return res.status(200).json({ message: "Servi√ßo desativado com sucesso" });
+      return res.status(200).json({ message: "ServiÁo desativado com sucesso" });
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao desativar servi√ßo", detalhes: error.message });
+      return res.status(500).json({ message: "Erro ao desativar serviÁo", detalhes: error.message });
+    }
+  },
+
+  // Criar novo serviÁo usando funÁ„o do banco (create_servico)
+  async criarDb(req, res) {
+    try {
+      const {
+        descricao,
+        status,
+        dataAgendada,
+        detalhes,
+        clienteId,
+        usuarioId,
+        ativoId,
+        tipoServicoId
+      } = req.body;
+
+      if (!descricao || !ativoId) {
+        return res.status(400).json({ message: 'Campos obrigatÛrios: descricao, ativoId' });
+      }
+
+      let detalhesValue = detalhes;
+      if (detalhes && typeof detalhes === 'object') {
+        try { detalhesValue = JSON.stringify(detalhes); } catch (_) { detalhesValue = '{}'; }
+      }
+
+      const { sequelize } = require('../models');
+      const rows = await sequelize.query(
+        `SELECT create_servico(:descricao, :ativoId, :status, :clienteId, :usuarioId, :tipoServicoId, :dataAgendada, :detalhes) AS id`,
+        {
+          replacements: {
+            descricao,
+            ativoId,
+            status: status || 'pendente',
+            clienteId: Number.isInteger(clienteId) ? clienteId : null,
+            usuarioId: Number.isInteger(usuarioId) ? usuarioId : null,
+            tipoServicoId: Number.isInteger(tipoServicoId) ? tipoServicoId : null,
+            dataAgendada: dataAgendada || null,
+            detalhes: detalhesValue || '{}'
+          },
+          type: sequelize.QueryTypes.SELECT
+        }
+      );
+
+      const servicoId = rows[0]?.id ?? rows.id;
+      const criado = await Servico.findByPk(servicoId, {
+        include: [
+          { model: Cliente, as: 'cliente' },
+          { model: Usuario, as: 'responsavel' },
+          { model: Ativo, as: 'ativo' },
+          { model: TipoServico, as: 'tipoServico' }
+        ]
+      });
+      return res.status(201).json(criado);
+    } catch (error) {
+      return res.status(400).json({ message: 'Erro ao criar serviÁo (DB)', detalhes: error.message });
     }
   }
 };
 
 module.exports = servicoController;
+
 

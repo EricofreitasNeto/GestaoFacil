@@ -138,7 +138,11 @@ async function deleteAtivo(id) {
     showNotification('ativos-status', res?.message || 'Ativo removido com sucesso!', true);
     loadAtivos(currentPage.ativos || 1);
   } catch (error) {
-    showNotification('ativos-status', `Erro ao remover ativo: ${error.message}`, false);
+    if (error?.status === 400) {
+      showNotification('ativos-status', 'Não é permitido remover o ativo: verifique se não há serviços vinculados e se o status do ativo está "inativo".', false);
+    } else {
+      showNotification('ativos-status', `Erro ao remover ativo: ${error.message}`, false);
+    }
   }
 }
 
