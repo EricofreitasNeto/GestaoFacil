@@ -373,6 +373,8 @@ window.navigateToSection = navigateToSection;
 /* Inicialização */
 window.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
+  // Ajusta o estado inicial da sidebar conforme a largura atual
+  try { handleResponsiveSidebar(); } catch (_) {}
 
   if (authToken) {
     showMainLayout();

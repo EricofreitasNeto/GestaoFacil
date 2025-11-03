@@ -270,3 +270,52 @@ body {
     border: 2px solid var(--dark-bg);
   }
 }
+
+/* ===================== RESPONSIVIDADE DE LAYOUT ===================== */
+/* Mobile: sidebar off-canvas e conteúdo ocupa a largura total */
+@media (max-width: 767.98px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    transform: translateX(-100%);
+    transition: var(--transition);
+    box-shadow: none;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 6px 0 24px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  /* Overlay enquanto o menu está aberto */
+  .sidebar.mobile-open ~ .main-content::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 900;
+  }
+}
+
+/* Tablet: sidebar compacta por padrão, conteúdo ajustado */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .sidebar {
+    width: var(--sidebar-collapsed);
+  }
+  .main-content {
+    margin-left: var(--sidebar-collapsed);
+  }
+  /* Esconde textos para caber melhor */
+  .sidebar .sidebar-logo h2,
+  .sidebar .nav-link span {
+    display: none;
+  }
+}
