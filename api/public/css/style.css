@@ -272,6 +272,31 @@ body {
 }
 
 /* ===================== RESPONSIVIDADE DE LAYOUT ===================== */
+/* Desktop (>=992px): ao colapsar, esconder textos e centralizar ícones */
+.sidebar.collapsed .sidebar-logo h2,
+.sidebar.collapsed .nav-link span {
+  display: none;
+}
+.sidebar.collapsed .nav-link {
+  text-align: center;
+  padding: 12px 0; /* mais compacto no colapso */
+}
+.sidebar.collapsed .nav-link i {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Rodapé da sidebar no modo colapsado: mostrar só ícone */
+.sidebar.collapsed .sidebar-footer .btn {
+  padding: 12px 0;
+  font-size: 0; /* oculta texto */
+  text-align: center;
+}
+.sidebar.collapsed .sidebar-footer .btn i {
+  font-size: 1.1rem; /* mantém ícone visível */
+  margin: 0;
+}
+
 /* Mobile: sidebar off-canvas e conteúdo ocupa a largura total */
 @media (max-width: 767.98px) {
   .sidebar {
