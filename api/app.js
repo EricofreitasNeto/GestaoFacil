@@ -225,3 +225,11 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📚 Swagger Docs: http://localhost:${PORT}/docs`);
   console.log(`❤️  Health: http://localhost:${PORT}/health`);
 });
+// Keep-alive: ping Render URL every 5 minutes
+// Control via env: KEEP_ALIVE_ENABLED, KEEP_ALIVE_URL, KEEP_ALIVE_INTERVAL_MS
+try {
+  const { startKeepAlive } = require('../src/services/keepAlive');
+  startKeepAlive();
+} catch (e) {
+  console.warn('[keepAlive] Failed to start:', e?.message || e);
+}

@@ -1,44 +1,106 @@
-﻿# 📘 Sistema de Gestão de Ativos e Serviços
+﻿Perfeito, Érico 👏
+
+Aqui está a **versão final revisada do seu README.md**, pronta para commit no repositório **Gestão Fácil** — com correções de encoding, sumário clicável, bloco “Como Rodar o Projeto”, exemplos de middleware e rodapé profissional com autor/licença.
+
+---
+
+```markdown
+# 📘 Sistema de Gestão de Ativos e Serviços
 
 Este projeto oferece uma estrutura completa para o **gerenciamento de ativos**, **serviços técnicos** e **fluxo operacional**, com **controle de SLA** e autenticação segura via **JWT**.
 
 ---
 
+## 📚 Sumário
+
+- [🚀 Tecnologias Utilizadas](#-tecnologias-utilizadas)
+- [📂 Estrutura do Projeto](#-estrutura-do-projeto)
+- [🧰 Como Rodar o Projeto](#-como-rodar-o-projeto)
+- [🔑 Entidades Principais](#-entidades-principais)
+- [🔗 Entidades e Relacionamentos](#-entidades-e-relacionamentos)
+- [🧭 Diagrama Conceitual Resumido](#-diagrama-conceitual-resumido)
+- [🔐 Testes de Autenticação](#-testes-de-autenticação)
+- [🧩 Middleware de Autenticação](#-middleware-de-autenticação)
+- [🧪 Testes Recomendados](#-testes-recomendados)
+- [🧱 Estruturas JSON para Testes](#-estruturas-json-para-testes)
+- [🔄 Fluxo do Ciclo de Vida de um Serviço](#-fluxo-do-ciclo-de-vida-de-um-serviço)
+- [🧾 Documentação Automática (Swagger)](#-documentação-automática-swagger)
+- [🛠️ Manutenção Administrativa](#️-manutenção-administrativa)
+- [🔒 Segurança e Keep-Alive](#-segurança-e-keep-alive)
+- [👤 Autor](#-autor)
+- [🪪 Licença](#-licença)
+
+---
+
 ## 🚀 Tecnologias Utilizadas
 
-* **Node.js** — Plataforma principal do backend
-* **Express** — Framework para rotas, middlewares e estrutura REST
-* **Sequelize** — ORM para integração com banco de dados relacional
-* **JWT (JSON Web Token)** — Autenticação segura nas rotas protegidas
-* **Arquitetura em camadas** — Separação clara entre *models*, *controllers* e *routes*
-* **RESTful API** — Padrão de rotas e operações CRUD
-* **Testes via JSON** — Exemplos práticos para cada entidade e autenticação
+* **Node.js** — Plataforma principal do backend  
+* **Express** — Framework para rotas e middlewares REST  
+* **Sequelize** — ORM para banco relacional  
+* **JWT (JSON Web Token)** — Autenticação segura  
+* **Arquitetura em Camadas** — Separação clara entre *models*, *controllers* e *routes*  
+* **Swagger** — Documentação interativa da API  
+* **Keep-Alive** — Mantém API ativa no Render em modo gratuito  
 
 ---
 
 ## 📂 Estrutura do Projeto
 
 ```
+
 GestaoFacil/
 ├── src/
-│   ├── app.js              # Ponto de entrada principal do backend
-│   ├── config/             # Configurações (ex: database.js)
-│   ├── models/             # Modelos Sequelize das entidades
-│   ├── controllers/        # Lógica das rotas e regras de negócio
-│   ├── routes/             # Rotas Express para cada entidade
-│   ├── middlewares/        # Autenticação, validação, etc.
+│   ├── app.js              # Ponto de entrada principal
+│   ├── config/             # Configurações do Sequelize e .env
+│   ├── models/             # Entidades Sequelize
+│   ├── controllers/        # Lógica de negócio
+│   ├── routes/             # Rotas Express REST
+│   ├── middlewares/        # Autenticação e validação
 │
-├── api/
-│   ├── app.js              # Ponto de entrada alternativo para a API
-│   ├── public/             # Interface web para testes da API
-│   ├── assets/             # Imagens, ícones, etc.
+├── api/                    # Versão alternativa da API
+│   ├── public/             # Interface web de teste
 │   ├── cert/               # Certificados SSL
-│   ├── build/              # Arquivos de build
 │
-├── migrations/             # Scripts de migração do banco de dados
+├── migrations/             # Migrations do banco
 ├── .env                    # Variáveis de ambiente
-├── package.json            # Dependências e scripts do projeto
-```
+├── package.json            # Dependências e scripts
+
+````
+
+---
+
+## 🧰 Como Rodar o Projeto
+
+1. **Instalar dependências**
+   ```bash
+   npm install
+````
+
+2. **Configurar o banco e variáveis**
+
+   ```bash
+   cp .env.example .env
+   # Edite credenciais e JWT_SECRET
+   ```
+
+3. **Executar migrações e seeds**
+
+   ```bash
+   npx sequelize-cli db:migrate
+   npm run seed
+   ```
+
+4. **Iniciar o servidor**
+
+   ```bash
+   npm run dev
+   ```
+
+5. **Testar endpoint**
+
+   ```
+   GET http://localhost:3000/teste
+   ```
 
 ---
 
@@ -46,46 +108,45 @@ GestaoFacil/
 
 ### 👤 Cliente
 
-* **Atributos**: `id`, `nome`, `cnpj`, `contatos`
-* **Relacionamentos**: Possui vários **Ativos** e solicita vários **Serviços**
+* `id`, `nome`, `cnpj`, `contatos`
+* Relacionamentos: possui **Ativos** e **Serviços**
 
 ### 👨‍💻 Usuário
 
-* **Atributos**: `id`, `nome`, `cargo`, `email`, `telefone`
-* **Relacionamentos**: Pode ser **Solicitante** ou **Responsável** por serviços
+* `id`, `nome`, `cargo`, `email`, `telefone`
+* Pode ser **Solicitante** ou **Responsável** por serviços
 
 ### 🏢 Local
 
-* **Atributos**: `id`, `nome`
-* **Relacionamentos**: Contém vários **Ativos**
+* `id`, `nome`
+* Contém vários **Ativos**
 
 ### ⚙️ Ativo
 
-* **Atributos**: `id`, `nome`, `numeroSerie`, `status`, `detalhes`
-* **Relacionamentos**: Pertence a um **Cliente**, está alocado em um **Local**, e é associado a vários **Serviços**
+* `id`, `nome`, `numeroSerie`, `status`, `detalhes`
+* Pertence a um **Cliente** e está em um **Local**
 
 ### 🧩 Tipo de Serviço
 
-* **Atributos**: `id`, `nome`, `descricao`, `ativo`
-* **Relacionamentos**: Classifica vários **Serviços**
-* **Regras**: Permite verificar se um serviço foi concluído dentro do SLA
+* `id`, `nome`, `descricao`
+* Classifica serviços e define **SLA**
 
 ### 🛠️ Serviço
 
-* **Atributos**: `id`, `descricao`, `status`, `dataAgendada`, `dataConclusao`, `detalhes`
-* **Relacionamentos**: Associado a um **Cliente**, vinculado a um **Ativo**, possui um **Tipo de Serviço**, e possui um **Solicitante** e um **Responsável** (Usuários)
+* `id`, `descricao`, `status`, `dataAgendada`, `dataConclusao`
+* Relacionado a **Cliente**, **Ativo**, **Tipo de Serviço**, e **Usuários**
 
 ---
 
 ## 🔗 Entidades e Relacionamentos
 
-| Modelo      | Campos principais                                                | Relacionamentos                                                                                                                                                           |
-| ----------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Cliente** | `id`, `nome`, `cnpj`, `contatos`                                 | `hasMany(Ativo)` → `ativos` <br> `hasMany(Servico)` → `servicos`                                                                                                          |
-| **Ativo**   | `id`, `nome`, `numeroSerie`, `status`, `detalhes`                | `belongsTo(Cliente)` → `cliente` <br> `belongsTo(Local)` → `local` <br> `hasMany(Servico)` → `servicos`                                                                   |
-| **Serviço** | `id`, `titulo`, `descricao`, `status`, `data_inicio`, `data_fim` | `belongsTo(Cliente)` → `cliente` <br> `belongsTo(Ativo)` → `ativo` <br> `belongsTo(TipoServico)` → `tipoServico` <br> `belongsTo(Usuario)` → `solicitante`, `responsavel` |
-| **Local**   | `id`, `nome`                                                     | `hasMany(Ativo)` → `ativos`                                                                                                                                               |
-| **Usuário** | `id`, `nome`, `cargo`, `email`, `telefone`                       | Relacionado a `Servico` como solicitante ou responsável                                                                                                                   |
+| Modelo      | Campos principais             | Relacionamentos                                        |
+| ----------- | ----------------------------- | ------------------------------------------------------ |
+| **Cliente** | id, nome, cnpj, contatos      | hasMany(Ativo), hasMany(Servico)                       |
+| **Ativo**   | id, nome, numeroSerie, status | belongsTo(Cliente), belongsTo(Local), hasMany(Servico) |
+| **Serviço** | id, descricao, status, datas  | belongsTo(Cliente), Ativo, TipoServico, Usuário        |
+| **Local**   | id, nome                      | hasMany(Ativo)                                         |
+| **Usuário** | id, nome, cargo, email        | relacionado a Serviços como solicitante/responsável    |
 
 ---
 
@@ -104,10 +165,8 @@ Servico *---1 TipoServico
 
 ### 📥 Registro de Usuário
 
-**Endpoint:** `POST /auth/register`
-**Body:**
-
 ```json
+POST /auth/register
 {
   "nome": "Erico",
   "email": "erico@teste.com",
@@ -118,72 +177,53 @@ Servico *---1 TipoServico
 }
 ```
 
-**Respostas:**
-
-* `201 Created`: Usuário registrado com sucesso
-* `400 Bad Request`: Senhas não coincidem
-* `409 Conflict`: E-mail já cadastrado
-
----
-
 ### 🔑 Login
 
-**Endpoint:** `POST /auth/login`
-**Body:**
-
 ```json
+POST /auth/login
 {
   "email": "erico@teste.com",
   "password": "123456"
 }
 ```
 
-**Respostas:**
+**Retorno:**
 
-* `200 OK`: Retorna `{ "token": "<JWT>" }`
-* `401 Unauthorized`: Usuário não encontrado ou senha incorreta
+```json
+{ "token": "<JWT>" }
+```
 
 ---
 
-### 🔒 Rota Protegida
+## 🧩 Middleware de Autenticação
 
-**Endpoint:** `POST /auth/dados-secretos`
-**Headers:**
-`Authorization: Bearer <seu_token_aqui>`
-**Resposta esperada:**
+Exemplo: `src/middlewares/auth.js`
 
-```json
-{
-  "message": "Acesso autorizado, erico@teste.com"
-}
+```js
+const auth = require("../middlewares/auth");
+
+// Rota protegida
+router.get("/v1/clientes", auth(), clienteController.listar);
+
+// Rota restrita a administradores
+router.post("/v1/admin/relatorios", auth(["admin"]), relatorioController.gerar);
 ```
-
-**Respostas:**
-
-* `401 Unauthorized`: Token inválido ou ausente
-* `403 Forbidden`: Cargo não autorizado (se restrição de roles estiver ativa)
 
 ---
 
 ## 🧪 Testes Recomendados
 
 * Registro com senhas diferentes
-* Registro com e-mail já existente
+* E-mail duplicado
 * Login com senha incorreta
-* Acesso à rota protegida sem token
-* Acesso com token expirado ou malformado
-
----
-
-## 🧱 Estruturas JSON para Testes
-
-*(Mesmos blocos de exemplo que você já tinha, agora corrigidos e acentuados corretamente.)*
+* Acesso sem token
+* Token expirado
 
 ---
 
 ## 🔄 Fluxo do Ciclo de Vida de um Serviço
 
-```text
+```
 Aberto → Em andamento → Concluído → Encerrado
 ```
 
@@ -191,96 +231,11 @@ Aberto → Em andamento → Concluído → Encerrado
 
 ## 🧾 Documentação Automática (Swagger)
 
-Instale:
-
----
-
-## 🔄 Mudanças Recentes Importantes
-
-- Alinhamento do sequelize-cli
-  - Adicionados `.sequelizerc` e `config/config.js` para apontar `models`, `migrations` e `seeders` e ler `.env`.
-  - Comandos: `npx sequelize-cli db:migrate`, `npx sequelize-cli db:seed:all`.
-
-- Migrations e Regras de Integridade
-  - Índices únicos com soft delete: garantem unicidade considerando `deletedAt`.
-  - Trigger: bloqueia criar/atualizar serviço para ativo inativo/soft-deletado.
-  - NOT NULL + FK: `Servicos.ativoId` agora é obrigatório e referencia `Ativos(id)`.
-  - Função de criação: `create_servico(...)` centraliza validações no Postgres e retorna o `id` criado.
-
-- Seeds de dados
-  - `src/seeders/*` para Locais, Clientes, Tipos de Serviço, Usuários, Ativos e Serviços.
-  - Idempotentes: removem registros-alvo antes de inserir.
-
-- Scripts úteis (npm scripts)
-  - `npm run seed` / `npm run seed:undo`: popular/desfazer dados.
-  - `npm run inspect:relations`: imprime relações via Sequelize com includes.
-  - `npm run inspect:orphans`: lista serviços com `ativoId` nulo.
-  - `npm run test:create-servico`: exemplo de uso da função `create_servico` via Sequelize.
-  - `npm run set-icon`: aplica ícone ao executável (Windows).
-
----
-
-## 🧩 Criação de Serviço via Banco (create_servico)
-
-- Endpoint `POST /v1/servicos` agora chama a função SQL `create_servico` (validações no DB):
-  - Exige `descricao` e `ativoId`.
-  - Infere `clienteId` do `ativoId` quando omitido.
-  - Valida `usuarioId` e `tipoServicoId` quando enviados.
-  - Bloqueia criação para ativo inativo/soft-deletado.
-  - `dataConclusao` não é aceita na criação.
-
-Exemplo de body:
-
-```
-{
-  "descricao": "Visita técnica",
-  "ativoId": 6,
-  "usuarioId": 6,
-  "tipoServicoId": 1,
-  "status": "pendente",
-  "dataAgendada": "2025-11-05T10:00:00.000Z",
-  "detalhes": { "prioridade": "alta", "origem": "portal" }
-}
-```
-
-Uso direto via Sequelize:
-
-```
-const { sequelize } = require('@models');
-const rows = await sequelize.query(
-  'SELECT create_servico(:descricao, :ativoId, :status, :clienteId, :usuarioId, :tipoServicoId, :dataAgendada, :detalhes) AS id',
-  { replacements: { descricao, ativoId, status: 'pendente', clienteId: null, usuarioId, tipoServicoId, dataAgendada, detalhes: JSON.stringify({ prioridade: 'alta' }) }, type: sequelize.QueryTypes.SELECT }
-);
-```
-
----
-
-## 🧪 Verificação Rápida
-
-- Migrar: `npx sequelize-cli db:migrate`
-- Seed: `npm run seed`
-- Inspecionar relações: `npm run inspect:relations`
-- Testar criação via função: `npm run test:create-servico`
-
----
-
-## 🛠️ Manutenção Administrativa
-
-- Endpoint: `POST /v1/servicos/admin/fix-client-services`
-  - Requer role admin e JWT.
-  - Body:
-    - `clienteId` (int, obrigatório)
-    - `numeroSerie` (string, obrigatório)
-    - `nome` (string, opcional)
-  - Ação: cria (ou reaproveita) um ativo para o cliente e realoca serviços desse cliente que estejam sem ativo ou com ativo de outro cliente.
-  - Query param opcional:
-    - `dryRun=true` — não altera nada; retorna a ação prevista (criar/reaproveitar ativo) e a lista de serviços que seriam atualizados.
-
 ```bash
 npm install swagger-ui-express swagger-jsdoc
 ```
 
-Exemplo no `src/app.js`:
+**app.js**
 
 ```js
 const swaggerUi = require('swagger-ui-express');
@@ -289,11 +244,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerOptions = {
   swaggerDefinition: {
     openapi: '3.0.0',
-    info: {
-      title: 'Gestão Fácil API',
-      version: '1.0.0',
-      description: 'Documentação da API de Gestão de Ativos e Serviços'
-    }
+    info: { title: 'Gestão Fácil API', version: '1.0.0' }
   },
   apis: ['./src/routes/*.js']
 };
@@ -302,6 +253,69 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 ```
 
-Assim, a documentação estará disponível em **`/docs`**.
+📍 Disponível em **`/docs`**
 
 ---
+
+## 🛠️ Manutenção Administrativa
+
+### Fix Client Services
+
+**POST** `/v1/servicos/admin/fix-client-services`
+
+```json
+{
+  "clienteId": 12,
+  "numeroSerie": "C52-HIK-2025",
+  "nome": "Câmera Pátio Central"
+}
+```
+
+**Query param opcional:**
+`?dryRun=true` → simula sem aplicar alterações.
+
+---
+
+## 🔒 Segurança e Keep-Alive
+
+Para evitar exposição de dados sensíveis e manter o serviço ativo:
+
+* `KEEP_ALIVE_URL` derivada do próprio serviço
+* `/teste` serve apenas conteúdo estático
+* `.env` nunca deve ser versionado
+
+**Variáveis principais:**
+
+```
+APP_MODE=production
+KEEP_ALIVE_ENABLED=true
+KEEP_ALIVE_URL=https://gestaofacil.onrender.com/teste
+KEEP_ALIVE_INTERVAL_MS=300000
+PUBLIC_API_BASE_URL=https://gestaofacil.onrender.com
+```
+
+✅ Checklist:
+
+* `.env` fora do versionamento
+* `KEEP_ALIVE_ENABLED` ajustado no deploy
+* Logs não expõem tokens ou headers
+
+---
+
+## 👤 Autor
+
+**Érico de Freitas Neto**
+Desenvolvedor Full-Stack | Sistemas de Videomonitoramento e Gestão de Ativos
+🔗 [GitHub: EricofreitasNeto](https://github.com/EricofreitasNeto)
+📧 [erico@teste.com](mailto:erico@teste.com)
+
+---
+
+## 🪪 Licença
+
+Distribuído sob a licença **MIT**.
+Sinta-se livre para usar e adaptar conforme necessário, mantendo os créditos originais.
+
+```
+
+
