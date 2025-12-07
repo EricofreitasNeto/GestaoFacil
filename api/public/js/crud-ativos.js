@@ -94,11 +94,12 @@ async function saveAtivo() {
     detalhes = Object.keys(det).length ? det : null;
   }
 
-  let clienteId = null;
-  const role = String(currentUser?.cargo || '').trim().toLowerCase();
-  const isAdminUser = role === 'admin' || role === 'administrador';
-  if (isAdminUser) {
-    clienteId = formData.get('clienteId') ? Number(formData.get('clienteId')) : null;
+  const clienteSelect = document.getElementById('ativoCliente');
+  const rawClienteId = clienteSelect ? clienteSelect.value : null;
+  const clienteId = rawClienteId ? Number(rawClienteId) : null;
+  if (!clienteId || Number.isNaN(clienteId)) {
+    showNotification('ativos-status', 'Selecione o cliente responsável pelo ativo.', false);
+    return;
   }
 
   const payload = {

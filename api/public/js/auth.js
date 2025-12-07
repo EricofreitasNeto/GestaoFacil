@@ -56,6 +56,7 @@ async function handleLogin(event) {
       nome: payload.nome,
       email: payload.email,
       cargo: payload.cargo,
+      status: payload.status,
       clienteId: primaryClienteId ?? null,
       clienteIds: tokenClienteIds.length ? tokenClienteIds : (primaryClienteId ? [primaryClienteId] : [])
     };
@@ -77,7 +78,6 @@ async function handleRegister(event) {
 
   const nome = document.getElementById('register-name').value;
   const email = document.getElementById('register-email').value;
-  const cargo = document.getElementById('register-cargo').value;
   const telefone = document.getElementById('register-phone').value;
   const password = document.getElementById('register-password').value;
   const confirmPassword = document.getElementById('register-confirm-password').value;
@@ -95,7 +95,7 @@ async function handleRegister(event) {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, email, cargo, telefone, password, confirmPassword })
+      body: JSON.stringify({ nome, email, telefone, password, confirmPassword })
     });
 
     const data = await response.json();

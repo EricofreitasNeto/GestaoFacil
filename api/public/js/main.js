@@ -378,7 +378,9 @@ function updateAtivoDropdown(ativos) {
 }
 
 function updateUsuarioDropdown(usuarios) {
-  cachedUsuarios = (Array.isArray(usuarios) ? usuarios : []).map((usuario) => {
+  const base = Array.isArray(usuarios) ? usuarios : [];
+  const approved = base.filter((usuario) => String(usuario.status || '').toLowerCase() === 'approved');
+  cachedUsuarios = approved.map((usuario) => {
     const normalizedIds = Array.isArray(usuario.clienteIds)
       ? usuario.clienteIds
       : (Array.isArray(usuario.clientes) ? usuario.clientes.map((c) => c.id) : []);

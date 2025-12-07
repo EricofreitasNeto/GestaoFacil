@@ -17,7 +17,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     cargo: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      defaultValue: 'aguardando'
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'pending',
+      validate: {
+        isIn: [['pending', 'approved', 'rejected']]
+      }
     },
     email: {
       type: DataTypes.STRING,
@@ -46,6 +55,8 @@ module.exports = (sequelize, DataTypes) => {
   Usuario.beforeValidate((usuario) => {
     if (usuario.email) usuario.email = String(usuario.email).trim().toLowerCase();
     if (usuario.nome) usuario.nome = String(usuario.nome).trim();
+    if (usuario.cargo) usuario.cargo = String(usuario.cargo).trim();
+    if (usuario.status) usuario.status = String(usuario.status).trim().toLowerCase();
   });
 
   Usuario.beforeCreate(async (usuario) => {

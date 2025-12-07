@@ -50,9 +50,17 @@ async function saveLocal() {
   const form = document.getElementById('local-form');
   const formData = new FormData(form);
   const localId = document.getElementById('local-id').value;
+  const clienteSelect = document.getElementById('localCliente');
+  const rawClienteId = clienteSelect ? clienteSelect.value : null;
+  const clienteId = rawClienteId ? Number(rawClienteId) : null;
+  if (!clienteId || Number.isNaN(clienteId)) {
+    showNotification('locais-status', 'Selecione o cliente responsável pelo local.', false);
+    return;
+  }
+
   const payload = {
     nome: formData.get('nome'),
-    clienteId: formData.get('clienteId') ? Number(formData.get('clienteId')) : null
+    clienteId
   };
 
   try {

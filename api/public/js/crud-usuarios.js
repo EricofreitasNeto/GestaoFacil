@@ -1,10 +1,22 @@
 /* CRUD - Usuários */
 
+const STATUS_META = {
+  pending: { label: 'Pendente', badge: 'bg-warning text-dark' },
+  approved: { label: 'Aprovado', badge: 'bg-success' },
+  rejected: { label: 'Rejeitado', badge: 'bg-secondary' }
+};
+
 const formatUsuarioClientes = (usuario) => {
   if (Array.isArray(usuario?.clientes) && usuario.clientes.length) {
     return usuario.clientes.map((c) => c.nome).join(', ');
   }
   return '-';
+};
+
+const renderStatusBadge = (status) => {
+  const normalized = String(status || '').toLowerCase();
+  const meta = STATUS_META[normalized] || { label: 'Indefinido', badge: 'bg-secondary' };
+  return `<span class="badge ${meta.badge}">${meta.label}</span>`;
 };
 
 async function loadUsuarios(page = 1) {
@@ -29,8 +41,14 @@ async function loadUsuarios(page = 1) {
         <td>${usuario.email}</td>
         <td>${usuario.cargo}</td>
         <td>${formatUsuarioClientes(usuario)}</td>
+        <td>${renderStatusBadge(usuario.status)}</td>
         <td>${usuario.telefone || '-'}</td>
         <td class="table-actions text-end">
+          ${String(usuario.status || '').toLowerCase() === 'pending' ? `
+            <button class="btn btn-sm btn-success btn-action" onclick="approveUsuario(${usuario.id})" title="Aprovar">
+              <i class="bi bi-check2"></i>
+            </button>
+          ` : ''}
           <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar">
             <i class="bi bi-eye"></i>
           </button>
@@ -76,6 +94,9 @@ async function saveUsuario() {
     telefone: formData.get('telefone') || null,
     clienteIds
   };
+  let statusValue = formData.get('status');
+  if (!statusValue && !usuarioId) statusValue = 'approved';
+  if (statusValue) payload.status = statusValue;
 
   if (!usuarioId && formData.get('password')) {
     payload.password = formData.get('password');
@@ -131,7 +152,8 @@ async function searchUsuarios() {
     const filtered = usuarios.filter(usuario =>
       usuario.nome.toLowerCase().includes(term) ||
       usuario.email.toLowerCase().includes(term) ||
-      usuario.cargo.toLowerCase().includes(term)
+      usuario.cargo.toLowerCase().includes(term) ||
+      (usuario.status && usuario.status.toLowerCase().includes(term))
     );
 
     const usuariosList = document.getElementById('usuarios-list');
@@ -144,8 +166,14 @@ async function searchUsuarios() {
         <td>${usuario.email}</td>
         <td>${usuario.cargo}</td>
         <td>${formatUsuarioClientes(usuario)}</td>
+        <td>${renderStatusBadge(usuario.status)}</td>
         <td>${usuario.telefone || '-'}</td>
         <td class="table-actions text-end">
+          ${String(usuario.status || '').toLowerCase() === 'pending' ? `
+            <button class="btn btn-sm btn-success btn-action" onclick="approveUsuario(${usuario.id})" title="Aprovar">
+              <i class="bi bi-check2"></i>
+            </button>
+          ` : ''}
           <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar">
             <i class="bi bi-eye"></i>
           </button>
@@ -172,6 +200,7 @@ async function viewUsuario(id) {
     alert(`Usuário: ${usuario.nome}
 E-mail: ${usuario.email}
 Cargo: ${usuario.cargo}
+Status: ${STATUS_META[usuario.status]?.label || usuario.status || 'Indefinido'}
 Clientes: ${formatUsuarioClientes(usuario)}
 Telefone: ${usuario.telefone || '-'}`);
   } catch (error) {
@@ -186,6 +215,8 @@ async function editUsuario(id) {
     document.getElementById('usuarioNome').value = usuario.nome || '';
     document.getElementById('usuarioEmail').value = usuario.email || '';
     document.getElementById('usuarioCargo').value = usuario.cargo || '';
+    const statusSelect = document.getElementById('usuarioStatus');
+    if (statusSelect) statusSelect.value = (usuario.status || 'approved');
     const clienteSelect = document.getElementById('usuarioClientes');
     if (clienteSelect) {
       const ids = Array.isArray(usuario.clienteIds)
@@ -204,9 +235,24 @@ async function editUsuario(id) {
   }
 }
 
+async function approveUsuario(id) {
+  try {
+    await apiRequest(`/v1/usuarios/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'approved' })
+    });
+    showNotification('usuarios-status', 'Usuário aprovado com sucesso!', true);
+    await refreshAllDropdowns();
+    loadUsuarios(currentPage.usuarios || 1);
+  } catch (error) {
+    showNotification('usuarios-status', `Erro ao aprovar usuário: ${error.message}`, false);
+  }
+}
+
 window.loadUsuarios = loadUsuarios;
 window.saveUsuario = saveUsuario;
 window.deleteUsuario = deleteUsuario;
 window.searchUsuarios = searchUsuarios;
 window.viewUsuario = viewUsuario;
 window.editUsuario = editUsuario;
+window.approveUsuario = approveUsuario;
