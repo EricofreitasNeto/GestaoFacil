@@ -213,9 +213,13 @@ db.sequelize.authenticate()
   .then(() => console.log('Conectado ao banco de dados'))
   .catch(err => console.error('Erro ao conectar ao banco:', err));
 
-db.sequelize.sync()
-  .then(() => console.log('Modelos sincronizados'))
-  .catch(err => console.error('Erro ao sincronizar modelos:', err));
+if (process.env.ENABLE_DB_SYNC === 'true') {
+  db.sequelize.sync()
+    .then(() => console.log('[DB] Modelos sincronizados via sequelize.sync()'))
+    .catch(err => console.error('Erro ao sincronizar modelos:', err));
+} else {
+  console.log('[DB] sequelize.sync() desabilitado (use migrations). Defina ENABLE_DB_SYNC=true para habilitar.');
+}
 
 // ─── Inicialização do servidor ─────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
