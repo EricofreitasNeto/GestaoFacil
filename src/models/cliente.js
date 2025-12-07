@@ -43,8 +43,15 @@ module.exports = (sequelize, DataTypes) => {
       as: 'servicos'
     });
 
-    Cliente.hasMany(models.Usuario, {
+    Cliente.hasMany(models.Local, {
       foreignKey: 'clienteId',
+      as: 'locais'
+    });
+
+    Cliente.belongsToMany(models.Usuario, {
+      through: models.UsuarioCliente,
+      foreignKey: 'clienteId',
+      otherKey: 'usuarioId',
       as: 'usuarios'
     });
   };

@@ -1,13 +1,19 @@
 const { Usuario, Cliente } = require("../models");
+const { normalizeClienteIds } = require("../utils/accessControl");
 
 const usuarioAttributes = { exclude: ['password'] };
-const usuarioInclude = [{ model: Cliente, as: 'cliente', attributes: ['id', 'nome'] }];
+const usuarioInclude = [{
+  model: Cliente,
+  as: 'clientes',
+  attributes: ['id', 'nome'],
+  through: { attributes: [] }
+}];
 
-const parseNullableClienteId = (value) => {
-  if (value === undefined || value === null || value === '') return null;
-  const parsed = Number(value);
-  if (Number.isNaN(parsed)) return NaN;
-  return parsed;
+const formatUsuario = (usuario) => {
+  if (!usuario) return null;
+  const plain = usuario.toJSON();
+  plain.clienteIds = Array.isArray(plain.clientes) ? plain.clientes.map((c) => c.id) : [];
+  return plain;
 };
 
 const usuarioController = {
@@ -19,7 +25,7 @@ const usuarioController = {
         include: usuarioInclude,
         order: [['nome', 'ASC']]
       });
-      return res.status(200).json(usuarios);
+      return res.status(200).json(usuarios.map(formatUsuario));
     } catch (error) {
       return res.status(500).json({ message: "Erro ao listar usuários", detalhes: error.message });
     }
@@ -34,7 +40,7 @@ const usuarioController = {
         include: usuarioInclude
       });
       if (!usuario) return res.status(404).json({ message: "Usuário não encontrado" });
-      return res.status(200).json(usuario);
+      return res.status(200).json(formatUsuario(usuario));
     } catch (error) {
       return res.status(500).json({ message: "Erro ao buscar usuário", detalhes: error.message });
     }
@@ -44,30 +50,29 @@ const usuarioController = {
   async criar(req, res) {
     try {
       const { nome, cargo, email, telefone, password } = req.body;
-      const clienteId = parseNullableClienteId(req.body?.clienteId);
+      const clienteIds = normalizeClienteIds(req.body?.clienteIds ?? req.body?.clienteId);
 
       if (!nome || !cargo || !email || !password) {
         return res.status(400).json({ message: "Campos obrigatórios ausentes" });
       }
 
-      if (Number.isNaN(clienteId)) {
-        return res.status(400).json({ message: 'clienteId informado é inválido' });
-      }
-
-      if (clienteId !== null) {
-        const cliente = await Cliente.findByPk(clienteId);
-        if (!cliente) {
-          return res.status(400).json({ message: 'Cliente informado não existe' });
+      if (clienteIds.length) {
+        const clientes = await Cliente.findAll({ where: { id: clienteIds } });
+        if (clientes.length !== clienteIds.length) {
+          return res.status(400).json({ message: 'Um ou mais clientes informados não existem' });
         }
       }
 
-      const novoUsuario = await Usuario.create({ nome, cargo, email, telefone, password, clienteId });
+      const novoUsuario = await Usuario.create({ nome, cargo, email, telefone, password });
+      if (clienteIds.length) {
+        await novoUsuario.setClientes(clienteIds);
+      }
       const usuarioComRelacionamentos = await Usuario.findByPk(novoUsuario.id, {
         attributes: usuarioAttributes,
         include: usuarioInclude
       });
 
-      return res.status(201).json(usuarioComRelacionamentos);
+      return res.status(201).json(formatUsuario(usuarioComRelacionamentos));
     } catch (error) {
       if (error?.name === 'SequelizeUniqueConstraintError') {
         return res.status(409).json({ message: 'E-mail já cadastrado' });
@@ -81,29 +86,26 @@ const usuarioController = {
     try {
       const { id } = req.params;
       const { nome, cargo, email, telefone } = req.body;
-      const clienteId = parseNullableClienteId(req.body?.clienteId);
+      const clienteIds = normalizeClienteIds(req.body?.clienteIds ?? req.body?.clienteId);
 
-      if (Number.isNaN(clienteId)) {
-        return res.status(400).json({ message: 'clienteId informado é inválido' });
-      }
-
-      if (clienteId !== null) {
-        const cliente = await Cliente.findByPk(clienteId);
-        if (!cliente) {
-          return res.status(400).json({ message: 'Cliente informado não existe' });
+      if (clienteIds.length) {
+        const clientes = await Cliente.findAll({ where: { id: clienteIds } });
+        if (clientes.length !== clienteIds.length) {
+          return res.status(400).json({ message: 'Um ou mais clientes informados não existem' });
         }
       }
 
       const usuario = await Usuario.findByPk(id, { attributes: usuarioAttributes });
       if (!usuario) return res.status(404).json({ message: "Usuário não encontrado" });
 
-      await usuario.update({ nome, cargo, email, telefone, clienteId });
+      await usuario.update({ nome, cargo, email, telefone });
+      await usuario.setClientes(clienteIds);
       const usuarioAtualizado = await Usuario.findByPk(id, {
         attributes: usuarioAttributes,
         include: usuarioInclude
       });
 
-      return res.status(200).json(usuarioAtualizado);
+      return res.status(200).json(formatUsuario(usuarioAtualizado));
     } catch (error) {
       if (error?.name === 'SequelizeUniqueConstraintError') {
         return res.status(409).json({ message: 'E-mail já cadastrado' });

@@ -9,6 +9,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true
+    },
+    clienteId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     timestamps: true,
@@ -23,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Local.associate = (models) => {
+    Local.belongsTo(models.Cliente, { foreignKey: "clienteId", as: "cliente" });
     Local.hasMany(models.Ativo, { foreignKey: "localId", as: "ativos" });
   };
 

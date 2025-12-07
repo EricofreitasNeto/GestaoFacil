@@ -7,9 +7,10 @@ const Servico = require('./servico')(sequelize, Sequelize.DataTypes);
 const Ativo = require('./ativo')(sequelize, Sequelize.DataTypes);
 const Local = require('./local')(sequelize, Sequelize.DataTypes);
 const TipoServico = require('./tiposervico')(sequelize, Sequelize.DataTypes);
+const UsuarioCliente = require('./usuariocliente')(sequelize, Sequelize.DataTypes);
 const { attachCrudHooks } = require('../utils/auditLogger');
 
-const models = { Cliente, Usuario, Servico, Ativo, Local, TipoServico }; 
+const models = { Cliente, Usuario, Servico, Ativo, Local, TipoServico, UsuarioCliente };
 
 Object.values(models).forEach((model) => {
   if (model.associate) {

@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Usuario } = require('../models');
+const { Usuario, Cliente } = require('../models');
 
 const PUBLIC_REGISTRATION_ROLES = (process.env.PUBLIC_REGISTRATION_ROLES || 'cliente')
   .split(',')
@@ -45,7 +45,15 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const usuario = await Usuario.findOne({ where: { email } });
+    const usuario = await Usuario.findOne({
+      where: { email },
+      include: [{
+        model: Cliente,
+        as: 'clientes',
+        attributes: ['id', 'nome'],
+        through: { attributes: [] }
+      }]
+    });
     if (!usuario) {
       return res.status(401).json({ message: 'Usuário não encontrado' });
     }
@@ -55,12 +63,14 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Senha incorreta' });
     }
 
+    const clienteIds = Array.isArray(usuario.clientes) ? usuario.clientes.map((c) => c.id) : [];
     const payload = {
       id: usuario.id,
       nome: usuario.nome,
       email: usuario.email,
       cargo: usuario.cargo,
-      clienteId: usuario.clienteId ?? null
+      clienteId: clienteIds[0] ?? null,
+      clienteIds
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 

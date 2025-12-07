@@ -31,10 +31,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    clienteId: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
     password: {
       type: DataTypes.STRING,
       allowNull: false
@@ -67,9 +63,11 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   Usuario.associate = (models) => {
-    Usuario.belongsTo(models.Cliente, {
-      foreignKey: 'clienteId',
-      as: 'cliente'
+    Usuario.belongsToMany(models.Cliente, {
+      through: models.UsuarioCliente,
+      foreignKey: 'usuarioId',
+      otherKey: 'clienteId',
+      as: 'clientes'
     });
   };
 

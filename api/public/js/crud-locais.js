@@ -1,4 +1,4 @@
-﻿/* CRUD - Locais */
+/* CRUD - Locais */
 
 async function loadLocais(page = 1) {
   try {
@@ -15,6 +15,8 @@ async function loadLocais(page = 1) {
       row.innerHTML = `
         <td>${local.nome}</td>
         <td>${formatDate(local.createdAt)}</td>
+        <td>${local.cliente?.nome || '-'}</td>
+        <td>${local.cliente?.nome || '-'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewLocal(${local.id})" title="Visualizar">
             <i class="bi bi-eye"></i>
@@ -48,7 +50,10 @@ async function saveLocal() {
   const form = document.getElementById('local-form');
   const formData = new FormData(form);
   const localId = document.getElementById('local-id').value;
-  const payload = { nome: formData.get('nome') };
+  const payload = {
+    nome: formData.get('nome'),
+    clienteId: formData.get('clienteId') ? Number(formData.get('clienteId')) : null
+  };
 
   try {
     if (localId) {
@@ -105,6 +110,7 @@ async function searchLocais() {
       row.innerHTML = `
         <td>${local.nome}</td>
         <td>${formatDate(local.createdAt)}</td>
+        <td>${local.cliente?.nome || '-'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewLocal(${local.id})" title="Visualizar">
             <i class="bi bi-eye"></i>
@@ -131,7 +137,7 @@ async function searchLocais() {
 async function viewLocal(id) {
   try {
     const local = await apiRequest(`/v1/locais/${id}`);
-    alert(`Local: ${local.nome}\nCriado em: ${formatDate(local.createdAt)}`);
+    alert(`Local: ${local.nome}\nCriado em: ${formatDate(local.createdAt)}\nCliente: ${local.cliente?.nome || '-'}`);
   } catch (error) {
     showNotification('locais-status', `Erro ao carregar local: ${error.message}`, false);
   }
@@ -142,6 +148,8 @@ async function editLocal(id) {
     const local = await apiRequest(`/v1/locais/${id}`);
     document.getElementById('local-id').value = local.id;
     document.getElementById('localNome').value = local.nome || '';
+    const clienteSelect = document.getElementById('localCliente');
+    if (clienteSelect) clienteSelect.value = local.clienteId || '';
 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addLocalModal')).show();
   } catch (error) {
@@ -155,3 +163,5 @@ window.deleteLocal = deleteLocal;
 window.searchLocais = searchLocais;
 window.viewLocal = viewLocal;
 window.editLocal = editLocal;
+
+

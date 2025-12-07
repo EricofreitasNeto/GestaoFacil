@@ -10,14 +10,16 @@ const db = require('@models');
                   || await Ativo.findOne({ where: { status: 'ativo' } });
     if (!ativo) throw new Error('Nenhum ativo disponível encontrado.');
 
-    const tipo = await TipoServico.findOne({ where: { nome: 'Suporte' } });
+    const tipo = await TipoServico.findOne({ where: { nome: 'Suporte' } })
+                || await TipoServico.findOne({ where: { ativo: true } });
     const usuario = await Usuario.findOne({ where: { email: 'admin@gestaofacil.local' } });
 
     const descricao = 'Abertura via função create_servico';
     const status = 'pendente';
     const clienteId = null; // será inferido do ativo
     const usuarioId = usuario ? usuario.id : null;
-    const tipoServicoId = tipo ? tipo.id : null;
+    if (!tipo) throw new Error('Nenhum tipo de serviço disponível encontrado.');
+    const tipoServicoId = tipo.id;
     const dataAgendada = new Date(Date.now() + 24*3600*1000);
     const detalhes = JSON.stringify({ origem: 'teste-funcao', prioridade: 'media' });
 
@@ -46,7 +48,7 @@ const db = require('@models');
         { model: Ativo, as: 'ativo' },
         { model: Cliente, as: 'cliente' },
         { model: Usuario, as: 'responsavel' },
-        { model: TipoServico, as: 'tipoServico' },
+        { model: TipoServico, as: 'tipoServico', required: false },
       ]
     });
     console.log('Resumo:', {

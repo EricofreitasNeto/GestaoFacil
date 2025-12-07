@@ -49,12 +49,15 @@ async function handleLogin(event) {
     localStorage.setItem('authToken', authToken);
 
     const payload = JSON.parse(atob(authToken.split('.')[1]));
+    const tokenClienteIds = Array.isArray(payload.clienteIds) ? payload.clienteIds.filter((id) => Number.isFinite(Number(id))).map(Number) : [];
+    const primaryClienteId = payload.clienteId ?? tokenClienteIds[0] ?? null;
     currentUser = {
       id: payload.id,
       nome: payload.nome,
       email: payload.email,
       cargo: payload.cargo,
-      clienteId: payload.clienteId ?? null
+      clienteId: primaryClienteId ?? null,
+      clienteIds: tokenClienteIds.length ? tokenClienteIds : (primaryClienteId ? [primaryClienteId] : [])
     };
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 

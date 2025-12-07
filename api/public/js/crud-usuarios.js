@@ -1,5 +1,12 @@
 /* CRUD - Usuários */
 
+const formatUsuarioClientes = (usuario) => {
+  if (Array.isArray(usuario?.clientes) && usuario.clientes.length) {
+    return usuario.clientes.map((c) => c.nome).join(', ');
+  }
+  return '-';
+};
+
 async function loadUsuarios(page = 1) {
   if (currentUser?.cargo !== 'admin') {
     showNotification('usuarios-status', 'Apenas administradores podem visualizar usuários.', false);
@@ -21,8 +28,8 @@ async function loadUsuarios(page = 1) {
         <td>${usuario.nome}</td>
         <td>${usuario.email}</td>
         <td>${usuario.cargo}</td>
-        <td>${usuario.cliente?.nome || '—'}</td>
-        <td>${usuario.telefone || '—'}</td>
+        <td>${formatUsuarioClientes(usuario)}</td>
+        <td>${usuario.telefone || '-'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar">
             <i class="bi bi-eye"></i>
@@ -55,12 +62,19 @@ async function saveUsuario() {
   const formData = new FormData(form);
   const usuarioId = document.getElementById('usuario-id').value;
 
+  const clienteOptions = document.getElementById('usuarioClientes');
+  const clienteIds = clienteOptions
+    ? Array.from(clienteOptions.selectedOptions)
+        .map((opt) => Number(opt.value))
+        .filter((value) => Number.isInteger(value))
+    : [];
+
   const payload = {
     nome: formData.get('nome'),
     cargo: formData.get('cargo'),
     email: formData.get('email'),
     telefone: formData.get('telefone') || null,
-    clienteId: formData.get('clienteId') ? Number(formData.get('clienteId')) : null
+    clienteIds
   };
 
   if (!usuarioId && formData.get('password')) {
@@ -129,8 +143,8 @@ async function searchUsuarios() {
         <td>${usuario.nome}</td>
         <td>${usuario.email}</td>
         <td>${usuario.cargo}</td>
-        <td>${usuario.cliente?.nome || '—'}</td>
-        <td>${usuario.telefone || '—'}</td>
+        <td>${formatUsuarioClientes(usuario)}</td>
+        <td>${usuario.telefone || '-'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar">
             <i class="bi bi-eye"></i>
@@ -158,8 +172,8 @@ async function viewUsuario(id) {
     alert(`Usuário: ${usuario.nome}
 E-mail: ${usuario.email}
 Cargo: ${usuario.cargo}
-Cliente: ${usuario.cliente?.nome || '—'}
-Telefone: ${usuario.telefone || '—'}`);
+Clientes: ${formatUsuarioClientes(usuario)}
+Telefone: ${usuario.telefone || '-'}`);
   } catch (error) {
     showNotification('usuarios-status', `Erro ao carregar usuário: ${error.message}`, false);
   }
@@ -172,7 +186,15 @@ async function editUsuario(id) {
     document.getElementById('usuarioNome').value = usuario.nome || '';
     document.getElementById('usuarioEmail').value = usuario.email || '';
     document.getElementById('usuarioCargo').value = usuario.cargo || '';
-    document.getElementById('usuarioCliente').value = usuario.clienteId || '';
+    const clienteSelect = document.getElementById('usuarioClientes');
+    if (clienteSelect) {
+      const ids = Array.isArray(usuario.clienteIds)
+        ? usuario.clienteIds
+        : (Array.isArray(usuario.clientes) ? usuario.clientes.map((c) => c.id) : []);
+      Array.from(clienteSelect.options).forEach((option) => {
+        option.selected = ids.includes(Number(option.value));
+      });
+    }
     document.getElementById('usuarioTelefone').value = usuario.telefone || '';
     document.getElementById('usuarioPassword').value = '';
 

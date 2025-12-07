@@ -47,6 +47,15 @@ let currentEntity = null;
 let currentItemId = null;
 let cachedUsuarios = [];
 
+function getCurrentUserClienteIds() {
+  const ids = Array.isArray(currentUser?.clienteIds)
+    ? currentUser.clienteIds
+    : (currentUser?.clienteId != null ? [currentUser.clienteId] : []);
+  return ids
+    .map((value) => Number(value))
+    .filter((value) => Number.isInteger(value));
+}
+
 function getPaginationKey(section) {
   return section === 'tipos-servicos' ? 'tiposServicos' : section;
 }
@@ -299,21 +308,48 @@ async function refreshAllDropdowns() {
 
 /* Atualização de selects (dropdowns) */
 function updateClientDropdowns(clientes) {
+  const role = String(currentUser?.cargo || '').trim().toLowerCase();
+  const isAdminUser = role === 'admin' || role === 'administrador';
+  const allowedClienteIds = getCurrentUserClienteIds();
+  const availableClientes = isAdminUser || !allowedClienteIds.length
+    ? clientes
+    : clientes.filter((c) => allowedClienteIds.includes(c.id));
+
   const selects = [
     document.getElementById('servicoCliente'),
-    document.getElementById('usuarioCliente')
+    document.getElementById('usuarioClientes'),
+    document.getElementById('ativoCliente'),
+    document.getElementById('localCliente')
   ];
   selects.forEach((select) => {
     if (!select) return;
     const previous = select.value;
-    select.innerHTML = '<option value="">Selecione</option>';
-    clientes.forEach((c) => {
+    const isMultiple = select.multiple;
+    if (!availableClientes.length) {
+      select.innerHTML = isMultiple ? '' : '<option value="">Sem clientes disponíveis</option>';
+      select.setAttribute('disabled', 'disabled');
+      return;
+    }
+    select.innerHTML = isMultiple ? '' : '<option value="">Selecione</option>';
+    availableClientes.forEach((c) => {
       const opt = document.createElement('option');
       opt.value = c.id;
       opt.textContent = c.nome;
       select.appendChild(opt);
     });
     if (previous) select.value = previous;
+    if (!isAdminUser && allowedClienteIds.length === 1) {
+      if (isMultiple) {
+        Array.from(select.options).forEach((option) => {
+          option.selected = option.value === String(allowedClienteIds[0]);
+        });
+      } else {
+        select.value = String(allowedClienteIds[0]);
+      }
+      select.setAttribute('disabled', 'disabled');
+    } else {
+      select.removeAttribute('disabled');
+    }
   });
 }
 
@@ -342,7 +378,12 @@ function updateAtivoDropdown(ativos) {
 }
 
 function updateUsuarioDropdown(usuarios) {
-  cachedUsuarios = Array.isArray(usuarios) ? usuarios : [];
+  cachedUsuarios = (Array.isArray(usuarios) ? usuarios : []).map((usuario) => {
+    const normalizedIds = Array.isArray(usuario.clienteIds)
+      ? usuario.clienteIds
+      : (Array.isArray(usuario.clientes) ? usuario.clientes.map((c) => c.id) : []);
+    return { ...usuario, clienteIds: normalizedIds };
+  });
   rebuildServicoUsuarioSelect();
 }
 
@@ -353,14 +394,20 @@ function rebuildServicoUsuarioSelect() {
   const clienteId = clienteSelect ? Number(clienteSelect.value) || null : null;
   const usuariosFiltrados = !clienteId
     ? cachedUsuarios
-    : cachedUsuarios.filter((u) => !u.clienteId || u.clienteId === clienteId);
+    : cachedUsuarios.filter((u) => {
+        const ids = Array.isArray(u.clienteIds) ? u.clienteIds : [];
+        return !ids.length || ids.includes(clienteId);
+      });
 
   const previous = select.value;
   select.innerHTML = '<option value="">Selecione</option>';
   usuariosFiltrados.forEach((u) => {
     const opt = document.createElement('option');
     opt.value = u.id;
-    opt.textContent = u.cliente?.nome ? `${u.nome} (${u.cliente.nome})` : u.nome;
+    const clienteLabel = Array.isArray(u.clientes) && u.clientes.length
+      ? ` (${u.clientes.map((c) => c.nome).join(', ')})`
+      : '';
+    opt.textContent = `${u.nome}${clienteLabel}`;
     select.appendChild(opt);
   });
   if (previous) select.value = previous;
@@ -391,6 +438,7 @@ window.rebuildServicoUsuarioSelect = rebuildServicoUsuarioSelect;
 window.updateTipoServicoDropdown = updateTipoServicoDropdown;
 window.refreshAllDropdowns = refreshAllDropdowns;
 window.navigateToSection = navigateToSection;
+window.getCurrentUserClienteIds = getCurrentUserClienteIds;
 
 /* Inicialização */
 window.addEventListener('DOMContentLoaded', () => {

@@ -22,7 +22,7 @@ async function validateServicoPayload(models, payload = {}, options = {}) {
     throw new Error('Modelos inválidos fornecidos ao validador de serviços');
   }
 
-  const { existingServico } = options;
+  const { existingServico, allowedClienteIds = [] } = options;
   const targetAtivoId = payload.ativoId ?? existingServico?.ativoId;
   if (!targetAtivoId) {
     fail('ativoId é obrigatório', 'missing_ativo');
@@ -62,16 +62,33 @@ async function validateServicoPayload(models, payload = {}, options = {}) {
     fail('Cliente informado não existe', 'cliente_not_found', { clienteId: resolvedClienteId });
   }
 
+  if (Array.isArray(allowedClienteIds) && allowedClienteIds.length) {
+    if (!allowedClienteIds.includes(resolvedClienteId)) {
+      fail('Usuário não possui acesso ao cliente informado', 'cliente_forbidden', {
+        clienteId: resolvedClienteId
+      });
+    }
+  }
+
   let usuario = null;
   if (payload.usuarioId !== undefined && payload.usuarioId !== null) {
-    usuario = await Usuario.findByPk(payload.usuarioId, { paranoid: false });
+    usuario = await Usuario.findByPk(payload.usuarioId, {
+      paranoid: false,
+      include: [{
+        model: Cliente,
+        as: 'clientes',
+        attributes: ['id'],
+        through: { attributes: [] }
+      }]
+    });
     if (!usuario) {
       fail('Usuário informado não existe', 'usuario_not_found', { usuarioId: payload.usuarioId });
     }
-    if (usuario.clienteId && usuario.clienteId !== resolvedClienteId) {
+    const usuarioClienteIds = Array.isArray(usuario.clientes) ? usuario.clientes.map((c) => c.id) : [];
+    if (usuarioClienteIds.length && !usuarioClienteIds.includes(resolvedClienteId)) {
       fail('Usuário informado não pertence ao cliente do serviço', 'usuario_cliente_mismatch', {
         usuarioId: payload.usuarioId,
-        usuarioClienteId: usuario.clienteId,
+        usuarioClienteIds,
         clienteId: resolvedClienteId
       });
     }

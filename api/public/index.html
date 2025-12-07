@@ -1,30 +1,30 @@
-Ôªø<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gest√£oF√°cil | Sistema de Gest√£o de Ativos e Servi√ßos</title>
+  <title>Gest„oF·cil | Sistema de Gest„o de Ativos e ServiÁos</title>
 
-  <!-- Bootstrap e √çcones -->
+  <!-- Bootstrap e Õcones -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
   <!-- CSS Local -->
   <link rel="stylesheet" href="/public/css/style.css" />
 
-  <!-- Configura√ß√£o da API -->
+  <!-- ConfiguraÁ„o da API -->
   <meta name="api-base-url" content="https://gestaofacil.onrender.com" />
 </head>
 <body>
-  <!-- P√°gina de Login -->
+  <!-- P·gina de Login -->
   <section id="login-page" class="auth-page">
     <div class="auth-card">
       <div class="auth-header">
         <div class="auth-logo">
           <i class="bi bi-lightning-charge-fill"></i>
         </div>
-        <h1 class="auth-title">Gest√£oF√°cil</h1>
-        <p class="auth-subtitle">Acompanhe servi√ßos, ativos e equipes em um s√≥ lugar.</p>
+        <h1 class="auth-title">Gest„oF·cil</h1>
+        <p class="auth-subtitle">Acompanhe serviÁos, ativos e equipes em um sÛ lugar.</p>
       </div>
 
       <form id="login-form" class="auth-form">
@@ -51,19 +51,19 @@
       </form>
 
       <div class="auth-footer">
-        Ainda n√£o tem acesso?
+        Ainda n„o tem acesso?
         <a href="#" id="register-link" class="auth-link">Solicitar cadastro</a>
       </div>
     </div>
   </section>
 
-  <!-- P√°gina de Registro -->
+  <!-- P·gina de Registro -->
   <section id="register-page" class="auth-page" style="display: none;">
     <div class="auth-card">
       <div class="auth-header">
         <div class="auth-logo"><i class="bi bi-person-plus-fill"></i></div>
         <h1 class="auth-title">Criar acesso</h1>
-        <p class="auth-subtitle">Preencha seus dados para come√ßar a colaborar.</p>
+        <p class="auth-subtitle">Preencha seus dados para comeÁar a colaborar.</p>
       </div>
 
       <form id="register-form" class="auth-form">
@@ -80,8 +80,8 @@
               <select class="form-select" id="register-cargo" required>
                 <option value="">Selecione</option>
                 <option value="admin">Administrador</option>
-                <option value="tecnico">T√©cnico</option>
-                <option value="usuario">Usu√°rio</option>
+                <option value="tecnico">TÈcnico</option>
+                <option value="usuario">Usu·rio</option>
               </select>
               <label for="register-cargo">Cargo *</label>
             </div>
@@ -118,7 +118,7 @@
       </form>
 
       <div class="auth-footer">
-        J√° possui acesso?
+        J· possui acesso?
         <a href="#" id="back-to-login" class="auth-link">Voltar para o login</a>
       </div>
     </div>
@@ -130,7 +130,7 @@
       <div class="sidebar-header">
         <div class="sidebar-logo">
           <i class="bi bi-lightning-charge-fill"></i>
-          <h2>Gest√£oF√°cil</h2>
+          <h2>Gest„oF·cil</h2>
         </div>
         <button class="toggle-sidebar" id="sidebarToggle" aria-label="Alternar menu">
           <i class="bi bi-list"></i>
@@ -142,10 +142,10 @@
           <li class="nav-item"><a class="nav-link active" data-section="dashboard" href="#"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a></li>
           <li class="nav-item"><a class="nav-link" data-section="clientes" href="#"><i class="bi bi-building"></i> <span>Clientes</span></a></li>
           <li class="nav-item"><a class="nav-link" data-section="ativos" href="#"><i class="bi bi-cpu"></i> <span>Ativos</span></a></li>
-          <li class="nav-item"><a class="nav-link" data-section="servicos" href="#"><i class="bi bi-tools"></i> <span>Servi√ßos</span></a></li>
+          <li class="nav-item"><a class="nav-link" data-section="servicos" href="#"><i class="bi bi-tools"></i> <span>ServiÁos</span></a></li>
           <li class="nav-item"><a class="nav-link" data-section="locais" href="#"><i class="bi bi-geo-alt"></i> <span>Locais</span></a></li>
-          <li class="nav-item"><a class="nav-link" data-section="tipos-servicos" href="#"><i class="bi bi-layers"></i> <span>Tipos de Servi√ßo</span></a></li>
-          <li class="nav-item admin-only"><a class="nav-link" data-section="usuarios" href="#"><i class="bi bi-people"></i> <span>Usu√°rios</span></a></li>
+          <li class="nav-item"><a class="nav-link" data-section="tipos-servicos" href="#"><i class="bi bi-layers"></i> <span>Tipos de ServiÁo</span></a></li>
+          <li class="nav-item admin-only"><a class="nav-link" data-section="usuarios" href="#"><i class="bi bi-people"></i> <span>Usu·rios</span></a></li>
         </ul>
       </nav>
 
@@ -164,8 +164,8 @@
           <h3 id="page-title" class="m-0">Dashboard</h3>
         </div>
         <div class="d-flex align-items-center gap-3">
-          <span class="badge role-badge" id="user-role-badge">Usu√°rio</span>
-          <span id="user-name" class="fw-semibold">‚Äî</span>
+          <span class="badge role-badge" id="user-role-badge">Usu·rio</span>
+          <span id="user-name" class="fw-semibold">ó</span>
           <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" alt="Avatar" width="36" height="36" class="rounded-circle border" />
           <button class="btn btn-outline-danger" id="dropdown-logout-btn">
             <i class="bi bi-box-arrow-right me-1"></i> Sair
@@ -207,7 +207,7 @@
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                   <div>
-                    <div class="text-muted">Servi√ßos</div>
+                    <div class="text-muted">ServiÁos</div>
                     <div id="stats-servicos" class="display-6">0</div>
                   </div>
                   <i class="bi bi-tools fs-2 text-info"></i>
@@ -220,7 +220,7 @@
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                   <div>
-                    <div class="text-muted">Usu√°rios</div>
+                    <div class="text-muted">Usu·rios</div>
                     <div id="stats-usuarios" class="display-6">0</div>
                   </div>
                   <i class="bi bi-people fs-2 text-warning"></i>
@@ -233,7 +233,7 @@
         <div class="row g-3 mb-3">
           <div class="col-lg-8">
             <div class="card dashboard-card h-100">
-              <div class="card-header"><strong>Servi√ßos por status</strong></div>
+              <div class="card-header"><strong>ServiÁos por status</strong></div>
               <div class="card-body" style="height: 320px;">
                 <canvas id="servicesChart"></canvas>
               </div>
@@ -241,7 +241,7 @@
           </div>
           <div class="col-lg-4">
             <div class="card dashboard-card h-100">
-              <div class="card-header"><strong>Tipos de servi√ßos</strong></div>
+              <div class="card-header"><strong>Tipos de serviÁos</strong></div>
               <div class="card-body" style="height: 320px;">
                 <canvas id="serviceTypesChart"></canvas>
               </div>
@@ -250,7 +250,7 @@
         </div>
 
         <div class="card dashboard-card">
-          <div class="card-header"><strong>Servi√ßos recentes</strong></div>
+          <div class="card-header"><strong>ServiÁos recentes</strong></div>
           <div class="card-body p-0">
             <div class="table-responsive">
               <table class="table table-hover mb-0">
@@ -258,7 +258,7 @@
                   <tr>
                     <th>ID</th>
                     <th>Cliente</th>
-                    <th>Descri√ß√£o</th>
+                    <th>DescriÁ„o</th>
                     <th>Data</th>
                     <th>Status</th>
                   </tr>
@@ -292,7 +292,7 @@
                   <th>Nome</th>
                   <th>CNPJ</th>
                   <th>Contatos</th>
-                  <th class="text-end">A√ß√µes</th>
+                  <th class="text-end">AÁıes</th>
                 </tr>
               </thead>
               <tbody id="clientes-list"></tbody>
@@ -322,10 +322,11 @@
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th>N¬∫ S√©rie</th>
+                  <th>N∫ SÈrie</th>
                   <th>Status</th>
                   <th>Local</th>
-                  <th class="text-end">A√ß√µes</th>
+                  <th>Cliente</th>
+                  <th class="text-end">AÁıes</th>
                 </tr>
               </thead>
               <tbody id="ativos-list"></tbody>
@@ -335,17 +336,17 @@
         <div id="ativos-pagination" class="pagination mt-3"></div>
       </section>
 
-      <!-- Servi√ßos -->
+      <!-- ServiÁos -->
       <section id="servicos-section" class="content-section" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div class="input-group w-auto">
-            <input id="searchServico" type="text" class="form-control" placeholder="Buscar servi√ßos" />
+            <input id="searchServico" type="text" class="form-control" placeholder="Buscar serviÁos" />
             <button id="search-servico-btn" class="btn btn-outline-secondary">
               <i class="bi bi-search"></i>
             </button>
           </div>
           <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addServicoModal">
-            <i class="bi bi-plus-lg me-1"></i> Adicionar Servi√ßo
+            <i class="bi bi-plus-lg me-1"></i> Adicionar ServiÁo
           </button>
         </div>
         <div id="servicos-status" class="api-status"></div>
@@ -354,12 +355,12 @@
             <table class="table table-hover mb-0">
               <thead>
                 <tr>
-                  <th>Descri√ß√£o</th>
+                  <th>DescriÁ„o</th>
                   <th>Status</th>
                   <th>Cliente</th>
-                  <th>Respons√°vel</th>
+                  <th>Respons·vel</th>
                   <th>Data</th>
-                  <th class="text-end">A√ß√µes</th>
+                  <th class="text-end">AÁıes</th>
                 </tr>
               </thead>
               <tbody id="servicos-list"></tbody>
@@ -390,7 +391,8 @@
                 <tr>
                   <th>Nome</th>
                   <th>Criado em</th>
-                  <th class="text-end">A√ß√µes</th>
+                  <th>Cliente</th>
+                  <th class="text-end">AÁıes</th>
                 </tr>
               </thead>
               <tbody id="locais-list"></tbody>
@@ -400,17 +402,17 @@
         <div id="locais-pagination" class="pagination mt-3"></div>
       </section>
 
-      <!-- Tipos de Servi√ßos -->
+      <!-- Tipos de ServiÁos -->
       <section id="tipos-servicos-section" class="content-section" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div class="input-group w-auto">
-            <input id="searchTipoServico" type="text" class="form-control" placeholder="Buscar tipos de servi√ßo" />
+            <input id="searchTipoServico" type="text" class="form-control" placeholder="Buscar tipos de serviÁo" />
             <button id="search-tipo-servico-btn" class="btn btn-outline-secondary">
               <i class="bi bi-search"></i>
             </button>
           </div>
           <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addTipoServicoModal">
-            <i class="bi bi-plus-lg me-1"></i> Adicionar Tipo de Servi√ßo
+            <i class="bi bi-plus-lg me-1"></i> Adicionar Tipo de ServiÁo
           </button>
         </div>
         <div id="tipos-servicos-status" class="api-status"></div>
@@ -420,9 +422,9 @@
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th>Descri√ß√£o</th>
+                  <th>DescriÁ„o</th>
                   <th>Status</th>
-                  <th class="text-end">A√ß√µes</th>
+                  <th class="text-end">AÁıes</th>
                 </tr>
               </thead>
               <tbody id="tipos-servicos-list"></tbody>
@@ -432,17 +434,17 @@
         <div id="tipos-servicos-pagination" class="pagination mt-3"></div>
       </section>
 
-      <!-- Usu√°rios (apenas admin) -->
+      <!-- Usu·rios (apenas admin) -->
       <section id="usuarios-section" class="content-section" style="display: none;">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <div class="input-group w-auto">
-            <input id="searchUsuario" type="text" class="form-control" placeholder="Buscar usu√°rios" />
+            <input id="searchUsuario" type="text" class="form-control" placeholder="Buscar usu·rios" />
             <button id="search-usuario-btn" class="btn btn-outline-secondary">
               <i class="bi bi-search"></i>
             </button>
           </div>
           <button class="btn btn-primary btn-admin-only" data-bs-toggle="modal" data-bs-target="#addUsuarioModal">
-            <i class="bi bi-plus-lg me-1"></i> Adicionar Usu√°rio
+            <i class="bi bi-plus-lg me-1"></i> Adicionar Usu·rio
           </button>
         </div>
         <div id="usuarios-status" class="api-status"></div>
@@ -454,9 +456,9 @@
                   <th>Nome</th>
                   <th>E-mail</th>
                   <th>Cargo</th>
-                  <th>Cliente</th>
+                  <th>Clientes</th>
                   <th>Telefone</th>
-                  <th class="text-end">A√ß√µes</th>
+                  <th class="text-end">AÁıes</th>
                 </tr>
               </thead>
               <tbody id="usuarios-list"></tbody>
@@ -530,14 +532,14 @@
                   <input id="ativoNome" name="nome" type="text" class="form-control" required />
                 </div>
                 <div class="mb-3">
-                  <label for="ativoNumeroSerie" class="form-label">N√∫mero de s√©rie</label>
+                  <label for="ativoNumeroSerie" class="form-label">N˙mero de sÈrie</label>
                   <input id="ativoNumeroSerie" name="numeroSerie" type="text" class="form-control" />
                 </div>
                 <div class="mb-3">
                   <label for="ativoStatus" class="form-label">Status</label>
                   <select id="ativoStatus" name="status" class="form-select">
                     <option value="ativo">Ativo</option>
-                    <option value="manutencao">Manuten√ß√£o</option>
+                    <option value="manutencao">ManutenÁ„o</option>
                     <option value="inativo">Inativo</option>
                   </select>
                 </div>
@@ -545,12 +547,16 @@
                   <label for="ativoLocal" class="form-label">Local</label>
                   <select id="ativoLocal" name="localId" class="form-select"></select>
                 </div>
+                <div class="mb-3">
+                  <label for="ativoCliente" class="form-label">Cliente</label>
+                  <select id="ativoCliente" name="clienteId" class="form-select"></select>
+                </div>
 
-                <!-- Detalhes estruturados (mais amig√°vel) -->
+                <!-- Detalhes estruturados (mais amig·vel) -->
                 <div class="border rounded p-3 mb-2 bg-light">
                   <div class="d-flex justify-content-between align-items-center mb-2">
                     <strong>Detalhes</strong>
-                    <a class="small" data-bs-toggle="collapse" href="#ativoDetalhesAdvanced" role="button" aria-expanded="false" aria-controls="ativoDetalhesAdvanced">Modo avan√ßado (JSON)</a>
+                    <a class="small" data-bs-toggle="collapse" href="#ativoDetalhesAdvanced" role="button" aria-expanded="false" aria-controls="ativoDetalhesAdvanced">Modo avanÁado (JSON)</a>
                   </div>
                   <div class="row g-3">
                     <div class="col-md-6">
@@ -562,22 +568,22 @@
                       <input id="ativoModelo" type="text" class="form-control" placeholder="Ex.: OptiPlex 7000" />
                     </div>
                     <div class="col-md-6">
-                      <label for="ativoPatrimonio" class="form-label">N¬∫ Patrim√¥nio</label>
+                      <label for="ativoPatrimonio" class="form-label">N∫ PatrimÙnio</label>
                       <input id="ativoPatrimonio" type="text" class="form-control" placeholder="Ex.: PT-12345" />
                     </div>
                     <div class="col-md-6">
-                      <label for="ativoGarantia" class="form-label">Garantia at√©</label>
+                      <label for="ativoGarantia" class="form-label">Garantia atÈ</label>
                       <input id="ativoGarantia" type="date" class="form-control" />
                     </div>
                     <div class="col-12">
-                      <label for="ativoObservacoes" class="form-label">Observa√ß√µes</label>
-                      <textarea id="ativoObservacoes" rows="2" class="form-control" placeholder="Anota√ß√µes livres"></textarea>
+                      <label for="ativoObservacoes" class="form-label">ObservaÁıes</label>
+                      <textarea id="ativoObservacoes" rows="2" class="form-control" placeholder="AnotaÁıes livres"></textarea>
                     </div>
                   </div>
                   <div class="collapse mt-3" id="ativoDetalhesAdvanced">
                     <label for="ativoDetalhes" class="form-label">Detalhes (JSON)</label>
                     <textarea id="ativoDetalhes" name="detalhes" rows="4" class="form-control" placeholder='{"fabricante":"...","modelo":"..."}'></textarea>
-                    <div class="form-text">Se preencher o JSON, ele ter√° prioridade sobre os campos acima.</div>
+                    <div class="form-text">Se preencher o JSON, ele ter· prioridade sobre os campos acima.</div>
                   </div>
                 </div>
               </form>
@@ -590,12 +596,12 @@
         </div>
       </div>
 
-      <!-- Modals: Servi√ßos -->
+      <!-- Modals: ServiÁos -->
       <div class="modal fade" id="addServicoModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Servi√ßo</h5>
+              <h5 class="modal-title">ServiÁo</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -603,7 +609,7 @@
                 <input type="hidden" id="servico-id" name="id" />
                 <div class="row g-3">
                   <div class="col-md-8">
-                    <label for="servicoDescricao" class="form-label">Descri√ß√£o</label>
+                    <label for="servicoDescricao" class="form-label">DescriÁ„o</label>
                     <input id="servicoDescricao" name="descricao" type="text" class="form-control" required />
                   </div>
                   <div class="col-md-4">
@@ -612,7 +618,7 @@
                       <option value="Pendente">Pendente</option>
                       <option value="Em Andamento">Em Andamento</option>
                       <option value="Agendado">Agendado</option>
-                      <option value="Conclu√≠do">Conclu√≠do</option>
+                      <option value="ConcluÌdo">ConcluÌdo</option>
                       <option value="Cancelado">Cancelado</option>
                     </select>
                   </div>
@@ -621,7 +627,7 @@
                     <input id="servicoDataAgendada" name="dataAgendada" type="date" class="form-control" />
                   </div>
                   <div class="col-md-6">
-                    <label for="servicoDataConclusao" class="form-label">Data conclus√£o</label>
+                    <label for="servicoDataConclusao" class="form-label">Data conclus„o</label>
                     <input id="servicoDataConclusao" name="dataConclusao" type="date" class="form-control" />
                   </div>
                   <div class="col-md-6">
@@ -629,7 +635,7 @@
                     <select id="servicoCliente" name="clienteId" class="form-select"></select>
                   </div>
                   <div class="col-md-6">
-                    <label for="servicoUsuario" class="form-label">Respons√°vel</label>
+                    <label for="servicoUsuario" class="form-label">Respons·vel</label>
                     <select id="servicoUsuario" name="usuarioId" class="form-select"></select>
                   </div>
                   <div class="col-md-6">
@@ -637,22 +643,22 @@
                     <select id="servicoAtivo" name="ativoId" class="form-select"></select>
                   </div>
                   <div class="col-md-6">
-                    <label for="servicoTipo" class="form-label">Tipo de servi√ßo</label>
+                    <label for="servicoTipo" class="form-label">Tipo de serviÁo</label>
                     <select id="servicoTipo" name="tipoServicoId" class="form-select"></select>
                   </div>
                   <div class="col-12">
                     <div class="border rounded p-3 bg-light">
                       <div class="d-flex justify-content-between align-items-center mb-2">
                         <strong>Detalhes</strong>
-                        <a class="small" data-bs-toggle="collapse" href="#servicoDetalhesAdvanced" role="button" aria-expanded="false" aria-controls="servicoDetalhesAdvanced">Modo avan√ßado (JSON)</a>
+                        <a class="small" data-bs-toggle="collapse" href="#servicoDetalhesAdvanced" role="button" aria-expanded="false" aria-controls="servicoDetalhesAdvanced">Modo avanÁado (JSON)</a>
                       </div>
                       <div class="row g-3">
                         <div class="col-md-4">
                           <label for="servicoPrioridade" class="form-label">Prioridade</label>
                           <select id="servicoPrioridade" class="form-select">
-                            <option value="">‚Äî</option>
+                            <option value="">ó</option>
                             <option value="baixa">Baixa</option>
-                            <option value="media">M√©dia</option>
+                            <option value="media">MÈdia</option>
                             <option value="alta">Alta</option>
                           </select>
                         </div>
@@ -669,14 +675,14 @@
                           <input id="servicoMateriais" type="text" class="form-control" placeholder="Ex.: Parafusos, cabos ..." />
                         </div>
                         <div class="col-12">
-                          <label for="servicoObservacoes" class="form-label">Observa√ß√µes</label>
+                          <label for="servicoObservacoes" class="form-label">ObservaÁıes</label>
                           <textarea id="servicoObservacoes" rows="2" class="form-control" placeholder="Notas adicionais"></textarea>
                         </div>
                       </div>
                       <div class="collapse mt-3" id="servicoDetalhesAdvanced">
                         <label for="servicoDetalhes" class="form-label">Detalhes (JSON)</label>
                         <textarea id="servicoDetalhes" name="detalhes" rows="4" class="form-control" placeholder='{"observacoes":"...","prioridade":"alta"}'></textarea>
-                        <div class="form-text">Se preencher o JSON, ele ter√° prioridade sobre os campos acima.</div>
+                        <div class="form-text">Se preencher o JSON, ele ter· prioridade sobre os campos acima.</div>
                       </div>
                     </div>
                   </div>
@@ -706,6 +712,10 @@
                   <label for="localNome" class="form-label">Nome</label>
                   <input id="localNome" name="nome" type="text" class="form-control" required />
                 </div>
+                <div class="mb-3">
+                  <label for="localCliente" class="form-label">Cliente</label>
+                  <select id="localCliente" name="clienteId" class="form-select"></select>
+                </div>
               </form>
             </div>
             <div class="modal-footer">
@@ -716,12 +726,12 @@
         </div>
       </div>
 
-      <!-- Modals: Tipos de Servi√ßo -->
+      <!-- Modals: Tipos de ServiÁo -->
       <div class="modal fade" id="addTipoServicoModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Tipo de Servi√ßo</h5>
+              <h5 class="modal-title">Tipo de ServiÁo</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -732,7 +742,7 @@
                   <input id="tipoServicoNome" name="nome" type="text" class="form-control" required />
                 </div>
                 <div class="mb-3">
-                  <label for="tipoServicoDescricao" class="form-label">Descri√ß√£o</label>
+                  <label for="tipoServicoDescricao" class="form-label">DescriÁ„o</label>
                   <textarea id="tipoServicoDescricao" name="descricao" class="form-control" rows="3"></textarea>
                 </div>
                 <div class="form-check">
@@ -749,12 +759,12 @@
         </div>
       </div>
 
-      <!-- Modals: Usu√°rios -->
+      <!-- Modals: Usu·rios -->
       <div class="modal fade" id="addUsuarioModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Usu√°rio</h5>
+              <h5 class="modal-title">Usu·rio</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -772,22 +782,21 @@
                   <label for="usuarioCargo" class="form-label">Cargo</label>
                   <select id="usuarioCargo" name="cargo" class="form-select">
                     <option value="admin">Administrador</option>
-                    <option value="tecnico">T‚Äöcnico</option>
-                    <option value="usuario">Usu¬†rio</option>
+                    <option value="tecnico">TÇcnico</option>
+                    <option value="usuario">Usu†rio</option>
                   </select>
                 </div>
                 <div class="mb-3">
-                  <label for="usuarioCliente" class="form-label">Cliente</label>
-                  <select id="usuarioCliente" name="clienteId" class="form-select">
-                    <option value="">Selecione</option>
-                  </select>
+                  <label for="usuarioClientes" class="form-label">Clientes associados</label>
+                  <select id="usuarioClientes" name="clienteIds" class="form-select" multiple size="5"></select>
+                  <div class="form-text">Selecione um ou mais clientes. Deixe vazio para usu?rios sem escopo definido.</div>
                 </div>
                 <div class="mb-3">
                   <label for="usuarioTelefone" class="form-label">Telefone</label>
                   <input id="usuarioTelefone" name="telefone" type="text" class="form-control" />
                 </div>
                 <div class="mb-3">
-                  <label for="usuarioPassword" class="form-label">Senha (apenas novo usu√°rio)</label>
+                  <label for="usuarioPassword" class="form-label">Senha (apenas novo usu·rio)</label>
                   <input id="usuarioPassword" name="password" type="password" class="form-control" />
                 </div>
               </form>
@@ -800,16 +809,16 @@
         </div>
       </div>
 
-      <!-- Modal de confirma√ß√£o de exclus√£o -->
+      <!-- Modal de confirmaÁ„o de exclus„o -->
       <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Confirmar exclus√£o</h5>
+              <h5 class="modal-title">Confirmar exclus„o</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              Tem certeza que deseja excluir este item? Esta a√ß√£o n√£o pode ser desfeita.
+              Tem certeza que deseja excluir este item? Esta aÁ„o n„o pode ser desfeita.
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -837,5 +846,7 @@
   <script src="/public/js/main.js"></script>
 </body>
 </html>
+
+
 
 

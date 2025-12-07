@@ -18,9 +18,10 @@ async function loadAtivos(page = 1) {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${ativo.nome}</td>
-        <td>${ativo.numeroSerie || '—'}</td>
+        <td>${ativo.numeroSerie || '-'}</td>
         <td><span class="badge bg-${getStatusBadgeClass(ativo.status)}">${ativo.status}</span></td>
-        <td>${ativo.local?.nome || '—'}</td>
+        <td>${ativo.local?.nome || '-'}</td>
+        <td>${ativo.cliente?.nome || '-'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewAtivo(${ativo.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -93,11 +94,19 @@ async function saveAtivo() {
     detalhes = Object.keys(det).length ? det : null;
   }
 
+  let clienteId = null;
+  const role = String(currentUser?.cargo || '').trim().toLowerCase();
+  const isAdminUser = role === 'admin' || role === 'administrador';
+  if (isAdminUser) {
+    clienteId = formData.get('clienteId') ? Number(formData.get('clienteId')) : null;
+  }
+
   const payload = {
     nome: formData.get('nome'),
     numeroSerie: formData.get('numeroSerie') || null,
     status: formData.get('status'),
     localId: formData.get('localId') ? Number(formData.get('localId')) : null,
+    clienteId,
     detalhes
   };
 
@@ -166,7 +175,8 @@ async function searchAtivos() {
         <td>${ativo.nome}</td>
         <td>${ativo.numeroSerie || '—'}</td>
         <td><span class="badge bg-${getStatusBadgeClass(ativo.status)}">${ativo.status}</span></td>
-        <td>${ativo.local?.nome || '—'}</td>
+        <td>${ativo.local?.nome || '-'}</td>
+        <td>${ativo.cliente?.nome || '-'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewAtivo(${ativo.id})" title="Visualizar"><i class="bi bi-eye"></i></button>
           ${currentUser?.cargo === 'admin' ? `
@@ -202,6 +212,8 @@ async function editAtivo(id) {
     document.getElementById('ativoNumeroSerie').value = ativo.numeroSerie || '';
     document.getElementById('ativoStatus').value = ativo.status || 'ativo';
     document.getElementById('ativoLocal').value = ativo.localId || '';
+    const clienteSelect = document.getElementById('ativoCliente');
+    if (clienteSelect) clienteSelect.value = ativo.clienteId || '';
     // Preenche campos estruturados
     const d = ativo.detalhes || {};
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
@@ -258,3 +270,12 @@ window.getStatusBadgeClass = function (status) {
       return 'secondary';
   }
 };
+
+
+
+
+
+
+
+
+

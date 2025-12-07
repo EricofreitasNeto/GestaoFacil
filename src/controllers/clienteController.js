@@ -1,17 +1,6 @@
 const { Cliente } = require('../models');
 const { Op } = require('sequelize');
-
-const ADMIN_ROLES = (process.env.ADMIN_ROLES || 'admin,administrador')
-  .split(',')
-  .map((role) => role.trim().toLowerCase())
-  .filter(Boolean);
-
-const isAdmin = (user) => {
-  if (!user?.cargo) return false;
-  return ADMIN_ROLES.includes(String(user.cargo).trim().toLowerCase());
-};
-
-const getUserClienteId = (user) => user?.clienteId ?? user?.clientId ?? null;
+const { isAdmin, getUserClienteIds } = require('../utils/accessControl');
 
 const buildSearchFilter = (term = '') => {
   const normalized = term.trim();
@@ -36,25 +25,32 @@ const clienteController = {
   async listar(req, res) {
     try {
       const userIsAdmin = isAdmin(req.user);
-      const userClienteId = getUserClienteId(req.user);
+      const userClienteIds = getUserClienteIds(req.user);
       const { q, clienteId: clienteIdQuery, clientId } = req.query;
-      const requestedClientId = Number(clienteIdQuery ?? clientId) || null;
+      const requestedClientIdRaw = clienteIdQuery ?? clientId;
+      const requestedClientId = requestedClientIdRaw ? Number(requestedClientIdRaw) : null;
 
       const where = {};
       const searchFilter = buildSearchFilter(q || req.query.search || '');
       if (searchFilter) Object.assign(where, searchFilter);
 
       if (requestedClientId) {
+        if (Number.isNaN(requestedClientId)) {
+          return res.status(400).json({ message: 'clienteId informado é inválido' });
+        }
         where.id = requestedClientId;
       }
 
       if (!userIsAdmin) {
-        if (userClienteId) {
-          where.id = userClienteId;
-        } else if (requestedClientId) {
-          where.id = requestedClientId;
+        if (!userClienteIds.length) {
+          return res.status(403).json({ message: 'Usuário não possui clientes associados.' });
+        }
+        if (requestedClientId) {
+          if (!userClienteIds.includes(requestedClientId)) {
+            return res.status(403).json({ message: 'Acesso negado para listar este cliente.' });
+          }
         } else {
-          return res.status(403).json({ message: 'Acesso negado para listar outros clientes.' });
+          where.id = userClienteIds.length === 1 ? userClienteIds[0] : { [Op.in]: userClienteIds };
         }
       }
 
@@ -79,10 +75,10 @@ const clienteController = {
       const { id } = req.params;
       const numericId = Number(id);
       const userIsAdmin = isAdmin(req.user);
-      const userClienteId = getUserClienteId(req.user);
+      const userClienteIds = getUserClienteIds(req.user);
 
       if (!userIsAdmin) {
-        if (!userClienteId || userClienteId !== numericId) {
+        if (!userClienteIds.length || !userClienteIds.includes(numericId)) {
           return res.status(403).json({ message: 'Acesso negado para visualizar este cliente.' });
         }
       }

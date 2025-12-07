@@ -1,19 +1,9 @@
+const { Op } = require('sequelize');
 const models = require('../models');
 const { Servico, Cliente, Usuario, Ativo, TipoServico } = models;
 const { logTriggerEvent } = require('../utils/auditLogger');
 const { validateServicoPayload, ServicoValidationError } = require('../services/servicoValidator');
-
-const ADMIN_ROLES = (process.env.ADMIN_ROLES || 'admin,administrador')
-  .split(',')
-  .map((role) => role.trim().toLowerCase())
-  .filter(Boolean);
-
-const isAdmin = (user) => {
-  if (!user?.cargo) return false;
-  return ADMIN_ROLES.includes(String(user.cargo).trim().toLowerCase());
-};
-
-const getUserClienteId = (user) => user?.clienteId ?? user?.clientId ?? null;
+const { isAdmin, getUserClienteIds } = require('../utils/accessControl');
 
 const parsePagination = (query) => {
   const limit = Math.min(Math.max(parseInt(query.limit, 10) || 50, 1), 100);
@@ -35,15 +25,19 @@ const buildServicoFilters = (query = {}) => {
   if (status) where.status = status;
 
   const clienteId = Number(query.clienteId ?? query.clientId);
-  if (clienteId) where.clienteId = clienteId;
+  if (!Number.isNaN(clienteId) && clienteId) where.clienteId = clienteId;
 
   const ativoId = Number(query.ativoId ?? query.assetId);
-  if (ativoId) where.ativoId = ativoId;
+  if (!Number.isNaN(ativoId) && ativoId) where.ativoId = ativoId;
 
   return where;
 };
 
 const denyScope = (res) => res.status(403).json({ message: 'Acesso negado para esta operação.' });
+const buildScopedClienteFilter = (clienteIds) => {
+  if (!clienteIds?.length) return null;
+  return clienteIds.length === 1 ? clienteIds[0] : { [Op.in]: clienteIds };
+};
 
 const servicoController = {
   // Listar serviÇõs aplicando filtros e escopo
@@ -51,11 +45,15 @@ const servicoController = {
     try {
       const where = buildServicoFilters(req.query);
       const userIsAdmin = isAdmin(req.user);
-      const userClienteId = getUserClienteId(req.user);
+      const userClienteIds = getUserClienteIds(req.user);
 
       if (!userIsAdmin) {
-        if (!userClienteId) return denyScope(res);
-        where.clienteId = userClienteId;
+        if (!userClienteIds.length) return denyScope(res);
+        if (where.clienteId) {
+          if (!userClienteIds.includes(where.clienteId)) return denyScope(res);
+        } else {
+          where.clienteId = buildScopedClienteFilter(userClienteIds);
+        }
       }
 
       const { limit, offset } = parsePagination(req.query);
@@ -94,9 +92,9 @@ const servicoController = {
       if (!servico) return res.status(404).json({ message: 'Serviço não encontrado' });
 
       const userIsAdmin = isAdmin(req.user);
-      const userClienteId = getUserClienteId(req.user);
+      const userClienteIds = getUserClienteIds(req.user);
       if (!userIsAdmin) {
-        if (!userClienteId || servico.clienteId !== userClienteId) {
+        if (!userClienteIds.length || !userClienteIds.includes(servico.clienteId)) {
           return denyScope(res);
         }
       }
@@ -127,7 +125,14 @@ const servicoController = {
         return res.status(400).json({ message: 'Campo descricao é obrigatório' });
       }
 
-      const validation = await validateServicoPayload(models, payload, { requireAtivo: true });
+      const userIsAdmin = isAdmin(req.user);
+      const allowedClienteIds = userIsAdmin ? [] : getUserClienteIds(req.user);
+      if (!userIsAdmin && !allowedClienteIds.length) return denyScope(res);
+
+      const validation = await validateServicoPayload(models, payload, {
+        requireAtivo: true,
+        allowedClienteIds: userIsAdmin ? null : allowedClienteIds
+      });
 
       const novoServico = await Servico.create({
         descricao,
@@ -170,7 +175,18 @@ const servicoController = {
       const servico = await Servico.findByPk(id);
       if (!servico) return res.status(404).json({ message: 'Serviço não encontrado' });
 
-      const validation = await validateServicoPayload(models, payload, { existingServico: servico });
+      const userIsAdmin = isAdmin(req.user);
+      const allowedClienteIds = userIsAdmin ? [] : getUserClienteIds(req.user);
+      if (!userIsAdmin) {
+        if (!allowedClienteIds.length || !allowedClienteIds.includes(servico.clienteId)) {
+          return denyScope(res);
+        }
+      }
+
+      const validation = await validateServicoPayload(models, payload, {
+        existingServico: servico,
+        allowedClienteIds: userIsAdmin ? null : allowedClienteIds
+      });
 
       await servico.update({
         descricao,
@@ -200,6 +216,12 @@ const servicoController = {
       const servico = await Servico.findByPk(id);
       if (!servico) return res.status(404).json({ message: 'Serviço não encontrado' });
 
+      const userIsAdmin = isAdmin(req.user);
+      const userClienteIds = getUserClienteIds(req.user);
+      if (!userIsAdmin && (!userClienteIds.length || !userClienteIds.includes(servico.clienteId))) {
+        return denyScope(res);
+      }
+
       await servico.destroy();
       return res.status(200).json({ message: 'Serviço desativado com sucesso' });
     } catch (error) {
@@ -226,7 +248,14 @@ const servicoController = {
         return res.status(400).json({ message: 'Campos obrigatórios: descricao, ativoId' });
       }
 
-      const validation = await validateServicoPayload(models, payload, { requireAtivo: true });
+      const userIsAdmin = isAdmin(req.user);
+      const allowedClienteIds = userIsAdmin ? [] : getUserClienteIds(req.user);
+      if (!userIsAdmin && !allowedClienteIds.length) return denyScope(res);
+
+      const validation = await validateServicoPayload(models, payload, {
+        requireAtivo: true,
+        allowedClienteIds: userIsAdmin ? null : allowedClienteIds
+      });
 
       logTriggerEvent('create_servico:request', {
         ativoId: validation.resolvedAtivoId,
