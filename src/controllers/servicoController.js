@@ -222,6 +222,19 @@ const servicoController = {
         return denyScope(res);
       }
 
+      if (servico.ativoId) {
+        const ativo = await Ativo.findByPk(servico.ativoId, {
+          paranoid: false,
+          attributes: ['status']
+        });
+        const statusAtivo = String(ativo?.status || '').toLowerCase();
+        if (statusAtivo !== 'inativo') {
+          return res.status(400).json({
+            message: 'Não é permitido excluir serviço enquanto o ativo não estiver desativado'
+          });
+        }
+      }
+
       await servico.destroy();
       return res.status(200).json({ message: 'Serviço desativado com sucesso' });
     } catch (error) {

@@ -270,6 +270,104 @@ As rotas de usuários exigem token admin. Exemplos:
 
 Os controladores removem o campo `password` das respostas e aplicam soft delete, permitindo restauração futura se necessário.
 
+## CRUD para App Móvel (Perfil Não Admin)
+
+Perfis como técnico, coordenador ou gestor ligados a um cliente podem executar o ciclo completo de serviços diretamente pelo app móvel. Use o mesmo token emitido em `/auth/login` (o payload já carrega `clienteIds` autorizados).
+
+### Pré-requisitos rápidos
+
+- Usuário precisa ter status `approved` e ao menos um `clienteId` ligado ao seu perfil via relacionamento `UsuarioCliente`.
+- Todos os requests devem incluir `Authorization: Bearer <token>` e `Content-Type: application/json`.
+- O `clienteId` enviado no corpo ou query string deve pertencer à lista `clienteIds` presente no token; do contrário a API retorna 403.
+
+### Listar serviços disponíveis
+
+```
+GET /v1/servicos?clienteId=7&status=pendente&page=1&limit=20
+Authorization: Bearer <token>
+```
+
+Resposta resumida:
+
+```json
+[
+  {
+    "id": 32,
+    "descricao": "Revisar CFTV do Bloco B",
+    "status": "pendente",
+    "clienteId": 7,
+    "ativoId": 12,
+    "usuarioId": 9,
+    "dataAgendada": "2025-12-10T10:00:00.000Z",
+    "cliente": { "id": 7, "nome": "Residencial Orion" },
+    "responsavel": { "id": 9, "nome": "João Silva" },
+    "ativo": { "id": 12, "nome": "Câmera HIK C52" }
+  }
+]
+```
+
+### Consultar detalhes de um serviço
+
+```
+GET /v1/servicos/32
+Authorization: Bearer <token>
+```
+
+Retorna o mesmo objeto completo usado na listagem, desde que o serviço pertença a um dos clientes permitidos.
+
+### Criar serviço
+
+```
+POST /v1/servicos
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "descricao": "Trocar DVR da guarita",
+  "clienteId": 7,
+  "ativoId": 15,
+  "usuarioId": 9,
+  "tipoServicoId": 2,
+  "dataAgendada": "2025-12-12T14:00:00Z",
+  "detalhes": { "prioridade": "alta", "observacoes": "Levar DVR novo" }
+}
+```
+
+Campos obrigatórios: `descricao` e `ativoId`. O `clienteId` pode ser omitido quando o ativo já está associado ao mesmo cliente. O backend valida se ativo está ativo, se pertence ao cliente informado e se o usuário logado possui acesso àquele cliente.
+
+### Atualizar serviço
+
+```
+PUT /v1/servicos/32
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "descricao": "Trocar DVR da guarita (ajuste)",
+  "status": "em_andamento",
+  "dataConclusao": null,
+  "detalhes": { "checagens": ["Foto antes", "Foto depois"] }
+}
+```
+
+Somente os campos enviados são atualizados. O escopo do cliente é revalidado a cada atualização.
+
+### Desativar serviço (soft delete)
+
+```
+DELETE /v1/servicos/32
+Authorization: Bearer <token>
+```
+
+É necessário que o ativo vinculado esteja com status `inativo`. Caso contrário a API responde `400` com a mensagem _"Não é permitido excluir serviço enquanto o ativo não estiver desativado"_.
+
+### Códigos de erro comuns
+
+- `400` — payload inválido (campos obrigatórios ausentes, ativo inativo ou cliente divergente).
+- `403` — usuário autenticado não possui `clienteId` autorizado.
+- `404` — serviço não existe ou não pertence ao escopo informado.
+- `500` — falha inesperada (consultar logs verbosos quando `VERBOSE_LOGS=true`).
+
 ## Coleção Postman
 
 - Arquivos: `postman/GestaoFacil.postman_collection.json` e `postman/GestaoFacil.postman_environment.json`.

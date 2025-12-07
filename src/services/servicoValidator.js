@@ -84,7 +84,13 @@ async function validateServicoPayload(models, payload = {}, options = {}) {
     if (!usuario) {
       fail('Usuário informado não existe', 'usuario_not_found', { usuarioId: payload.usuarioId });
     }
-    const usuarioClienteIds = Array.isArray(usuario.clientes) ? usuario.clientes.map((c) => c.id) : [];
+    let usuarioClienteIds = Array.isArray(usuario.clientes) ? usuario.clientes.map((c) => c.id) : [];
+    if (!usuarioClienteIds.length && usuario.clienteId) {
+      const fallbackId = Number(usuario.clienteId);
+      if (Number.isInteger(fallbackId)) {
+        usuarioClienteIds = [fallbackId];
+      }
+    }
     if (usuarioClienteIds.length && !usuarioClienteIds.includes(resolvedClienteId)) {
       fail('Usuário informado não pertence ao cliente do serviço', 'usuario_cliente_mismatch', {
         usuarioId: payload.usuarioId,
