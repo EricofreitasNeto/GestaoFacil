@@ -57,7 +57,7 @@ describe('servicoValidator', () => {
     const models = createModels({
       ativo: { id: 5, status: 'ativo', clienteId: 7 },
       cliente: { id: 7 },
-      usuario: { id: 9 },
+      usuario: { id: 9, clienteId: 7 },
     });
 
     const result = await validateServicoPayload(models, {
@@ -69,5 +69,20 @@ describe('servicoValidator', () => {
     expect(result.resolvedAtivoId).toBe(5);
     expect(result.resolvedClienteId).toBe(7);
     expect(result.usuario.id).toBe(9);
+  });
+
+  it('rejeita quando usuário pertence a outro cliente', async () => {
+    const models = createModels({
+      ativo: { id: 5, status: 'ativo', clienteId: 7 },
+      cliente: { id: 7 },
+      usuario: { id: 9, clienteId: 8 },
+    });
+
+    await expect(
+      validateServicoPayload(models, { ativoId: 5, clienteId: 7, usuarioId: 9 })
+    ).rejects.toMatchObject({
+      message: expect.stringMatching(/pertence ao cliente/),
+      statusCode: 400,
+    });
   });
 });

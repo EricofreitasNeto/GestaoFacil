@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    clienteId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: false
@@ -60,6 +64,13 @@ module.exports = (sequelize, DataTypes) => {
 
   Usuario.prototype.validPassword = async function (password) {
     return await bcrypt.compare(password, this.password);
+  };
+
+  Usuario.associate = (models) => {
+    Usuario.belongsTo(models.Cliente, {
+      foreignKey: 'clienteId',
+      as: 'cliente'
+    });
   };
 
   return Usuario;

@@ -21,6 +21,7 @@ async function loadUsuarios(page = 1) {
         <td>${usuario.nome}</td>
         <td>${usuario.email}</td>
         <td>${usuario.cargo}</td>
+        <td>${usuario.cliente?.nome || '—'}</td>
         <td>${usuario.telefone || '—'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar">
@@ -58,7 +59,8 @@ async function saveUsuario() {
     nome: formData.get('nome'),
     cargo: formData.get('cargo'),
     email: formData.get('email'),
-    telefone: formData.get('telefone') || null
+    telefone: formData.get('telefone') || null,
+    clienteId: formData.get('clienteId') ? Number(formData.get('clienteId')) : null
   };
 
   if (!usuarioId && formData.get('password')) {
@@ -127,6 +129,7 @@ async function searchUsuarios() {
         <td>${usuario.nome}</td>
         <td>${usuario.email}</td>
         <td>${usuario.cargo}</td>
+        <td>${usuario.cliente?.nome || '—'}</td>
         <td>${usuario.telefone || '—'}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewUsuario(${usuario.id})" title="Visualizar">
@@ -155,6 +158,7 @@ async function viewUsuario(id) {
     alert(`Usuário: ${usuario.nome}
 E-mail: ${usuario.email}
 Cargo: ${usuario.cargo}
+Cliente: ${usuario.cliente?.nome || '—'}
 Telefone: ${usuario.telefone || '—'}`);
   } catch (error) {
     showNotification('usuarios-status', `Erro ao carregar usuário: ${error.message}`, false);
@@ -168,6 +172,7 @@ async function editUsuario(id) {
     document.getElementById('usuarioNome').value = usuario.nome || '';
     document.getElementById('usuarioEmail').value = usuario.email || '';
     document.getElementById('usuarioCargo').value = usuario.cargo || '';
+    document.getElementById('usuarioCliente').value = usuario.clienteId || '';
     document.getElementById('usuarioTelefone').value = usuario.telefone || '';
     document.getElementById('usuarioPassword').value = '';
 

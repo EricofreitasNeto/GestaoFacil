@@ -53,7 +53,8 @@ async function handleLogin(event) {
       id: payload.id,
       nome: payload.nome,
       email: payload.email,
-      cargo: payload.cargo
+      cargo: payload.cargo,
+      clienteId: payload.clienteId ?? null
     };
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 

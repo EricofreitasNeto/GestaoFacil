@@ -45,6 +45,7 @@ const DELETE_HANDLERS = {
 
 let currentEntity = null;
 let currentItemId = null;
+let cachedUsuarios = [];
 
 function getPaginationKey(section) {
   return section === 'tipos-servicos' ? 'tiposServicos' : section;
@@ -298,14 +299,21 @@ async function refreshAllDropdowns() {
 
 /* Atualização de selects (dropdowns) */
 function updateClientDropdowns(clientes) {
-  const select = document.getElementById('servicoCliente');
-  if (!select) return;
-  select.innerHTML = '<option value="">Selecione</option>';
-  clientes.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = c.nome;
-    select.appendChild(opt);
+  const selects = [
+    document.getElementById('servicoCliente'),
+    document.getElementById('usuarioCliente')
+  ];
+  selects.forEach((select) => {
+    if (!select) return;
+    const previous = select.value;
+    select.innerHTML = '<option value="">Selecione</option>';
+    clientes.forEach((c) => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.nome;
+      select.appendChild(opt);
+    });
+    if (previous) select.value = previous;
   });
 }
 
@@ -334,15 +342,28 @@ function updateAtivoDropdown(ativos) {
 }
 
 function updateUsuarioDropdown(usuarios) {
+  cachedUsuarios = Array.isArray(usuarios) ? usuarios : [];
+  rebuildServicoUsuarioSelect();
+}
+
+function rebuildServicoUsuarioSelect() {
   const select = document.getElementById('servicoUsuario');
   if (!select) return;
+  const clienteSelect = document.getElementById('servicoCliente');
+  const clienteId = clienteSelect ? Number(clienteSelect.value) || null : null;
+  const usuariosFiltrados = !clienteId
+    ? cachedUsuarios
+    : cachedUsuarios.filter((u) => !u.clienteId || u.clienteId === clienteId);
+
+  const previous = select.value;
   select.innerHTML = '<option value="">Selecione</option>';
-  usuarios.forEach(u => {
+  usuariosFiltrados.forEach((u) => {
     const opt = document.createElement('option');
     opt.value = u.id;
-    opt.textContent = u.nome;
+    opt.textContent = u.cliente?.nome ? `${u.nome} (${u.cliente.nome})` : u.nome;
     select.appendChild(opt);
   });
+  if (previous) select.value = previous;
 }
 
 function updateTipoServicoDropdown(tipos) {
@@ -366,6 +387,7 @@ window.updateClientDropdowns = updateClientDropdowns;
 window.updateLocalDropdown = updateLocalDropdown;
 window.updateAtivoDropdown = updateAtivoDropdown;
 window.updateUsuarioDropdown = updateUsuarioDropdown;
+window.rebuildServicoUsuarioSelect = rebuildServicoUsuarioSelect;
 window.updateTipoServicoDropdown = updateTipoServicoDropdown;
 window.refreshAllDropdowns = refreshAllDropdowns;
 window.navigateToSection = navigateToSection;

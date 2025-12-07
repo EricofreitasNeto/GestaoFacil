@@ -42,6 +42,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'clienteId',
       as: 'servicos'
     });
+
+    Cliente.hasMany(models.Usuario, {
+      foreignKey: 'clienteId',
+      as: 'usuarios'
+    });
   };
 
   Cliente.beforeValidate((cliente) => {

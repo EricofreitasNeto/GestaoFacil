@@ -68,6 +68,13 @@ async function validateServicoPayload(models, payload = {}, options = {}) {
     if (!usuario) {
       fail('Usuário informado não existe', 'usuario_not_found', { usuarioId: payload.usuarioId });
     }
+    if (usuario.clienteId && usuario.clienteId !== resolvedClienteId) {
+      fail('Usuário informado não pertence ao cliente do serviço', 'usuario_cliente_mismatch', {
+        usuarioId: payload.usuarioId,
+        usuarioClienteId: usuario.clienteId,
+        clienteId: resolvedClienteId
+      });
+    }
   }
 
   return {

@@ -1,4 +1,4 @@
-/* CRUD - Serviços */
+﻿/* CRUD - ServiÃ§os */
 
 async function loadServicos(page = 1) {
   try {
@@ -15,8 +15,8 @@ async function loadServicos(page = 1) {
       row.innerHTML = `
         <td>${servico.descricao}</td>
         <td><span class="badge bg-${getStatusBadgeClass(servico.status)}">${servico.status}</span></td>
-        <td>${servico.cliente?.nome || '—'}</td>
-        <td>${servico.responsavel?.nome || '—'}</td>
+        <td>${servico.cliente?.nome || 'â€”'}</td>
+        <td>${servico.responsavel?.nome || 'â€”'}</td>
         <td>${formatDate(servico.dataAgendada)}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewServico(${servico.id})" title="Visualizar">
@@ -37,13 +37,13 @@ async function loadServicos(page = 1) {
 
     updatePagination('servicos', servicos.length, page);
   } catch (error) {
-    showNotification('servicos-status', `Erro ao carregar serviços: ${error.message}`, false);
+    showNotification('servicos-status', `Erro ao carregar serviÃ§os: ${error.message}`, false);
   }
 }
 
 async function saveServico() {
   if (currentUser?.cargo !== 'admin') {
-    showNotification('servicos-status', 'Apenas administradores podem criar ou editar serviços.', false);
+    showNotification('servicos-status', 'Apenas administradores podem criar ou editar serviÃ§os.', false);
     return;
   }
 
@@ -51,7 +51,7 @@ async function saveServico() {
   const formData = new FormData(form);
   const servicoId = document.getElementById('servico-id').value;
 
-  // Monta 'detalhes': usa JSON avançado se preenchido; caso contrário, usa campos estruturados amigáveis
+  // Monta 'detalhes': usa JSON avanÃ§ado se preenchido; caso contrÃ¡rio, usa campos estruturados amigÃ¡veis
   let detalhes = null;
   const detalhesValue = (formData.get('detalhes') || '').trim();
   if (detalhesValue) {
@@ -94,13 +94,13 @@ async function saveServico() {
         method: 'PUT',
         body: JSON.stringify(payload)
       });
-      showNotification('servicos-status', res?.message || 'Serviço atualizado com sucesso!', true);
+      showNotification('servicos-status', res?.message || 'ServiÃ§o atualizado com sucesso!', true);
     } else {
       const res = await apiRequest('/v1/servicos', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      showNotification('servicos-status', res?.message || 'Serviço criado com sucesso!', true);
+      showNotification('servicos-status', res?.message || 'ServiÃ§o criado com sucesso!', true);
     }
 
     bootstrap.Modal.getInstance(document.getElementById('addServicoModal'))?.hide();
@@ -114,19 +114,19 @@ handleApiError(error, 'servicos-status', [ { key: 'ativo', selector: '#servicoAt
 
 async function deleteServico(id) {
   if (currentUser?.cargo !== 'admin') {
-    showNotification('servicos-status', 'Apenas administradores podem remover serviços.', false);
+    showNotification('servicos-status', 'Apenas administradores podem remover serviÃ§os.', false);
     return;
   }
 
   try {
     const res = await apiRequest(`/v1/servicos/${id}`, { method: 'DELETE' });
-    showNotification('servicos-status', res?.message || 'Serviço removido com sucesso!', true);
+    showNotification('servicos-status', res?.message || 'ServiÃ§o removido com sucesso!', true);
     loadServicos(currentPage.servicos || 1);
   } catch (error) {
     if (error?.status === 400) {
       showNotification('servicos-status', 'Nao e permitido excluir servico enquanto o ativo nao estiver desativado. Altere o status do ativo para "inativo" ou reatribua o servico.', false);
     } else {
-    showNotification('servicos-status', `Erro ao remover servi�o: ${error.message}`, false);
+    showNotification('servicos-status', `Erro ao remover serviço: ${error.message}`, false);
     }
   }
 }
@@ -152,8 +152,8 @@ async function searchServicos() {
       row.innerHTML = `
         <td>${servico.descricao}</td>
         <td><span class="badge bg-${getStatusBadgeClass(servico.status)}">${servico.status}</span></td>
-        <td>${servico.cliente?.nome || '—'}</td>
-        <td>${servico.responsavel?.nome || '—'}</td>
+        <td>${servico.cliente?.nome || 'â€”'}</td>
+        <td>${servico.responsavel?.nome || 'â€”'}</td>
         <td>${formatDate(servico.dataAgendada)}</td>
         <td class="table-actions text-end">
           <button class="btn btn-sm btn-info btn-action" onclick="viewServico(${servico.id})" title="Visualizar">
@@ -174,23 +174,23 @@ async function searchServicos() {
 
     updatePagination('servicos', filtered.length, 1);
   } catch (error) {
-    showNotification('servicos-status', `Erro ao buscar serviços: ${error.message}`, false);
+    showNotification('servicos-status', `Erro ao buscar serviÃ§os: ${error.message}`, false);
   }
 }
 
 async function viewServico(id) {
   try {
     const servico = await apiRequest(`/v1/servicos/${id}`);
-    const detalhes = servico.detalhes ? JSON.stringify(servico.detalhes, null, 2) : '—';
-    alert(`Serviço: ${servico.descricao}
+    const detalhes = servico.detalhes ? JSON.stringify(servico.detalhes, null, 2) : 'â€”';
+    alert(`ServiÃ§o: ${servico.descricao}
 Status: ${servico.status}
-Cliente: ${servico.cliente?.nome || '—'}
-Responsável: ${servico.responsavel?.nome || '—'}
-Ativo: ${servico.ativo?.nome || '—'}
-Tipo: ${servico.tipoServico?.nome || '—'}
+Cliente: ${servico.cliente?.nome || 'â€”'}
+ResponsÃ¡vel: ${servico.responsavel?.nome || 'â€”'}
+Ativo: ${servico.ativo?.nome || 'â€”'}
+Tipo: ${servico.tipoServico?.nome || 'â€”'}
 Detalhes: ${detalhes}`);
   } catch (error) {
-    showNotification('servicos-status', `Erro ao carregar serviço: ${error.message}`, false);
+    showNotification('servicos-status', `Erro ao carregar serviÃ§o: ${error.message}`, false);
   }
 }
 
@@ -203,6 +203,7 @@ async function editServico(id) {
     document.getElementById('servicoDataAgendada').value = servico.dataAgendada ? servico.dataAgendada.substring(0, 10) : '';
     document.getElementById('servicoDataConclusao').value = servico.dataConclusao ? servico.dataConclusao.substring(0, 10) : '';
     document.getElementById('servicoCliente').value = servico.clienteId || '';
+    window.rebuildServicoUsuarioSelect?.();
     document.getElementById('servicoUsuario').value = servico.usuarioId || '';
     document.getElementById('servicoAtivo').value = servico.ativoId || '';
     document.getElementById('servicoTipo').value = servico.tipoServicoId || '';
@@ -214,12 +215,12 @@ async function editServico(id) {
     set('servicoTempoEstimado', d.tempoEstimadoHoras != null ? String(d.tempoEstimadoHoras) : '');
     set('servicoMateriais', d.materiais || '');
     set('servicoObservacoes', d.observacoes || '');
-    // Mantém JSON avançado disponível
+    // MantÃ©m JSON avanÃ§ado disponÃ­vel
     document.getElementById('servicoDetalhes').value = servico.detalhes ? JSON.stringify(servico.detalhes, null, 2) : '';
 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addServicoModal')).show();
   } catch (error) {
-    showNotification('servicos-status', `Erro ao editar serviço: ${error.message}`, false);
+    showNotification('servicos-status', `Erro ao editar serviÃ§o: ${error.message}`, false);
   }
 }
 
@@ -232,4 +233,9 @@ window.editServico = editServico;
 
 // Limpa erro do select de ativo ao alterar
 document.getElementById('servicoAtivo')?.addEventListener('change', () => clearFieldError('#servicoAtivo'));
+document.getElementById('servicoCliente')?.addEventListener('change', () => {
+  window.rebuildServicoUsuarioSelect?.();
+  clearFieldError('#servicoCliente');
+});
+
 

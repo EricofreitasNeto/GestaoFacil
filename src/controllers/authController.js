@@ -59,7 +59,8 @@ exports.login = async (req, res) => {
       id: usuario.id,
       nome: usuario.nome,
       email: usuario.email,
-      cargo: usuario.cargo
+      cargo: usuario.cargo,
+      clienteId: usuario.clienteId ?? null
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
