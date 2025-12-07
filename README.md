@@ -1,321 +1,306 @@
-﻿Perfeito, Érico 👏
+# Gestão Fácil – API
 
-Aqui está a **versão final revisada do seu README.md**, pronta para commit no repositório **Gestão Fácil** — com correções de encoding, sumário clicável, bloco “Como Rodar o Projeto”, exemplos de middleware e rodapé profissional com autor/licença.
-
----
-
-```markdown
-# 📘 Sistema de Gestão de Ativos e Serviços
-
-Este projeto oferece uma estrutura completa para o **gerenciamento de ativos**, **serviços técnicos** e **fluxo operacional**, com **controle de SLA** e autenticação segura via **JWT**.
+Plataforma de gestão de ativos, serviços técnicos e SLA, escrita em Node.js/Express com Sequelize e autenticação JWT. Inclui painel web simples em `api/public` para testes rápidos, documentação Swagger e rotinas administrativas para manutenção de dados.
 
 ---
 
-## 📚 Sumário
+## Sumário
 
-- [🚀 Tecnologias Utilizadas](#-tecnologias-utilizadas)
-- [📂 Estrutura do Projeto](#-estrutura-do-projeto)
-- [🧰 Como Rodar o Projeto](#-como-rodar-o-projeto)
-- [🔑 Entidades Principais](#-entidades-principais)
-- [🔗 Entidades e Relacionamentos](#-entidades-e-relacionamentos)
-- [🧭 Diagrama Conceitual Resumido](#-diagrama-conceitual-resumido)
-- [🔐 Testes de Autenticação](#-testes-de-autenticação)
-- [🧩 Middleware de Autenticação](#-middleware-de-autenticação)
-- [🧪 Testes Recomendados](#-testes-recomendados)
-- [🧱 Estruturas JSON para Testes](#-estruturas-json-para-testes)
-- [🔄 Fluxo do Ciclo de Vida de um Serviço](#-fluxo-do-ciclo-de-vida-de-um-serviço)
-- [🧾 Documentação Automática (Swagger)](#-documentação-automática-swagger)
-- [🛠️ Manutenção Administrativa](#️-manutenção-administrativa)
-- [🔒 Segurança e Keep-Alive](#-segurança-e-keep-alive)
-- [👤 Autor](#-autor)
-- [🪪 Licença](#-licença)
-
----
-
-## 🚀 Tecnologias Utilizadas
-
-* **Node.js** — Plataforma principal do backend  
-* **Express** — Framework para rotas e middlewares REST  
-* **Sequelize** — ORM para banco relacional  
-* **JWT (JSON Web Token)** — Autenticação segura  
-* **Arquitetura em Camadas** — Separação clara entre *models*, *controllers* e *routes*  
-* **Swagger** — Documentação interativa da API  
-* **Keep-Alive** — Mantém API ativa no Render em modo gratuito  
+- [Visão Geral](#visão-geral)
+- [Principais Recursos](#principais-recursos)
+- [Arquitetura do Repositório](#arquitetura-do-repositório)
+- [Stack Tecnológico](#stack-tecnológico)
+- [Pré-requisitos](#pré-requisitos)
+- [Configuração Rápida](#configuração-rápida)
+- [Scripts Disponíveis](#scripts-disponíveis)
+- [Migrações e Seeds](#migrações-e-seeds)
+- [Autenticação e Autorização](#autenticação-e-autorização)
+- [Logs Verbosos e SQL](#logs-verbosos-e-sql)
+- [Testando o Trigger `create_servico`](#testando-o-trigger-create_servico)
+- [Rotas e Documentação](#rotas-e-documentação)
+- [Exemplo de CRUD (Clientes)](#exemplo-de-crud-clientes)
+- [Exemplo de CRUD (Usuários)](#exemplo-de-crud-usuários)
+- [Coleção Postman](#coleção-postman)
+- [Rotas Administrativas](#rotas-administrativas)
+- [Boas Práticas de Segurança](#boas-práticas-de-segurança)
+- [Licença](#licença)
 
 ---
 
-## 📂 Estrutura do Projeto
+## Visão Geral
+
+O Gestão Fácil centraliza o fluxo operacional de clientes, ativos e serviços técnicos. O backend expõe APIs REST com versionamento (`/v1/...`), autenticação JWT e documentação em `/docs`. O frontend estático distribuído em `api/public` consome as mesmas APIs e serve como painel de demonstração.
+
+## Principais Recursos
+
+- CRUD completo para Clientes, Ativos, Locais, Usuários, Serviços e Tipos de Serviço.
+- Regras de negócio aplicadas nos controladores (validação de status, soft delete, restauração automática).
+- Autenticação JWT com controle de acesso por cargo.
+- Rota administrativa para corrigir serviços com ativos inconsistentes.
+- Keep-alive configurável para impedir hibernação em provedores gratuitos.
+- Logs verbosos opcionais (CRUD + SQL) para auditoria e troubleshooting.
+- Scripts utilitários (`scripts/*.js`) para auditorias e testes.
+
+## Arquitetura do Repositório
 
 ```
-
 GestaoFacil/
+├── api/
+│   ├── app.js            # Servidor Express principal
+│   └── public/           # Painel web e assets estáticos
 ├── src/
-│   ├── app.js              # Ponto de entrada principal
-│   ├── config/             # Configurações do Sequelize e .env
-│   ├── models/             # Entidades Sequelize
-│   ├── controllers/        # Lógica de negócio
-│   ├── routes/             # Rotas Express REST
-│   ├── middlewares/        # Autenticação e validação
-│
-├── api/                    # Versão alternativa da API
-│   ├── public/             # Interface web de teste
-│   ├── cert/               # Certificados SSL
-│
-├── migrations/             # Migrations do banco
-├── .env                    # Variáveis de ambiente
-├── package.json            # Dependências e scripts
+│   ├── config/           # Sequelize + leitura de variáveis de ambiente
+│   ├── controllers/      # Regras de negócio
+│   ├── middlewares/      # Autenticação JWT
+│   ├── models/           # Definições Sequelize
+│   ├── routes/           # Rotas REST organizadas por entidade
+│   └── utils/            # Logger verboso/auditoria
+├── scripts/              # Scripts de manutenção/testes
+├── migrations/           # Migrations (sequelize-cli)
+└── README.md
+```
 
-````
+## Stack Tecnológico
 
----
+- Node.js 18+
+- Express 5 + Helmet + Rate Limit
+- Sequelize + PostgreSQL (com suporte a `DATABASE_URL`)
+- JWT (jsonwebtoken/bcrypt)
+- Swagger (`swagger-jsdoc` + `swagger-ui-express`)
+- Render Keep-Alive (axios)
+- Nodemon, Sequelize CLI, Jest (placeholder)
 
-## 🧰 Como Rodar o Projeto
+## Pré-requisitos
+
+- Node.js 18 ou superior
+- PostgreSQL local ou serviço compatível
+- `npx sequelize-cli` instalado globalmente (opcional)
+- Variáveis de ambiente configuradas (vide `.env.example`)
+
+## Configuração Rápida
 
 1. **Instalar dependências**
    ```bash
    npm install
-````
-
-2. **Configurar o banco e variáveis**
-
-   ```bash
-   cp .env.example .env
-   # Edite credenciais e JWT_SECRET
    ```
 
-3. **Executar migrações e seeds**
+2. **Criar `.env`**
+   ```env
+   DB_DIALECT=postgres
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=postgres
+   DB_PASSWORD=postgres
+   DB_NAME=gestaofacil
+   JWT_SECRET=troque_me
+   APP_MODE=local
+   PORT=3000
+   KEEP_ALIVE_ENABLED=false
+   VERBOSE_LOGS=false
+   ```
+   > Para usar um `DATABASE_URL`, defina a variável e deixe os demais campos vazios.
 
+3. **Rodar migrações e seeds**
    ```bash
    npx sequelize-cli db:migrate
    npm run seed
    ```
 
-4. **Iniciar o servidor**
-
+4. **Iniciar servidor**
    ```bash
-   npm run dev
+   npm run dev   # com nodemon
+   # ou
+   npm start
    ```
 
-5. **Testar endpoint**
-
+5. **Validar health-check**
    ```
-   GET http://localhost:3000/teste
+   GET http://localhost:3000/health
    ```
 
----
-
-## 🔑 Entidades Principais
-
-### 👤 Cliente
-
-* `id`, `nome`, `cnpj`, `contatos`
-* Relacionamentos: possui **Ativos** e **Serviços**
-
-### 👨‍💻 Usuário
-
-* `id`, `nome`, `cargo`, `email`, `telefone`
-* Pode ser **Solicitante** ou **Responsável** por serviços
-
-### 🏢 Local
-
-* `id`, `nome`
-* Contém vários **Ativos**
-
-### ⚙️ Ativo
-
-* `id`, `nome`, `numeroSerie`, `status`, `detalhes`
-* Pertence a um **Cliente** e está em um **Local**
-
-### 🧩 Tipo de Serviço
-
-* `id`, `nome`, `descricao`
-* Classifica serviços e define **SLA**
-
-### 🛠️ Serviço
-
-* `id`, `descricao`, `status`, `dataAgendada`, `dataConclusao`
-* Relacionado a **Cliente**, **Ativo**, **Tipo de Serviço**, e **Usuários**
-
----
-
-## 🔗 Entidades e Relacionamentos
-
-| Modelo      | Campos principais             | Relacionamentos                                        |
-| ----------- | ----------------------------- | ------------------------------------------------------ |
-| **Cliente** | id, nome, cnpj, contatos      | hasMany(Ativo), hasMany(Servico)                       |
-| **Ativo**   | id, nome, numeroSerie, status | belongsTo(Cliente), belongsTo(Local), hasMany(Servico) |
-| **Serviço** | id, descricao, status, datas  | belongsTo(Cliente), Ativo, TipoServico, Usuário        |
-| **Local**   | id, nome                      | hasMany(Ativo)                                         |
-| **Usuário** | id, nome, cargo, email        | relacionado a Serviços como solicitante/responsável    |
-
----
-
-## 🧭 Diagrama Conceitual Resumido
-
-```text
-Cliente 1---* Ativo *---1 Local
-Cliente 1---* Servico *---1 Ativo
-Usuario 1---* Servico (solicitante/responsavel)
-Servico *---1 TipoServico
-```
-
----
-
-## 🔐 Testes de Autenticação
-
-### 📥 Registro de Usuário
-
-```json
-POST /auth/register
-{
-  "nome": "Erico",
-  "email": "erico@teste.com",
-  "cargo": "admin",
-  "telefone": "85999999999",
-  "password": "123456",
-  "confirmPassword": "123456"
-}
-```
-
-### 🔑 Login
-
-```json
-POST /auth/login
-{
-  "email": "erico@teste.com",
-  "password": "123456"
-}
-```
-
-**Retorno:**
-
-```json
-{ "token": "<JWT>" }
-```
-
----
-
-## 🧩 Middleware de Autenticação
-
-Exemplo: `src/middlewares/auth.js`
-
-```js
-const auth = require("../middlewares/auth");
-
-// Rota protegida
-router.get("/v1/clientes", auth(), clienteController.listar);
-
-// Rota restrita a administradores
-router.post("/v1/admin/relatorios", auth(["admin"]), relatorioController.gerar);
-```
-
----
-
-## 🧪 Testes Recomendados
-
-* Registro com senhas diferentes
-* E-mail duplicado
-* Login com senha incorreta
-* Acesso sem token
-* Token expirado
-
----
-
-## 🔄 Fluxo do Ciclo de Vida de um Serviço
-
-```
-Aberto → Em andamento → Concluído → Encerrado
-```
-
----
-
-## 🧾 Documentação Automática (Swagger)
-
-```bash
-npm install swagger-ui-express swagger-jsdoc
-```
-
-**app.js**
-
-```js
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-
-const swaggerOptions = {
-  swaggerDefinition: {
-    openapi: '3.0.0',
-    info: { title: 'Gestão Fácil API', version: '1.0.0' }
-  },
-  apis: ['./src/routes/*.js']
-};
-
-const swaggerDocs = swaggerJsdoc(swaggerOptions);
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-```
-
-📍 Disponível em **`/docs`**
-
----
-
-## 🛠️ Manutenção Administrativa
-
-### Fix Client Services
-
-**POST** `/v1/servicos/admin/fix-client-services`
-
-```json
-{
-  "clienteId": 12,
-  "numeroSerie": "C52-HIK-2025",
-  "nome": "Câmera Pátio Central"
-}
-```
-
-**Query param opcional:**
-`?dryRun=true` → simula sem aplicar alterações.
-
----
-
-## 🔒 Segurança e Keep-Alive
-
-Para evitar exposição de dados sensíveis e manter o serviço ativo:
-
-* `KEEP_ALIVE_URL` derivada do próprio serviço
-* `/teste` serve apenas conteúdo estático
-* `.env` nunca deve ser versionado
-
-**Variáveis principais:**
-
-```
-APP_MODE=production
-KEEP_ALIVE_ENABLED=true
-KEEP_ALIVE_URL=https://gestaofacil.onrender.com/teste
-KEEP_ALIVE_INTERVAL_MS=300000
-PUBLIC_API_BASE_URL=https://gestaofacil.onrender.com
-```
-
-✅ Checklist:
-
-* `.env` fora do versionamento
-* `KEEP_ALIVE_ENABLED` ajustado no deploy
-* Logs não expõem tokens ou headers
-
----
-
-## 👤 Autor
-
-**Érico de Freitas Neto**
-Desenvolvedor Full-Stack | Sistemas de Videomonitoramento e Gestão de Ativos
-🔗 [GitHub: EricofreitasNeto](https://github.com/EricofreitasNeto)
-📧 [erico@teste.com](mailto:erico@teste.com)
-
----
-
-## 🪪 Licença
-
-Distribuído sob a licença **MIT**.
-Sinta-se livre para usar e adaptar conforme necessário, mantendo os créditos originais.
-
-```
-
-
+## Scripts Disponíveis
+
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Inicia `api/app.js` com nodemon |
+| `npm start` | Inicia o servidor em modo produção |
+| `npm run seed` | Executa todos os seeds |
+| `npm run seed:undo` | Reverte seeds |
+| `npm run inspect:relations` | Inspeção de relacionamentos órfãos |
+| `npm run inspect:orphans` | Lista entidades órfãs |
+| `npm run test:create-servico` | Script de teste do trigger `create_servico` |
+| `npm test` | Executa a suíte de testes Jest (validador de serviços) |
+
+Scripts adicionais podem ser executados diretamente em `scripts/`.
+
+## Migrações e Seeds
+
+- Configure seu banco no `.env`.
+- Utilize `npx sequelize-cli db:migrate` para aplicar migrations.
+- `npm run seed` cria dados básicos (clientes, usuários, ativos etc.).
+- Caso precise zerar, use `npx sequelize-cli db:migrate:undo:all` seguido de `db:migrate`.
+
+## Autenticação e Autorização
+
+- `POST /auth/register` – cria usuário (idealmente restrito ao time interno).
+- `POST /auth/login` – retorna `{ token, user }`.
+- Inclua o token no header `Authorization: Bearer <jwt>` para acessar `/v1/...`.
+- Middleware aceita lista de cargos: `authMiddleware(['admin'])` para rotas restritas.
+
+## Logs Verbosos e SQL
+
+- Controle pela variável `VERBOSE_LOGS` ou flag CLI `--verbose-logs`.
+- Quando ativo, `src/utils/logger.js` imprime entradas `[VERBOSE ...]`.
+- Hooks globais (`src/utils/auditLogger.js`) registram `create/update/delete/restore`.
+- O Sequelize usa o mesmo logger (`src/config/database.js`), então consultas SQL aparecem como `[VERBOSE ...] [SQL] SELECT ...`.
+- Falhas de validação incrementam contadores em `src/utils/auditMetrics.js`, facilitando auditoria de tentativas bloqueadas (ex.: cliente/ativo divergentes).
+
+## Testando o Trigger `create_servico`
+
+1. Gere um token admin via `POST /auth/login`.
+2. Chame `POST /v1/servicos` com corpo:
+   ```json
+   {
+     "descricao": "Visita de manutenção",
+     "ativoId": 1,
+     "clienteId": 1,
+     "usuarioId": 1,
+     "tipoServicoId": 1,
+     "status": "pendente",
+     "dataAgendada": "2025-11-10T10:00:00Z",
+     "detalhes": { "prioridade": "alta" }
+   }
+   ```
+3. Observe no console os eventos:
+   - `[TRIGGER] create_servico:request`
+   - `[SQL] SELECT create_servico(...)`
+   - `[TRIGGER] create_servico:response`
+4. Para automatizar, edite `scripts/test-create-servico.js` e execute `npm run test:create-servico`.
+
+## Rotas e Documentação
+
+- Swagger disponível em `http://localhost:<PORT>/docs`.
+- Rotas principais:
+  - `/auth/*` – registro, login, rota protegida de teste (`/auth/dados-secretos`).
+  - `/v1/clientes`, `/v1/ativos`, `/v1/servicos`, `/v1/locais`, `/v1/usuarios`, `/v1/tipos-servicos`.
+  - `GET /health`, `GET /teste` – monitoramento/keep-alive.
+- Painel estático: `http://localhost:<PORT>/public`.
+
+## Exemplo de CRUD (Clientes)
+
+Use um token válido (cargo `admin` ou `gestor`). Exemplos com `curl`:
+
+1. **Criar cliente**
+   ```bash
+   curl -X POST http://localhost:3000/v1/clientes \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "nome": "Condomínio Aurora",
+       "cnpj": "12.345.678/0001-90",
+       "contatos": "(11) 99999-0000"
+     }'
+   ```
+
+2. **Listar clientes**
+   ```bash
+   curl http://localhost:3000/v1/clientes \
+     -H "Authorization: Bearer $TOKEN"
+   ```
+
+3. **Atualizar cliente**
+   ```bash
+   curl -X PUT http://localhost:3000/v1/clientes/1 \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{ "contatos": "(11) 98888-1234" }'
+   ```
+
+4. **Soft delete**
+   ```bash
+   curl -X DELETE http://localhost:3000/v1/clientes/1 \
+     -H "Authorization: Bearer $TOKEN"
+   ```
+
+O mesmo padrão se aplica para `/v1/ativos`, `/v1/servicos`, `/v1/locais`, `/v1/usuarios` e `/v1/tipos-servicos`.
+
+## Exemplo de CRUD (Usuários)
+
+As rotas de usuários exigem token admin. Exemplos:
+
+1. **Criar usuário**
+   ```bash
+   curl -X POST http://localhost:3000/v1/usuarios \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "nome": "Ana Souza",
+       "cargo": "gestor",
+       "email": "ana.souza@example.com",
+       "telefone": "(11) 91234-5678",
+       "password": "senhaSegura123"
+     }'
+   ```
+
+2. **Listar usuários (sem senhas)**
+   ```bash
+   curl http://localhost:3000/v1/usuarios \
+     -H "Authorization: Bearer $TOKEN"
+   ```
+
+3. **Buscar por ID**
+   ```bash
+   curl http://localhost:3000/v1/usuarios/2 \
+     -H "Authorization: Bearer $TOKEN"
+   ```
+
+4. **Atualizar**
+   ```bash
+   curl -X PUT http://localhost:3000/v1/usuarios/2 \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{ "cargo": "admin", "telefone": "(11) 97777-0000" }'
+   ```
+
+5. **Soft delete**
+   ```bash
+   curl -X DELETE http://localhost:3000/v1/usuarios/2 \
+     -H "Authorization: Bearer $TOKEN"
+   ```
+
+Os controladores removem o campo `password` das respostas e aplicam soft delete, permitindo restauração futura se necessário.
+
+## Coleção Postman
+
+- Arquivos: `postman/GestaoFacil.postman_collection.json` e `postman/GestaoFacil.postman_environment.json`.
+- Importe ambos no Postman. A coleção já traz pastas para Auth, Clientes, Usuários e o teste do trigger `create_servico`.
+- O ambiente define `base_url`, credenciais e IDs auxiliares (`cliente_id`, `ativo_id`, etc.). Ajuste conforme seu banco.
+- O request de login salva automaticamente o token em `auth_token`, usado nos demais endpoints. Os testes verificam status HTTP e armazenam IDs criados para as próximas etapas.
+
+## Rotas Administrativas
+
+- `POST /v1/servicos/admin/fix-client-services`
+  ```json
+  {
+    "clienteId": 12,
+    "numeroSerie": "C52-HIK-2025",
+    "nome": "Câmera Pátio Central",
+    "dryRun": true
+  }
+  ```
+  - `dryRun=true` (query ou body) apenas simula a execução.
+  - Apenas usuários com cargo `admin` conseguem acessar.
+
+## Boas Práticas de Segurança
+
+- **Nunca** versione `.env`. Use `.env.example` como referência.
+- Rotacione `JWT_SECRET` e credenciais do banco em ambientes reais.
+- Não ative `NODE_TLS_REJECT_UNAUTHORIZED=0` em produção.
+- Restrinja o uso de `/auth/register`; prefira criar usuários manualmente.
+- Revise permissões de CORS em `ALLOWED_ORIGINS`.
+- Ative o modo manutenção via `MAINTENANCE_MODE=true` quando necessário (o middleware libera apenas `/health`, `/config.js`, `/public` e `/docs`).
+- Utilize as constraints/triggers de banco (`prevent_servico_in_inactive_ativo`, `enforce_servico_cliente_match`) para impedir gravações inconsistentes mesmo fora da API.
+
+## Licença
+
+Distribuído sob a licença **MIT**. Sinta-se livre para usar e adaptar mantendo os créditos originais.

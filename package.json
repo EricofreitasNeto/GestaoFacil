@@ -24,7 +24,7 @@
     "dev": "nodemon api/app.js",
     "start": "node api/app.js",
     "build": "echo 'Build n??o ?? mais necess??rio com pkg'",
-    "test": "echo \"No tests yet\"",
+    "test": "jest --runInBand",
     "set-icon": "node scripts/set-icon.js",
     "seed": "npx sequelize-cli db:seed:all",
     "seed:undo": "npx sequelize-cli db:seed:undo:all",

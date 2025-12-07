@@ -45,7 +45,19 @@ const ativoController = {
         return res.status(400).json({ message: "Status invÃ¡lido", detalhes: `Permitidos: ${ALLOWED_STATUS.join(', ')}` });
       }
 
-      // Restaura por numeroSerie se houver registro soft-deletado\n      if (numeroSerie) {\n        const softDeleted = await Ativo.findOne({ where: { numeroSerie, deletedAt: { [Op.ne]: null } }, paranoid: false });\n        if (softDeleted) {\n          await softDeleted.restore();\n          await softDeleted.update({ nome, numeroSerie, status, detalhes, localId, clienteId });\n          return res.status(201).json(softDeleted);\n        }\n      }\n      const novoAtivo = await Ativo.create({ nome, numeroSerie, status, detalhes, localId, clienteId });
+      // Restaura por numeroSerie se houver registro soft-deletado
+      if (numeroSerie) {
+        const softDeleted = await Ativo.findOne({
+          where: { numeroSerie, deletedAt: { [Op.ne]: null } },
+          paranoid: false
+        });
+        if (softDeleted) {
+          await softDeleted.restore();
+          await softDeleted.update({ nome, numeroSerie, status, detalhes, localId, clienteId });
+          return res.status(201).json(softDeleted);
+        }
+      }
+      const novoAtivo = await Ativo.create({ nome, numeroSerie, status, detalhes, localId, clienteId });
       return res.status(201).json(novoAtivo);
     } catch (error) {
       if (error?.name === 'SequelizeUniqueConstraintError') {
@@ -106,6 +118,5 @@ const ativoController = {
 };
 
 module.exports = ativoController;
-
 
 

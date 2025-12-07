@@ -1,26 +1,97 @@
-﻿const { Cliente } = require("../models");
-const { Op } = require("sequelize");
+const { Cliente } = require('../models');
+const { Op } = require('sequelize');
+
+const ADMIN_ROLES = (process.env.ADMIN_ROLES || 'admin,administrador')
+  .split(',')
+  .map((role) => role.trim().toLowerCase())
+  .filter(Boolean);
+
+const isAdmin = (user) => {
+  if (!user?.cargo) return false;
+  return ADMIN_ROLES.includes(String(user.cargo).trim().toLowerCase());
+};
+
+const getUserClienteId = (user) => user?.clienteId ?? user?.clientId ?? null;
+
+const buildSearchFilter = (term = '') => {
+  const normalized = term.trim();
+  if (!normalized) return null;
+  return {
+    [Op.or]: [
+      { nome: { [Op.iLike]: `%${normalized}%` } },
+      { cnpj: { [Op.iLike]: `%${normalized}%` } }
+    ]
+  };
+};
+
+const parsePagination = (query) => {
+  const limit = Math.min(Math.max(parseInt(query.limit, 10) || 50, 1), 100);
+  const page = Math.max(parseInt(query.page, 10) || 1, 1);
+  const offset = (page - 1) * limit;
+  return { limit, page, offset };
+};
 
 const clienteController = {
-  // Listar todos os clientes ativos
+  // Listar clientes respeitando filtros e escopo do usuário
   async listar(req, res) {
     try {
-      const clientes = await Cliente.findAll();
-      return res.status(200).json(clientes);
+      const userIsAdmin = isAdmin(req.user);
+      const userClienteId = getUserClienteId(req.user);
+      const { q, clienteId: clienteIdQuery, clientId } = req.query;
+      const requestedClientId = Number(clienteIdQuery ?? clientId) || null;
+
+      const where = {};
+      const searchFilter = buildSearchFilter(q || req.query.search || '');
+      if (searchFilter) Object.assign(where, searchFilter);
+
+      if (requestedClientId) {
+        where.id = requestedClientId;
+      }
+
+      if (!userIsAdmin) {
+        if (userClienteId) {
+          where.id = userClienteId;
+        } else if (requestedClientId) {
+          where.id = requestedClientId;
+        } else {
+          return res.status(403).json({ message: 'Acesso negado para listar outros clientes.' });
+        }
+      }
+
+      const { limit, offset } = parsePagination(req.query);
+      const { rows, count } = await Cliente.findAndCountAll({
+        where,
+        limit,
+        offset,
+        order: [['nome', 'ASC']]
+      });
+
+      res.set('X-Total-Count', String(count));
+      return res.status(200).json(rows);
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao listar clientes", detalhes: error.message });
+      return res.status(500).json({ message: 'Erro ao listar clientes', detalhes: error.message });
     }
   },
 
-  // Buscar cliente por ID
+  // Buscar cliente por ID com escopo
   async buscarPorId(req, res) {
     try {
       const { id } = req.params;
-      const cliente = await Cliente.findByPk(id);
-      if (!cliente) return res.status(404).json({ message: "Cliente não encontrado" });
+      const numericId = Number(id);
+      const userIsAdmin = isAdmin(req.user);
+      const userClienteId = getUserClienteId(req.user);
+
+      if (!userIsAdmin) {
+        if (!userClienteId || userClienteId !== numericId) {
+          return res.status(403).json({ message: 'Acesso negado para visualizar este cliente.' });
+        }
+      }
+
+      const cliente = await Cliente.findByPk(numericId);
+      if (!cliente) return res.status(404).json({ message: 'Cliente não encontrado' });
       return res.status(200).json(cliente);
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao buscar cliente", detalhes: error.message });
+      return res.status(500).json({ message: 'Erro ao buscar cliente', detalhes: error.message });
     }
   },
 
@@ -28,10 +99,12 @@ const clienteController = {
   async criar(req, res) {
     try {
       const { nome, cnpj, contatos } = req.body;
-      // Soft-deleted restore logic
       const whereOr = [{ nome }];
       if (cnpj) whereOr.push({ cnpj });
-      const softDeleted = await Cliente.findOne({ where: { [Op.or]: whereOr, deletedAt: { [Op.ne]: null } }, paranoid: false });
+      const softDeleted = await Cliente.findOne({
+        where: { [Op.or]: whereOr, deletedAt: { [Op.ne]: null } },
+        paranoid: false
+      });
       if (softDeleted) {
         await softDeleted.restore();
         await softDeleted.update({ nome, cnpj, contatos });
@@ -51,7 +124,7 @@ const clienteController = {
         }
         return res.status(409).json({ message: 'Registro já existe' });
       }
-      return res.status(400).json({ message: "Erro ao criar cliente", detalhes: error.message });
+      return res.status(400).json({ message: 'Erro ao criar cliente', detalhes: error.message });
     }
   },
 
@@ -61,7 +134,7 @@ const clienteController = {
       const { id } = req.params;
       const { nome, cnpj, contatos } = req.body;
       const cliente = await Cliente.findByPk(id);
-      if (!cliente) return res.status(404).json({ message: "Cliente não encontrado" });
+      if (!cliente) return res.status(404).json({ message: 'Cliente não encontrado' });
 
       await cliente.update({ nome, cnpj, contatos });
       return res.status(200).json(cliente);
@@ -76,7 +149,7 @@ const clienteController = {
         }
         return res.status(409).json({ message: 'Registro já existe' });
       }
-      return res.status(400).json({ message: "Erro ao atualizar cliente", detalhes: error.message });
+      return res.status(400).json({ message: 'Erro ao atualizar cliente', detalhes: error.message });
     }
   },
 
@@ -85,16 +158,14 @@ const clienteController = {
     try {
       const { id } = req.params;
       const cliente = await Cliente.findByPk(id);
-      if (!cliente) return res.status(404).json({ message: "Cliente não encontrado" });
+      if (!cliente) return res.status(404).json({ message: 'Cliente não encontrado' });
 
-      await cliente.destroy(); // com paranoid: true, isso faz soft delete
-      return res.status(200).json({ message: "Cliente desativado com sucesso" });
+      await cliente.destroy();
+      return res.status(200).json({ message: 'Cliente desativado com sucesso' });
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao desativar cliente", detalhes: error.message });
+      return res.status(500).json({ message: 'Erro ao desativar cliente', detalhes: error.message });
     }
   }
 };
 
 module.exports = clienteController;
-
-

@@ -1,0 +1,730 @@
+{
+  "info": {
+    "_postman_id": "8a3b500f-02e7-4afd-9211-6f6be4a5b5bb",
+    "name": "Gestão Fácil API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.environment.set(\"auth_token\", data.token);",
+                  "pm.environment.set(\"usuario_id\", data.user?.id || pm.environment.get(\"usuario_id\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Clientes CRUD",
+      "item": [
+        {
+          "name": "Listar clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "clientes"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lista clientes\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/clientes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Cliente Postman\",\n  \"cnpj\": \"12.345.678/0001-90\",\n  \"contatos\": \"(11) 99999-0000\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cliente criado\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.environment.set(\"cliente_id\", data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar cliente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/clientes/{{cliente_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "clientes",
+                "{{cliente_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"contatos\": \"(11) 98888-0000\" }"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cliente atualizado\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Excluir cliente (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/clientes/{{cliente_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "clientes",
+                "{{cliente_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cliente removido\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ativos CRUD + Trigger",
+      "item": [
+        {
+          "name": "Listar ativos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/ativos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "ativos"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lista ativos\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar ativo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/ativos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "ativos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Ativo Postman {{timestamp}}\",\n  \"numeroSerie\": \"ATV-{{timestamp}}\",\n  \"status\": \"ativo\",\n  \"clienteId\": {{cliente_id}},\n  \"detalhes\": {\n    \"fabricante\": \"Dell\",\n    \"origem\": \"postman\"\n  }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ativo criado\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.environment.set(\"ativo_crud_id\", data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar ativo por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/ativos/{{ativo_crud_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "ativos",
+                "{{ativo_crud_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ativo por ID\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.expect(String(body.id)).to.eql(String(pm.environment.get(\"ativo_crud_id\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar ativo (manutencao)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/ativos/{{ativo_crud_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "ativos",
+                "{{ativo_crud_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"manutencao\",\n  \"detalhes\": {\n    \"fabricante\": \"Dell\",\n    \"ultimaInspecao\": \"{{timestamp}}\"\n  }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ativo atualizado\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.expect(pm.response.json().status).to.eql('manutencao');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Excluir ativo sem status inativo (valida trigger)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/ativos/{{ativo_crud_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "ativos",
+                "{{ativo_crud_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Trigger exige status inativo\", function () {",
+                  "  pm.expect([400, 500]).to.include(pm.response.code);",
+                  "  const res = pm.response.json();",
+                  "  pm.expect(String(res.detalhes || '')).to.include('status nao for inativo');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Definir ativo como inativo (pre-delete)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/ativos/{{ativo_crud_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "ativos",
+                "{{ativo_crud_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inativo\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ativo preparado para delete\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().status).to.eql('inativo');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Excluir ativo (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/ativos/{{ativo_crud_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "ativos",
+                "{{ativo_crud_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Ativo desativado\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.environment.unset(\"ativo_crud_id\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Usuários CRUD",
+      "item": [
+        {
+          "name": "Listar usuários",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lista usuarios\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Criar usuário",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário Postman\",\n  \"cargo\": \"gestor\",\n  \"email\": \"usuario.postman+{{timestamp}}@example.com\",\n  \"telefone\": \"(11) 95555-1111\",\n  \"password\": \"SenhaFort3!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Usuario criado\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.environment.set(\"usuario_crud_id\", data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Atualizar usuário",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/usuarios/{{usuario_crud_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios",
+                "{{usuario_crud_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"cargo\": \"admin\" }"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Usuario atualizado\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Excluir usuário (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/usuarios/{{usuario_crud_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "usuarios",
+                "{{usuario_crud_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Usuario removido\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Serviços (Trigger create_servico)",
+      "item": [
+        {
+          "name": "Criar serviço via trigger",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/servicos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "servicos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": \"Manutenção Postman\",\n  \"status\": \"pendente\",\n  \"clienteId\": {{cliente_id}},\n  \"usuarioId\": {{usuario_id}},\n  \"ativoId\": {{ativo_id}},\n  \"tipoServicoId\": {{tipo_servico_id}},\n  \"detalhes\": { \"origem\": \"postman\" }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Servico criado (trigger)\", function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "timestamp",
+      "value": "{{$timestamp}}"
+    }
+  ]
+}

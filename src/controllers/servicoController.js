@@ -1,45 +1,116 @@
-const { Servico, Cliente, Usuario, Ativo, TipoServico } = require("../models");
+const models = require('../models');
+const { Servico, Cliente, Usuario, Ativo, TipoServico } = models;
+const { logTriggerEvent } = require('../utils/auditLogger');
+const { validateServicoPayload, ServicoValidationError } = require('../services/servicoValidator');
+
+const ADMIN_ROLES = (process.env.ADMIN_ROLES || 'admin,administrador')
+  .split(',')
+  .map((role) => role.trim().toLowerCase())
+  .filter(Boolean);
+
+const isAdmin = (user) => {
+  if (!user?.cargo) return false;
+  return ADMIN_ROLES.includes(String(user.cargo).trim().toLowerCase());
+};
+
+const getUserClienteId = (user) => user?.clienteId ?? user?.clientId ?? null;
+
+const parsePagination = (query) => {
+  const limit = Math.min(Math.max(parseInt(query.limit, 10) || 50, 1), 100);
+  const page = Math.max(parseInt(query.page, 10) || 1, 1);
+  const offset = (page - 1) * limit;
+  return { limit, page, offset };
+};
+
+const normalizeServicoPayload = (payload = {}) => {
+  const clone = { ...payload };
+  if (!clone.dataAgendada && clone.dataInicio) clone.dataAgendada = clone.dataInicio;
+  if (!clone.dataConclusao && clone.dataFim) clone.dataConclusao = clone.dataFim;
+  return clone;
+};
+
+const buildServicoFilters = (query = {}) => {
+  const where = {};
+  const status = query.status || query.situacao;
+  if (status) where.status = status;
+
+  const clienteId = Number(query.clienteId ?? query.clientId);
+  if (clienteId) where.clienteId = clienteId;
+
+  const ativoId = Number(query.ativoId ?? query.assetId);
+  if (ativoId) where.ativoId = ativoId;
+
+  return where;
+};
+
+const denyScope = (res) => res.status(403).json({ message: 'Acesso negado para esta operaÃ§Ã£o.' });
 
 const servicoController = {
-  // Listar todos os serviços com seus relacionamentos
+  // Listar serviÃ‡Ãµs aplicando filtros e escopo
   async listar(req, res) {
     try {
-      const servicos = await Servico.findAll({
+      const where = buildServicoFilters(req.query);
+      const userIsAdmin = isAdmin(req.user);
+      const userClienteId = getUserClienteId(req.user);
+
+      if (!userIsAdmin) {
+        if (!userClienteId) return denyScope(res);
+        where.clienteId = userClienteId;
+      }
+
+      const { limit, offset } = parsePagination(req.query);
+      const { rows, count } = await Servico.findAndCountAll({
+        where,
         include: [
-          { model: Cliente, as: "cliente" },
-          { model: Usuario, as: "responsavel" },
-          { model: Ativo, as: "ativo" },
-          { model: TipoServico, as: "tipoServico" }
-        ]
+          { model: Cliente, as: 'cliente' },
+          { model: Usuario, as: 'responsavel' },
+          { model: Ativo, as: 'ativo' },
+          { model: TipoServico, as: 'tipoServico' }
+        ],
+        limit,
+        offset,
+        order: [['createdAt', 'DESC']]
       });
-      return res.status(200).json(servicos);
+
+      res.set('X-Total-Count', String(count));
+      return res.status(200).json(rows);
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao listar serviços", detalhes: error.message });
+      return res.status(500).json({ message: 'Erro ao listar serviÃ§os', detalhes: error.message });
     }
   },
 
-  // Buscar serviço por ID
+  // Buscar serviÃ‡Ãµo por ID com escopo
   async buscarPorId(req, res) {
     try {
       const { id } = req.params;
       const servico = await Servico.findByPk(id, {
         include: [
-          { model: Cliente, as: "cliente" },
-          { model: Usuario, as: "responsavel" },
-          { model: Ativo, as: "ativo" },
-          { model: TipoServico, as: "tipoServico" }
+          { model: Cliente, as: 'cliente' },
+          { model: Usuario, as: 'responsavel' },
+          { model: Ativo, as: 'ativo' },
+          { model: TipoServico, as: 'tipoServico' }
         ]
       });
-      if (!servico) return res.status(404).json({ message: "Serviço não encontrado" });
+      if (!servico) return res.status(404).json({ message: 'ServiÃ§o nÃ£o encontrado' });
+
+      const userIsAdmin = isAdmin(req.user);
+      const userClienteId = getUserClienteId(req.user);
+      if (!userIsAdmin) {
+        if (!userClienteId || servico.clienteId !== userClienteId) {
+          return denyScope(res);
+        }
+      }
+
       return res.status(200).json(servico);
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao buscar serviço", detalhes: error.message });
+      return res.status(500).json({ message: 'Erro ao buscar serviÃ§o', detalhes: error.message });
     }
   },
 
-  // Criar novo serviço
+  // Criar novo serviÃ‡Ãµo
   async criar(req, res) {
     try {
+      const payload = normalizeServicoPayload(req.body);
       const {
         descricao,
         status,
@@ -50,19 +121,13 @@ const servicoController = {
         usuarioId,
         ativoId,
         tipoServicoId
-      } = req.body;
+      } = payload;
 
-      // Validação: não permitir criar serviço para ativo inativo ou soft-deletado
-      if (ativoId) {
-        const ativo = await Ativo.findByPk(ativoId, { paranoid: false, attributes: ['id', 'status', 'deletedAt'] });
-        if (!ativo) {
-          return res.status(400).json({ message: 'Ativo informado é inválido' });
-        }
-        const st = String(ativo.status || '').toLowerCase();
-        if (ativo.deletedAt || st === 'inativo') {
-          return res.status(400).json({ message: 'Não é permitido criar serviço para ativo desativado' });
-        }
+      if (!descricao) {
+        return res.status(400).json({ message: 'Campo descricao Ã© obrigatÃ³rio' });
       }
+
+      const validation = await validateServicoPayload(models, payload, { requireAtivo: true });
 
       const novoServico = await Servico.create({
         descricao,
@@ -70,22 +135,26 @@ const servicoController = {
         dataAgendada,
         dataConclusao,
         detalhes,
-        clienteId,
+        clienteId: validation.resolvedClienteId,
         usuarioId,
-        ativoId,
+        ativoId: validation.resolvedAtivoId,
         tipoServicoId
       });
 
       return res.status(201).json(novoServico);
     } catch (error) {
-      return res.status(400).json({ message: "Erro ao criar serviço", detalhes: error.message });
+      if (error instanceof ServicoValidationError) {
+        return res.status(error.statusCode).json({ message: error.message, detalhes: error.details });
+      }
+      return res.status(400).json({ message: 'Erro ao criar serviÃ§o', detalhes: error.message });
     }
   },
 
-  // Atualizar serviço existente
+  // Atualizar serviÃ‡Ãµo existente
   async atualizar(req, res) {
     try {
       const { id } = req.params;
+      const payload = normalizeServicoPayload(req.body);
       const {
         descricao,
         status,
@@ -96,22 +165,12 @@ const servicoController = {
         usuarioId,
         ativoId,
         tipoServicoId
-      } = req.body;
+      } = payload;
 
       const servico = await Servico.findByPk(id);
-      if (!servico) return res.status(404).json({ message: "Serviço não encontrado" });
+      if (!servico) return res.status(404).json({ message: 'ServiÃ§o nÃ£o encontrado' });
 
-      // Validação: se ativoId foi informado, não permitir apontar para ativo inativo/soft-deletado
-      if (typeof ativoId !== 'undefined' && ativoId !== null) {
-        const ativo = await Ativo.findByPk(ativoId, { paranoid: false, attributes: ['id', 'status', 'deletedAt'] });
-        if (!ativo) {
-          return res.status(400).json({ message: 'Ativo informado é inválido' });
-        }
-        const st = String(ativo.status || '').toLowerCase();
-        if (ativo.deletedAt || st === 'inativo') {
-          return res.status(400).json({ message: 'Não é permitido atualizar serviço para ativo desativado' });
-        }
-      }
+      const validation = await validateServicoPayload(models, payload, { existingServico: servico });
 
       await servico.update({
         descricao,
@@ -119,35 +178,39 @@ const servicoController = {
         dataAgendada,
         dataConclusao,
         detalhes,
-        clienteId,
+        clienteId: validation.resolvedClienteId,
         usuarioId,
-        ativoId,
+        ativoId: validation.resolvedAtivoId,
         tipoServicoId
       });
 
       return res.status(200).json(servico);
     } catch (error) {
-      return res.status(400).json({ message: "Erro ao atualizar serviço", detalhes: error.message });
+      if (error instanceof ServicoValidationError) {
+        return res.status(error.statusCode).json({ message: error.message, detalhes: error.details });
+      }
+      return res.status(400).json({ message: 'Erro ao atualizar serviÃ§o', detalhes: error.message });
     }
   },
 
-  // Desativar serviço (soft delete)
+  // Desativar serviÃ‡Ãµo (soft delete)
   async desativar(req, res) {
     try {
       const { id } = req.params;
       const servico = await Servico.findByPk(id);
-      if (!servico) return res.status(404).json({ message: "Serviço não encontrado" });
+      if (!servico) return res.status(404).json({ message: 'ServiÃ§o nÃ£o encontrado' });
 
-      await servico.destroy(); // com paranoid: true, isso faz soft delete
-      return res.status(200).json({ message: "Serviço desativado com sucesso" });
+      await servico.destroy();
+      return res.status(200).json({ message: 'ServiÃ§o desativado com sucesso' });
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao desativar serviço", detalhes: error.message });
+      return res.status(500).json({ message: 'Erro ao desativar serviÃ§o', detalhes: error.message });
     }
   },
 
-  // Criar novo serviço usando função do banco (create_servico)
+  // Criar novo serviÃ‡Ãµo usando funÃ§Ã£o do banco
   async criarDb(req, res) {
     try {
+      const payload = normalizeServicoPayload(req.body);
       const {
         descricao,
         status,
@@ -157,15 +220,31 @@ const servicoController = {
         usuarioId,
         ativoId,
         tipoServicoId
-      } = req.body;
+      } = payload;
 
       if (!descricao || !ativoId) {
-        return res.status(400).json({ message: 'Campos obrigatórios: descricao, ativoId' });
+        return res.status(400).json({ message: 'Campos obrigatÃ³rios: descricao, ativoId' });
       }
+
+      const validation = await validateServicoPayload(models, payload, { requireAtivo: true });
+
+      logTriggerEvent('create_servico:request', {
+        ativoId: validation.resolvedAtivoId,
+        descricao,
+        status: status || 'pendente',
+        clienteId: validation.resolvedClienteId,
+        usuarioId,
+        tipoServicoId,
+        dataAgendada
+      });
 
       let detalhesValue = detalhes;
       if (detalhes && typeof detalhes === 'object') {
-        try { detalhesValue = JSON.stringify(detalhes); } catch (_) { detalhesValue = '{}'; }
+        try {
+          detalhesValue = JSON.stringify(detalhes);
+        } catch (_) {
+          detalhesValue = '{}';
+        }
       }
 
       const { sequelize } = require('../models');
@@ -174,9 +253,9 @@ const servicoController = {
         {
           replacements: {
             descricao,
-            ativoId,
+            ativoId: validation.resolvedAtivoId,
             status: status || 'pendente',
-            clienteId: Number.isInteger(clienteId) ? clienteId : null,
+            clienteId: validation.resolvedClienteId,
             usuarioId: Number.isInteger(usuarioId) ? usuarioId : null,
             tipoServicoId: Number.isInteger(tipoServicoId) ? tipoServicoId : null,
             dataAgendada: dataAgendada || null,
@@ -187,6 +266,7 @@ const servicoController = {
       );
 
       const servicoId = rows[0]?.id ?? rows.id;
+      logTriggerEvent('create_servico:response', { servicoId, rowsReturned: Array.isArray(rows) ? rows.length : 1 });
       const criado = await Servico.findByPk(servicoId, {
         include: [
           { model: Cliente, as: 'cliente' },
@@ -197,11 +277,13 @@ const servicoController = {
       });
       return res.status(201).json(criado);
     } catch (error) {
-      return res.status(400).json({ message: 'Erro ao criar serviço (DB)', detalhes: error.message });
+      if (error instanceof ServicoValidationError) {
+        return res.status(error.statusCode).json({ message: error.message, detalhes: error.details });
+      }
+      logTriggerEvent('create_servico:error', { message: error.message });
+      return res.status(400).json({ message: 'Erro ao criar serviÃ§o (DB)', detalhes: error.message });
     }
   }
 };
 
 module.exports = servicoController;
-
-

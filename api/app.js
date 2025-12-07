@@ -209,14 +209,13 @@ apiRouter.use('/tipos-servicos', authenticateJWT(), tipoServicoRoutes);
 app.use('/v1', apiRouter);
 
 // ─── Banco de dados ───────────────────────────────────────────
-console.log('DATABASE_URL:', process.env.DATABASE_URL);
 db.sequelize.authenticate()
-  .then(() => console.log('✅ Conectado ao banco de dados'))
-  .catch(err => console.error('❌ Erro ao conectar ao banco:', err));
+  .then(() => console.log('Conectado ao banco de dados'))
+  .catch(err => console.error('Erro ao conectar ao banco:', err));
 
 db.sequelize.sync()
-  .then(() => console.log('🔄 Modelos sincronizados'))
-  .catch(err => console.error('❌ Erro ao sincronizar modelos:', err));
+  .then(() => console.log('Modelos sincronizados'))
+  .catch(err => console.error('Erro ao sincronizar modelos:', err));
 
 // ─── Inicialização do servidor ─────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
